@@ -2902,6 +2902,7 @@ private fun BitChordApp(
                             onSpotifyCanvasAuth = { showSpotifyCanvasAuth = true },
                             onAppLanguage = { showAppLanguage = true },
                             onEditSignatureApi = { editingSignatureApi = true },
+                            onOpenUpdateDialog = { showUpdateDialog = true },
                             contentPadding = listPadding,
                         )
                     } else if (page != null) {

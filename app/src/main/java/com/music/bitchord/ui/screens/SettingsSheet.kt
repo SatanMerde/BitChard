@@ -79,6 +79,8 @@ import androidx.compose.material.icons.rounded.WebAssetOff
 import androidx.compose.material.icons.rounded.VolumeUp
 import androidx.compose.material.icons.rounded.Waves
 import androidx.compose.material.icons.rounded.Wifi
+import androidx.compose.material.icons.rounded.Upgrade
+import com.music.bitchord.data.AppUpdateChecker
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
@@ -193,6 +195,7 @@ fun SettingsScreen(
     onSpotifyCanvasAuth: () -> Unit,
     onAppLanguage: () -> Unit,
     onEditSignatureApi: () -> Unit,
+    onOpenUpdateDialog: () -> Unit = {},
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
@@ -1683,6 +1686,52 @@ fun SettingsScreen(
             }
         }
 
+        val updateAvailableState by AppUpdateChecker.available.collectAsStateWithLifecycle()
+        var checkingUpdates by remember { mutableStateOf(false) }
+
+        SearchableSettingsGroup(search, header = stringResource(R.string.software_update)) {
+            val checkUpdatesTitle = stringResource(R.string.check_for_updates)
+            row(checkUpdatesTitle, "update", "version", "mise à jour", "upgrade", "bitchard") {
+                SettingsRow(
+                    icon = Icons.Rounded.Upgrade,
+                    title = checkUpdatesTitle,
+                    subtitle = if (updateAvailableState != null) {
+                        stringResource(R.string.update_available, updateAvailableState?.version.orEmpty())
+                    } else {
+                        "BitChard v$version"
+                    },
+                    value = if (checkingUpdates) {
+                        stringResource(R.string.checking)
+                    } else if (updateAvailableState != null) {
+                        stringResource(R.string.download_now)
+                    } else {
+                        ""
+                    },
+                    onClick = {
+                        if (checkingUpdates) return@SettingsRow
+                        if (updateAvailableState != null) {
+                            onOpenUpdateDialog()
+                        } else {
+                            checkingUpdates = true
+                            scrobbleScope.launch {
+                                val info = AppUpdateChecker.checkManual()
+                                checkingUpdates = false
+                                if (info != null) {
+                                    onOpenUpdateDialog()
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.app_up_to_date, version),
+                                        Toast.LENGTH_SHORT,
+                                    ).show()
+                                }
+                            }
+                        }
+                    },
+                )
+            }
+        }
+
         // Read after every group above has had its turn at the query, which is
         // what makes this an accurate "nothing here" rather than a guess.
         if (!search.anyMatch) {
@@ -1694,27 +1743,23 @@ fun SettingsScreen(
         if (searchQuery.isBlank()) {
         Text(
             text = buildAnnotatedString {
-                append("bitchord $version  ")
+                append("BitChard $version  ")
                 val linkStyles = TextLinkStyles(
                     style = SpanStyle(
                         color = MaterialTheme.colorScheme.primary,
                         textDecoration = TextDecoration.Underline,
                     ),
                 )
-                withLink(LinkAnnotation.Url("https://github.com/kushagrasinghx/BitChord", linkStyles)) {
+                withLink(LinkAnnotation.Url("https://github.com/SatanMerde/BitChard", linkStyles)) {
                     append("GitHub")
                 }
                 append("  ")
-                withLink(LinkAnnotation.Url("https://github.com/kushagrasinghx", linkStyles)) {
+                withLink(LinkAnnotation.Url("https://github.com/SatanMerde", linkStyles)) {
                     append("Developer")
                 }
                 append("  ")
                 withLink(LinkAnnotation.Url("https://discord.gg/pDdKfrdHY6", linkStyles)) {
                     append("Discord")
-                }
-                append("  ")
-                withLink(LinkAnnotation.Url("https://bitchord.kushagrasingh.in/", linkStyles)) {
-                    append("Website")
                 }
                 append("\n~YouTube Music & Listen Together Backend")
             },

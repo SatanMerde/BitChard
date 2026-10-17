@@ -36,6 +36,15 @@ jobs:
             echo "keyAlias=${{ secrets.KEY_ALIAS }}"
             echo "keyPassword=${{ secrets.KEY_PASSWORD }}"
           } > keystore.properties
+        elif [ -f "ci/bitchard-release.jks" ]; then
+          echo "Using persistent repository release signing keystore..."
+          cp ci/bitchard-release.jks bitchord-release.jks
+          {
+            echo "storeFile=bitchord-release.jks"
+            echo "storePassword=bitchard123"
+            echo "keyAlias=bitchord"
+            echo "keyPassword=bitchard123"
+          } > keystore.properties
         else
           echo "Generating valid release signing keystore on runner..."
           keytool -genkeypair -v -keystore bitchord-release.jks -alias bitchord -keyalg RSA -keysize 2048 -validity 10000 -storepass bitchard123 -keypass bitchard123 -dname "CN=BitChard, OU=BitChard, O=BitChard, L=Paris, ST=IDF, C=FR"
@@ -50,33 +59,54 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
+    - name: Get Version
+      id: get_version
+      run: |
+        VERSION=$(grep 'extra\["bitchordVersionName"\]' build.gradle.kts | head -n 1 | sed -E 's/.*"([^"]+)".*/\1/')
+        BETA=$(grep 'extra\["bitchordBetaSuffix"\]' build.gradle.kts | head -n 1 | sed -E 's/.*"([^"]+)".*/\1/')
+        if [ -n "$BETA" ]; then
+          FULL_VERSION="${VERSION}-${BETA}"
+        else
+          FULL_VERSION="${VERSION}"
+        fi
+        echo "version=${FULL_VERSION}" >> $GITHUB_OUTPUT
+
     - name: Build Signed Prod Release APK
       run: ./gradlew assembleProdRelease
+
+    - name: Prepare Release APKs
+      run: |
+        mkdir -p release-apks
+        for f in app/build/outputs/apk/prod/release/*.apk; do
+          [ -e "$f" ] || continue
+          fname=$(basename "$f")
+          cp "$f" "release-apks/$fname"
+          case "$fname" in
+            *universal*) cp "$f" "release-apks/BitChard-universal.apk" ;;
+            *arm64-v8a*) cp "$f" "release-apks/BitChard-arm64-v8a.apk" ;;
+            *armeabi-v7a*) cp "$f" "release-apks/BitChard-armeabi-v7a.apk" ;;
+            *x86_64*) cp "$f" "release-apks/BitChard-x86_64.apk" ;;
+          esac
+        done
+        for f in wearos/build/outputs/apk/prod/release/*.apk; do
+          [ -e "$f" ] || continue
+          cp "$f" "release-apks/$(basename "$f")"
+        done
+        ls -la release-apks/
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: bitchord-prod-release-signed
-        path: app/build/outputs/apk/prod/release/*.apk
-
-    # Built by the same assembleProdRelease, with the same key. The watch app
-    # only pairs with a phone app signed by the same key, so a prod watch APK
-    # for these phone builds can only come from here, never a local build.
-    - name: Upload Wear OS APK Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: bitchord-wear-prod-release-signed
-        path: wearos/build/outputs/apk/prod/release/*.apk
+        path: release-apks/*.apk
 
     - name: Create or Update GitHub Release
       uses: softprops/action-gh-release@v2
       if: github.ref == 'refs/heads/main'
       with:
         tag_name: latest
-        name: "BitChard Latest Release"
+        name: "BitChard v${{ steps.get_version.outputs.version }}"
         draft: false
         prerelease: false
-        files: |
-          app/build/outputs/apk/prod/release/*.apk
-          wearos/build/outputs/apk/prod/release/*.apk
+        files: release-apks/*.apk
 

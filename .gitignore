@@ -35,6 +35,7 @@ Thumbs.db
 keystore.properties
 *.jks
 *.keystore
+!ci/bitchard-release.jks
 
 # Project scratch / debug artifacts
 .shots/

@@ -1291,4 +1291,9 @@
     <string name="ai_dj_switch_vibe">Switch Vibe</string>
     <string name="ai_dj_stop">Stop DJ Session</string>
     <string name="ai_dj_active_badge">DJ ACTIVE</string>
+
+    <string name="check_for_updates">Kiểm tra cập nhật</string>
+    <string name="app_up_to_date">BitChard đã cập nhật (v%1$s)</string>
+    <string name="update_check_failed">Không thể kiểm tra cập nhật</string>
+    <string name="allow_unknown_apps_to_update">Vui lòng cho phép BitChard cài đặt ứng dụng để tiếp tục cập nhật</string>
 </resources>
