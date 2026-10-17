@@ -25,6 +25,7 @@ jobs:
   deploy:
     needs: test
     runs-on: ubuntu-latest
+    if: secrets.ORACLE_HOST != ''
     steps:
       - name: Deploy to the Oracle VM
         env:
