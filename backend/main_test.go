@@ -21,7 +21,6 @@ import (
 
 func setupTestServer() *httptest.Server {
 	createLimiter = newIPRateLimiter(time.Minute, 10000, 10000)
-	presenceLimiter = newIPRateLimiter(time.Minute, 10000, 10000)
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /{$}", handleRoot)
 	mux.HandleFunc("GET /healthz", handleHealthz)
