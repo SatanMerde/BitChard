@@ -8,6 +8,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -303,6 +304,78 @@ fun BitgAiConfigDialog(
                     ),
                 )
 
+                // Gemini model selector chips
+                if (selectedProvider == "gemini") {
+                    Spacer(Modifier.height(14.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = "Modèle Gemini",
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontFamily = SFProDisplay,
+                                fontWeight = FontWeight.SemiBold,
+                            ),
+                            color = Color.White,
+                        )
+                        if (customModelText.isNotBlank()) {
+                            TextButton(
+                                onClick = { customModelText = ""; testResult = null },
+                                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp),
+                            ) {
+                                Text(
+                                    text = "Réinitialiser",
+                                    color = BitgNeonCyan,
+                                    style = MaterialTheme.typography.labelSmall.copy(fontFamily = SFProDisplay),
+                                )
+                            }
+                        }
+                    }
+                    Spacer(Modifier.height(6.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        listOf(
+                            "" to "2.5 Flash (Recommandé)",
+                            "gemini-2.5-flash-lite" to "2.5 Flash-Lite",
+                            "gemini-1.5-flash" to "1.5 Flash",
+                            "gemini-3.8-flash" to "3.8 Flash",
+                        ).forEach { (mId, mLabel) ->
+                            val isSelected = (mId.isEmpty() && (customModelText.isBlank() || customModelText == "gemini-2.5-flash")) ||
+                                (mId.isNotEmpty() && customModelText == mId)
+                            Surface(
+                                shape = RoundedCornerShape(12.dp),
+                                color = if (isSelected) BitgViolet else Color(0xFF1E1E2A),
+                                border = BorderStroke(
+                                    1.dp,
+                                    if (isSelected) BitgNeonCyan.copy(alpha = 0.8f) else Color.White.copy(alpha = 0.08f),
+                                ),
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .clickable {
+                                        customModelText = mId
+                                        testResult = null
+                                    }
+                                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                            ) {
+                                Text(
+                                    text = mLabel,
+                                    color = Color.White,
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontFamily = SFProDisplay,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                    ),
+                                )
+                            }
+                        }
+                    }
+                }
+
                 // Optional custom provider fields
                 if (selectedProvider == "custom") {
                     Spacer(Modifier.height(14.dp))
@@ -381,9 +454,9 @@ fun BitgAiConfigDialog(
                             val res = BitgAiService.testConnection(context)
                             isTesting = false
                             res.fold(
-                                onSuccess = { msg ->
+                                onSuccess = {
                                     testSuccess = true
-                                    testResult = msg
+                                    testResult = context.getString(R.string.bitg_ai_test_success)
                                 },
                                 onFailure = { err ->
                                     testSuccess = false

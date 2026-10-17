@@ -399,7 +399,7 @@ object AppSettings {
     /** User API key for the chosen BitG AI provider. */
     val bitgApiKey = MutableStateFlow("")
 
-    /** Optional custom model identifier (e.g. "gemini-2.0-flash", "gpt-4o-mini"). */
+    /** Optional custom model identifier (e.g. "gemini-2.5-flash", "gpt-4o-mini"). */
     val bitgCustomModel = MutableStateFlow("")
 
     /** Optional custom OpenAI-compatible endpoint URL for BitG. */
@@ -905,7 +905,8 @@ object AppSettings {
         bitgLanguage.value = prefs.getString(KEY_BITG_LANGUAGE, "auto") ?: "auto"
         bitgAiProvider.value = prefs.getString(KEY_BITG_AI_PROVIDER, "gemini") ?: "gemini"
         bitgApiKey.value = prefs.getString(KEY_BITG_API_KEY, "").orEmpty()
-        bitgCustomModel.value = prefs.getString(KEY_BITG_CUSTOM_MODEL, "").orEmpty()
+        val loadedModel = prefs.getString(KEY_BITG_CUSTOM_MODEL, "").orEmpty()
+        bitgCustomModel.value = if (loadedModel == "gemini-2.0-flash") "gemini-2.5-flash" else loadedModel
         bitgCustomEndpoint.value = prefs.getString(KEY_BITG_CUSTOM_ENDPOINT, "").orEmpty()
         if (highPerformanceMode.value) {
             reduceAnimation.value = false

@@ -305,74 +305,128 @@ object BitgAiService {
 
     // ── Google Gemini Implementation ────────────────────────────────────────
 
+    private const val DEFAULT_GEMINI_MODEL = "gemini-2.5-flash"
+    private val GEMINI_FALLBACK_MODELS = listOf(
+        "gemini-2.5-flash",
+        "gemini-2.5-flash-lite",
+        "gemini-1.5-flash",
+        "gemini-3.8-flash",
+    )
+
+    private class GeminiModelNotFoundException(message: String) : RuntimeException(message)
+
     private fun callGeminiJson(
         systemPrompt: String,
         userContent: String,
         apiKey: String,
         customModel: String,
     ): String {
-        val model = customModel.ifBlank { "gemini-2.0-flash" }
-        val url = "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey"
+        val initialModel = customModel.trim().takeIf { it.isNotBlank() && it != "gemini-2.0-flash" } ?: DEFAULT_GEMINI_MODEL
+        val candidateModels = (listOf(initialModel) + GEMINI_FALLBACK_MODELS).distinct()
 
-        val requestJson = buildJsonObject {
-            putJsonArray("contents") {
-                add(buildJsonObject {
-                    put("role", "user")
-                    putJsonArray("parts") {
-                        add(buildJsonObject { put("text", "$systemPrompt\n\n$userContent") })
+        var lastError: Exception? = null
+        for (model in candidateModels) {
+            val url = "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey"
+
+            val requestJson = buildJsonObject {
+                putJsonArray("contents") {
+                    add(buildJsonObject {
+                        put("role", "user")
+                        putJsonArray("parts") {
+                            add(buildJsonObject { put("text", "$systemPrompt\n\n$userContent") })
+                        }
+                    })
+                }
+                putJsonObject("generationConfig") {
+                    put("temperature", 0.7)
+                    put("responseMimeType", "application/json")
+                }
+            }.toString()
+
+            val request = Request.Builder()
+                .url(url)
+                .post(requestJson.toRequestBody(JSON_MEDIA_TYPE))
+                .build()
+
+            val outcome = runCatching {
+                httpClient.newCall(request).execute().use { response ->
+                    val body = response.body.string()
+                    if (response.isSuccessful) {
+                        val root = jsonParser.parseToJsonElement(body).jsonObject
+                        val candidate = root["candidates"]?.jsonArray?.firstOrNull()?.jsonObject
+                        val text = candidate?.get("content")?.jsonObject?.get("parts")?.jsonArray?.firstOrNull()?.jsonObject?.get("text")?.jsonPrimitive?.content
+                        return text ?: error("No content returned from Gemini: $body")
                     }
-                })
+                    if (response.code == 404 && (body.contains("no longer available") || body.contains("NOT_FOUND"))) {
+                        throw GeminiModelNotFoundException("Gemini error 404 for $model: $body")
+                    }
+                    error("Gemini API error ${response.code}: $body")
+                }
             }
-            putJsonObject("generationConfig") {
-                put("temperature", 0.7)
-                put("responseMimeType", "application/json")
-            }
-        }.toString()
 
-        val request = Request.Builder()
-            .url(url)
-            .post(requestJson.toRequestBody(JSON_MEDIA_TYPE))
-            .build()
-
-        httpClient.newCall(request).execute().use { response ->
-            val body = response.body.string()
-            if (!response.isSuccessful) {
-                error("Gemini API error ${response.code}: $body")
-            }
-            val root = jsonParser.parseToJsonElement(body).jsonObject
-            val candidate = root["candidates"]?.jsonArray?.firstOrNull()?.jsonObject
-            val text = candidate?.get("content")?.jsonObject?.get("parts")?.jsonArray?.firstOrNull()?.jsonObject?.get("text")?.jsonPrimitive?.content
-            return text ?: error("No content returned from Gemini: $body")
+            outcome.fold(
+                onSuccess = { return it },
+                onFailure = { err ->
+                    if (err is GeminiModelNotFoundException) {
+                        lastError = err
+                    } else {
+                        throw err
+                    }
+                },
+            )
         }
+        throw lastError ?: IllegalStateException("Modèle Gemini indisponible")
     }
 
     private fun callGeminiRaw(testPrompt: String, apiKey: String, customModel: String): String {
-        val model = customModel.ifBlank { "gemini-2.0-flash" }
-        val url = "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey"
+        val initialModel = customModel.trim().takeIf { it.isNotBlank() && it != "gemini-2.0-flash" } ?: DEFAULT_GEMINI_MODEL
+        val candidateModels = (listOf(initialModel) + GEMINI_FALLBACK_MODELS).distinct()
 
-        val requestJson = buildJsonObject {
-            putJsonArray("contents") {
-                add(buildJsonObject {
-                    put("role", "user")
-                    putJsonArray("parts") {
-                        add(buildJsonObject { put("text", testPrompt) })
+        var lastError: Exception? = null
+        for (model in candidateModels) {
+            val url = "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey"
+
+            val requestJson = buildJsonObject {
+                putJsonArray("contents") {
+                    add(buildJsonObject {
+                        put("role", "user")
+                        putJsonArray("parts") {
+                            add(buildJsonObject { put("text", testPrompt) })
+                        }
+                    })
+                }
+            }.toString()
+
+            val request = Request.Builder()
+                .url(url)
+                .post(requestJson.toRequestBody(JSON_MEDIA_TYPE))
+                .build()
+
+            val outcome = runCatching {
+                httpClient.newCall(request).execute().use { response ->
+                    val body = response.body.string()
+                    if (response.isSuccessful) {
+                        return "OK"
                     }
-                })
+                    if (response.code == 404 && (body.contains("no longer available") || body.contains("NOT_FOUND"))) {
+                        throw GeminiModelNotFoundException("Gemini error 404 for $model: $body")
+                    }
+                    error("Gemini error ${response.code}: $body")
+                }
             }
-        }.toString()
 
-        val request = Request.Builder()
-            .url(url)
-            .post(requestJson.toRequestBody(JSON_MEDIA_TYPE))
-            .build()
-
-        httpClient.newCall(request).execute().use { response ->
-            val body = response.body.string()
-            if (!response.isSuccessful) {
-                error("Gemini error ${response.code}: $body")
-            }
-            return "OK"
+            outcome.fold(
+                onSuccess = { return "OK" },
+                onFailure = { err ->
+                    if (err is GeminiModelNotFoundException) {
+                        lastError = err
+                    } else {
+                        throw err
+                    }
+                },
+            )
         }
+        throw lastError ?: IllegalStateException("Modèle Gemini indisponible")
     }
 
     // ── OpenAI & Compatible (Groq, OpenRouter, Custom) Implementation ────────
