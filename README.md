@@ -12,9 +12,9 @@
 
 <br/>
 
-[![GitHub Repository](https://img.shields.io/badge/GitHub-SatanMerde%2FBitChord-blue?style=for-the-badge&logo=github)](https://github.com/SatanMerde/BitChord)
-[![License](https://img.shields.io/github/license/SatanMerde/BitChord?style=for-the-badge&labelColor=0d1117)](https://github.com/SatanMerde/BitChord/blob/main/LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20Desktop-orange?style=for-the-badge)](https://github.com/SatanMerde/BitChord)
+[![GitHub Repository](https://img.shields.io/badge/GitHub-SatanMerde%2FBitChard-blue?style=for-the-badge&logo=github)](https://github.com/SatanMerde/BitChard)
+[![License](https://img.shields.io/github/license/SatanMerde/BitChard?style=for-the-badge&labelColor=0d1117)](https://github.com/SatanMerde/BitChard/blob/main/LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20Desktop-orange?style=for-the-badge)](https://github.com/SatanMerde/BitChard)
 
 <br/>
 
@@ -23,7 +23,7 @@
 </div>
 
 > [!IMPORTANT]
-> **BitChard** is an independent fork created by [SatanMerde](https://github.com/SatanMerde/BitChord). It is designed to run independently from the original BitChord with major UX enhancements, smarter playlist management, AI DJ and advanced syllable-level lyrics. BitChard is not affiliated with Google LLC, YouTube Music, or Spotify.
+> **BitChard** is an independent fork created by [SatanMerde](https://github.com/SatanMerde/BitChard). It is designed to run independently from the original BitChord with major UX enhancements, smarter playlist management, AI DJ and advanced syllable-level lyrics. BitChard is not affiliated with Google LLC, YouTube Music, or Spotify.
 
 ---
 
@@ -116,7 +116,7 @@
 
 <h1><a id="download"></a>Téléchargement / Download</h1>
 
-Les versions APK compilées sont disponibles dans les [Releases du dépôt](https://github.com/SatanMerde/BitChord/releases) :
+Les versions APK compilées sont disponibles dans les [Releases du dépôt](https://github.com/SatanMerde/BitChard/releases) :
 
 - **`BitChard-universal-debug.apk`** : Compatible avec tous les appareils Android (téléphones, tablettes, émulateurs).
 - **`BitChard-arm64-v8a-debug.apk`** : Version optimisée pour les smartphones 64-bit récents.

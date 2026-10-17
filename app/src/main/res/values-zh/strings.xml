@@ -1324,4 +1324,31 @@
     <string name="wear_os_unsupported">安装到手表需要这部手机运行 Android 11 或更高版本。</string>
     <string name="wear_os_code_hint">配对码</string>
     <string name="wear_os_done">完成</string>
+
+    <string name="artist_signatures">Artist signatures</string>
+    <string name="artist_signatures_subtitle">Shows a handwritten signature when Apple Music has no title logo</string>
+    <string name="artist_signatures_url">Signature API URL</string>
+    <string name="artist_signatures_url_hint">https://signatures.example.com</string>
+    <string name="artist_signatures_unconfigured">Not configured — tap to set the API URL</string>
+    <string name="artist_signatures_test_failed">Could not reach the API at that URL</string>
+    <string name="spotify_batch_import_card_title">Batch Import</string>
+    <string name="spotify_batch_import_card_subtitle">Import all playlists and followed artists</string>
+    <string name="spotify_batch_import_button">Import All</string>
+    <string name="spotify_batch_import_dialog_title">Import from Spotify</string>
+    <string name="spotify_batch_import_playlists">Import playlists (%1$d)</string>
+    <string name="spotify_batch_import_artists">Import followed artists</string>
+    <string name="spotify_batch_import_save_local">Save to BitChard (Local playlists)</string>
+    <string name="spotify_batch_import_save_ytm">Save to YouTube Music account</string>
+    <string name="spotify_batch_import_start">Start Import</string>
+    <string name="spotify_batch_import_done">Import completed!</string>
+    <string name="spotify_batch_import_summary">%1$d playlists and %2$d artists imported</string>
+    <string name="signed_by">Signed by %1$s</string>
+    <string name="ai_dj_title">BitChard AI DJ</string>
+    <string name="ai_dj_card_title">AI DJ — BitChard</string>
+    <string name="ai_dj_card_subtitle">Spotify-like DJ with live spoken commentary &amp; dynamic mix</string>
+    <string name="ai_dj_start">Launch AI DJ</string>
+    <string name="ai_dj_control">Open DJ Controls</string>
+    <string name="ai_dj_switch_vibe">Switch Vibe</string>
+    <string name="ai_dj_stop">Stop DJ Session</string>
+    <string name="ai_dj_active_badge">DJ ACTIVE</string>
 </resources>
