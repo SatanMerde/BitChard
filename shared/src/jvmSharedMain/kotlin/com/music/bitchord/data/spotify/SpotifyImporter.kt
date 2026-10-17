@@ -156,25 +156,105 @@ object SpotifyImporter {
         }
 
     /**
-     * The YouTube Music song that is [track], or null if there is none: the
-     * best candidate by title, artist, length and album, and failing that the
-     * search's first hit.
+     * Resolves a track to the best matching YouTube Music Song.
+     * Searches both SONGS and VIDEOS with smart sanitized queries and candidate scoring.
      */
+    suspend fun matchTarget(target: TrackMatcher.Target): Song? {
+        val queries = TrackMatcher.queries(target).toMutableList()
+        val rawQuery = "${target.title} ${target.artist}".trim()
+        if (rawQuery.isNotBlank() && rawQuery !in queries) {
+            queries.add(rawQuery)
+        }
+
+        // 1. Search in SearchFilter.SONGS first across generated queries
+        for (query in queries) {
+            val songResults = YtMusicRepository.search(query, SearchFilter.SONGS).getOrNull().orEmpty()
+            val songCandidates = songResults.mapNotNull {
+                when (it) {
+                    is SearchResult.Track -> it.song
+                    is SearchResult.TopTrack -> it.song
+                    else -> null
+                }
+            }
+            if (songCandidates.isNotEmpty()) {
+                val best = TrackMatcher.best(songCandidates, target)
+                    ?: TrackMatcher.bestOfficialAudioForVideo(songCandidates, target)
+                if (best != null) return best
+            }
+        }
+
+        // 2. Fallback: Search in SearchFilter.VIDEOS (many official tracks/music videos only exist as videos)
+        for (query in queries) {
+            val videoResults = YtMusicRepository.search(query, SearchFilter.VIDEOS).getOrNull().orEmpty()
+            val videoCandidates = videoResults.mapNotNull {
+                when (it) {
+                    is SearchResult.Track -> it.song
+                    is SearchResult.TopTrack -> it.song
+                    else -> null
+                }
+            }
+            if (videoCandidates.isNotEmpty()) {
+                val best = TrackMatcher.best(videoCandidates, target)
+                    ?: TrackMatcher.bestOfficialAudioForVideo(videoCandidates, target)
+                if (best != null) return best
+            }
+        }
+
+        // 3. Fallback: Search with SearchFilter.ALL
+        if (rawQuery.isNotBlank()) {
+            val allResults = YtMusicRepository.search(rawQuery, SearchFilter.ALL).getOrNull().orEmpty()
+            val allCandidates = allResults.mapNotNull {
+                when (it) {
+                    is SearchResult.Track -> it.song
+                    is SearchResult.TopTrack -> it.song
+                    else -> null
+                }
+            }
+            if (allCandidates.isNotEmpty()) {
+                val best = TrackMatcher.best(allCandidates, target)
+                    ?: TrackMatcher.bestOfficialAudioForVideo(allCandidates, target)
+                if (best != null) return best
+            }
+        }
+
+        // 4. Last resort: check if any candidate shares artist
+        val primaryQuery = queries.firstOrNull() ?: rawQuery
+        if (primaryQuery.isNotBlank()) {
+            val pool = (YtMusicRepository.search(primaryQuery, SearchFilter.SONGS).getOrNull().orEmpty() +
+                    YtMusicRepository.search(primaryQuery, SearchFilter.VIDEOS).getOrNull().orEmpty())
+                .mapNotNull {
+                    when (it) {
+                        is SearchResult.Track -> it.song
+                        is SearchResult.TopTrack -> it.song
+                        else -> null
+                    }
+                }
+            val shared = pool.firstOrNull { candidate ->
+                TrackMatcher.sharesArtist(target.artist, candidate.artist)
+            }
+            if (shared != null) return shared
+            if (pool.isNotEmpty()) return pool.first()
+        }
+
+        return null
+    }
+
     suspend fun matchTrack(track: SpotifyTrack): Song? {
-        val query = listOf(track.title, track.artist).filter { it.isNotBlank() }.joinToString(" ")
-        val candidates = YtMusicRepository.search(query, SearchFilter.SONGS).getOrNull()
-            ?.filterIsInstance<SearchResult.Track>()
-            ?.map { it.song }
-            .orEmpty()
-        return TrackMatcher.best(
-            candidates,
-            TrackMatcher.Target(
-                title = track.title,
-                artist = track.artist,
-                durationSec = track.durationMs.takeIf { it > 0 }?.div(1000),
-                album = track.album,
-            ),
-        ) ?: candidates.firstOrNull()
+        val target = TrackMatcher.Target(
+            title = track.title,
+            artist = track.artist,
+            durationSec = track.durationMs.takeIf { it > 0 }?.div(1000),
+            album = track.album,
+        )
+        return matchTarget(target)
+    }
+
+    suspend fun matchImportTrack(track: SpotifyImportTrack): Song? {
+        val target = TrackMatcher.Target(
+            title = track.title,
+            artist = track.artist,
+        )
+        return matchTarget(target)
     }
 
     /** Tracks the embed page lists before it cuts off. */
@@ -246,10 +326,7 @@ object SpotifyImporter {
         val deferredResults = tracks.map { track ->
             async(Dispatchers.IO) {
                 semaphore.withPermit {
-                    val query = "${track.title} ${track.artist}".trim()
-                    val searchResult = YtMusicRepository.search(query, SearchFilter.SONGS).getOrNull()
-                    val matchedSong = searchResult?.filterIsInstance<SearchResult.Track>()
-                        ?.firstOrNull()?.song
+                    val matchedSong = runCatching { matchImportTrack(track) }.getOrNull()
 
                     val done = completedCount.incrementAndGet()
                     onProgress(done, total)

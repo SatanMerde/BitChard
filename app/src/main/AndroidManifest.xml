@@ -215,6 +215,9 @@
                 <data
                     android:scheme="bitchord"
                     android:host="party" />
+                <data
+                    android:scheme="bitchard"
+                    android:host="party" />
             </intent-filter>
 
             <!--

@@ -31,6 +31,12 @@ data class SpotifyPlaylist(
     val imageUrl: String?,
 )
 
+data class SpotifyArtist(
+    val id: String,
+    val name: String,
+    val imageUrl: String?,
+)
+
 data class SpotifyTrack(
     val id: String,
     val title: String,
@@ -132,6 +138,41 @@ object SpotifyLibrary {
             put("includeFoldersWhenFlattening", false)
         }
         return parsePlaylistPage(gql("libraryV3", LIBRARY, variables, headers))
+    }
+
+    /** Every followed artist in the library, however many pages it takes. */
+    suspend fun followedArtists(): List<SpotifyArtist> = withContext(Dispatchers.IO) {
+        val headers = authHeaders()
+        val collected = mutableListOf<SpotifyArtist>()
+        var offset = 0
+        while (true) {
+            val (items, total, raw) = artistPage(headers, offset)
+            collected += items
+            offset += raw
+            if (raw == 0 || offset >= total) break
+        }
+        collected
+    }
+
+    private fun artistPage(headers: Map<String, String>, offset: Int): Triple<List<SpotifyArtist>, Int, Int> {
+        val variables = buildJsonObject {
+            putJsonArray("filters") { add("Artists") }
+            put("order", null as String?)
+            put("textFilter", "")
+            putJsonArray("features") {
+                add("LIKED_SONGS")
+                add("YOUR_EPISODES_V2")
+                add("PRERELEASES")
+                add("EVENTS")
+            }
+            put("limit", 50)
+            put("offset", offset)
+            put("flatten", true)
+            putJsonArray("expandedFolders") {}
+            put("folderUri", null as String?)
+            put("includeFoldersWhenFlattening", false)
+        }
+        return parseArtistPage(gql("libraryV3", LIBRARY, variables, headers))
     }
 
     private fun trackPage(
@@ -236,6 +277,27 @@ internal fun parsePlaylistPage(root: JsonObject): Triple<List<SpotifyPlaylist>, 
             name = name,
             owner = data.obj("ownerV2")?.obj("data")?.str("name"),
             imageUrl = coverUrl(data.obj("images")),
+        )
+    }
+    return Triple(items, library.int("totalCount") ?: rawItems.size, rawItems.size)
+}
+
+internal fun parseArtistPage(root: JsonObject): Triple<List<SpotifyArtist>, Int, Int> {
+    val library = root.obj("data")?.obj("me")?.obj("libraryV3")
+        ?: throw IllegalStateException("Spotify library response was empty")
+    val rawItems = library.arr("items").orEmpty()
+    val items = rawItems.mapNotNull { element ->
+        val wrapper = element.jsonObject.obj("item") ?: return@mapNotNull null
+        val data = wrapper.obj("data") ?: return@mapNotNull null
+        val uri = wrapper.str("_uri") ?: data.str("uri") ?: return@mapNotNull null
+        val name = data.obj("profile")?.str("name") ?: data.str("name").orEmpty()
+        if (name.isBlank()) return@mapNotNull null
+        val avatar = data.obj("visuals")?.obj("avatarImage")?.arr("sources")?.lastUrl()
+            ?: coverUrl(data.obj("images"))
+        SpotifyArtist(
+            id = uri.substringAfterLast(":"),
+            name = name,
+            imageUrl = avatar,
         )
     }
     return Triple(items, library.int("totalCount") ?: rawItems.size, rawItems.size)

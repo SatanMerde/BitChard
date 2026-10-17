@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">BitChord</string>
+    <string name="app_name">BitChard</string>
     <string name="playback_channel_name">Lecture en cours</string>
     <string name="download_channel_name">Téléchargements</string>
     <string name="download_channel_description">Chansons enregistrées dans votre dossier Musique</string>
@@ -1354,5 +1354,16 @@
     <string name="wear_os_unsupported">L’installation sur une montre nécessite Android 11 ou version ultérieure sur ce téléphone.</string>
     <string name="wear_os_code_hint">Code d’association</string>
     <string name="wear_os_done">Terminé</string>
+    <string name="spotify_batch_import_card_title">Tout importer</string>
+    <string name="spotify_batch_import_card_subtitle">Importer toutes les playlists et artistes suivis</string>
+    <string name="spotify_batch_import_button">Tout importer</string>
+    <string name="spotify_batch_import_dialog_title">Importation depuis Spotify</string>
+    <string name="spotify_batch_import_playlists">Importer les playlists (%1$d)</string>
+    <string name="spotify_batch_import_artists">Importer les artistes suivis</string>
+    <string name="spotify_batch_import_save_local">Enregistrer dans BitChard (Playlists locales)</string>
+    <string name="spotify_batch_import_save_ytm">Créer sur le compte YouTube Music</string>
+    <string name="spotify_batch_import_start">Lancer l\'importation</string>
+    <string name="spotify_batch_import_done">Importation terminée !</string>
+    <string name="spotify_batch_import_summary">%1$d playlists et %2$d artistes importés</string>
     <string name="signed_by">Signé par %1$s</string>
 </resources>

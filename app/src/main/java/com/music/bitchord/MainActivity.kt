@@ -2793,6 +2793,7 @@ private fun BitChordApp(
                             onOpenLogin = { showSpotifyLogin = true },
                             onOpenTokenSetup = { showSpotifyCanvasAuth = true },
                             contentPadding = listPadding,
+                            viewModel = viewModel,
                         )
                     } else if (key == "discord") {
                         DiscordScreen(
@@ -4342,7 +4343,7 @@ private fun BitChordApp(
             // page the account can actually edit, and only for a row that
             // carries the per-entry id a removal is expressed in.
             val editable = viewModel.editablePlaylist(detail?.browseId)
-                ?.takeIf { !fromPlayer && song.setVideoId != null }
+                ?.takeIf { !fromPlayer && (song.setVideoId != null || detail?.browseId?.startsWith("local:playlist:") == true) }
             SongActionsSheet(
                 song = song,
                 presentation = presentation,
@@ -4674,8 +4675,17 @@ private fun BitChordApp(
             // recomposes when the answer arrives.
             val ownedPlaylists by viewModel.playlistOwned.collectAsStateWithLifecycle()
             val playlist = target.browseId
-                ?.takeIf { signedIn && ownedPlaylists[it] == true }
-                ?.let { id -> playlists.firstOrNull { it.browseId == id } }
+                ?.let { id ->
+                    if (id.startsWith("local:playlist:")) {
+                        com.music.bitchord.data.spotify.LocalPlaylistStore.getPlaylist(id)?.let {
+                            com.music.bitchord.data.spotify.LocalPlaylistStore.toUserPlaylist(it)
+                        }
+                    } else if (signedIn && ownedPlaylists[id] == true) {
+                        playlists.firstOrNull { it.browseId == id }
+                    } else {
+                        null
+                    }
+                }
             val remote = target.browseId?.startsWith("local:") == false
             val pinnedPlaylists by AppSettings.pinnedPlaylists.collectAsStateWithLifecycle()
             val pinnableId = target.browseId?.takeIf { target.type == BrowseType.PLAYLIST }

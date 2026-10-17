@@ -669,6 +669,11 @@ object InnertubeParser {
         )
         val creditedArtists = artistNamesFromRuns(subtitleRuns)
 
+        val playCount = columns.drop(1).firstNotNullOfOrNull { column ->
+            val text = column.o("musicResponsiveListItemFlexColumnRenderer").o("text").runs()
+            text.takeIf { it.matches(PLAY_COUNT) }
+        } ?: parts.firstOrNull { it.matches(PLAY_COUNT) }
+
         val thumbnails = renderer.o("thumbnail").o("musicThumbnailRenderer")
             .o("thumbnail").a("thumbnails")
 
@@ -699,6 +704,7 @@ object InnertubeParser {
             // art where a catalogue track has square album cover art.
             isVideo = rowType == "video" || thumbnails.isNotSquare(),
             isExplicit = renderer.hasExplicitBadge(),
+            playCount = playCount,
         )
     }
 
@@ -724,6 +730,7 @@ object InnertubeParser {
         val artist = parts.firstOrNull {
             !it.matches(DURATION) && it.lowercase(Locale.ROOT) !in TYPE_WORDS && !it.matches(TALLY)
         }
+        val playCount = parts.firstOrNull { it.matches(PLAY_COUNT) }
         val thumbnails = renderer.o("thumbnail").o("musicThumbnailRenderer")
             .o("thumbnail").a("thumbnails")
 
@@ -742,6 +749,7 @@ object InnertubeParser {
             albumName = credits.albumName,
             isVideo = rowType == "video" || thumbnails.isNotSquare(),
             isExplicit = renderer["subtitleBadges"].hasExplicitBadge(),
+            playCount = playCount,
         )
     }
 
@@ -1452,8 +1460,11 @@ object InnertubeParser {
      * counting one of the words YouTube counts with.
      */
     private val TALLY = Regex(
-        """[\d.,]+\s*[KMB]?\s+(plays|views|likes|songs|tracks|subscribers|""" +
-            """hours?|minutes?|seconds?)\b.*""",
+        """[\d.,\s]+[KMBkmbMdMioMlnмлн]?\s*(plays|views|vues|écoutes|ecoutes|d'écoutes|de vues|reproducciones|visualizaciones|aufrufe|wiedergaben|ascolti|visualizzazioni|прослушиваний|просмотров|likes|songs|tracks|subscribers|hours?|minutes?|seconds?)\b.*""",
+        RegexOption.IGNORE_CASE,
+    )
+    private val PLAY_COUNT = Regex(
+        """[\d.,\s]+[KMBkmbMdMioMlnмлн]?\s*(plays|views|vues|écoutes|ecoutes|d'écoutes|de vues|reproducciones|visualizaciones|aufrufe|wiedergaben|ascolti|visualizzazioni|прослушиваний|просмотров)\b.*""",
         RegexOption.IGNORE_CASE,
     )
     /** Header words that mark a page as a release, whose rows share its credit. */

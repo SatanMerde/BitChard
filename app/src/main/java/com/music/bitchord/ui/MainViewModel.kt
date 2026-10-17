@@ -17,6 +17,7 @@ import com.music.bitchord.data.LikeState
 import com.music.bitchord.data.YtMusicRepository
 import com.music.bitchord.data.model.SPOTIFY_MISSING_PREFIX
 import com.music.bitchord.data.model.SPOTIFY_PENDING_PREFIX
+import com.music.bitchord.data.spotify.LocalPlaylistStore
 import com.music.bitchord.data.spotify.SPOTIFY_PAGE_PREFIX
 import com.music.bitchord.data.spotify.SpotifyImporter
 import com.music.bitchord.data.spotify.SpotifyLibrary
@@ -883,11 +884,21 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     /** Re-fetched rather than cached for the session: playlists are edited here. */
     fun loadPlaylists() {
-        if (!_signedIn.value || _playlistsLoading.value) return
+        val local = LocalPlaylistStore.playlists.value.map { LocalPlaylistStore.toUserPlaylist(it) }
+        if (!_signedIn.value) {
+            _playlists.value = local
+            return
+        }
+        if (_playlistsLoading.value) return
         val identity = listenerKey()
         _playlistsLoading.value = true
         viewModelScope.launch {
-            YtMusicRepository.userPlaylists().onSuccess { if (identity == listenerKey()) _playlists.value = it }
+            YtMusicRepository.userPlaylists().onSuccess { yPlaylists ->
+                if (identity == listenerKey()) {
+                    val localCurrent = LocalPlaylistStore.playlists.value.map { LocalPlaylistStore.toUserPlaylist(it) }
+                    _playlists.value = localCurrent + yPlaylists.filterNot { yp -> localCurrent.any { lp -> lp.browseId == yp.browseId } }
+                }
+            }
             if (identity == listenerKey()) _playlistsLoading.value = false
         }
     }
@@ -971,7 +982,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         song: Song,
         onResult: (added: Int, alreadyThere: Int, failed: Int) -> Unit = { _, _, _ -> },
     ) {
-        if (!requireSignIn() || playlists.isEmpty()) return
+        if (playlists.isEmpty()) return
+        if (!_signedIn.value && playlists.none { it.browseId.startsWith("local:playlist:") }) return
         viewModelScope.launch {
             val outcomes = playlists.map { addOne(it, song) }
             onResult(
@@ -985,6 +997,14 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     private enum class AddOutcome { ADDED, ALREADY_THERE, FAILED }
 
     private suspend fun addOne(playlist: UserPlaylist, song: Song): AddOutcome {
+        if (playlist.browseId.startsWith("local:playlist:")) {
+            val local = LocalPlaylistStore.getPlaylist(playlist.browseId) ?: return AddOutcome.FAILED
+            if (local.songs.any { it.videoId == song.videoId }) return AddOutcome.ALREADY_THERE
+            LocalPlaylistStore.addSongsToPlaylist(playlist.browseId, listOf(song))
+            appendToOpenPlaylist(playlist.browseId, song, null)
+            return AddOutcome.ADDED
+        }
+        if (!requireSignIn()) return AddOutcome.FAILED
         val openSongs = (_detailStack.value.firstOrNull { it.browseId == playlist.browseId }
             ?.songs as? UiState.Success)?.data
         val known = openSongs
@@ -1121,6 +1141,22 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
      * row out from under the reader rather than waiting for a re-fetch.
      */
     fun removeFromPlaylist(browseId: String, song: Song) {
+        if (browseId.startsWith("local:playlist:")) {
+            LocalPlaylistStore.removeSongFromPlaylist(browseId, song.videoId)
+            _detailStack.value = _detailStack.value.map { page ->
+                val songs = (page.songs as? UiState.Success)?.data
+                if (page.browseId != browseId || songs == null) {
+                    page
+                } else {
+                    page.copy(
+                        songs = UiState.Success(
+                            songs.filterNot { it.videoId == song.videoId },
+                        ),
+                    )
+                }
+            }
+            return
+        }
         val setVideoId = song.setVideoId ?: return
         if (!requireSignIn()) return
         val playlistId = browseId.removePrefix("VL")
@@ -1233,9 +1269,14 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
      * showing the old name.
      */
     fun renamePlaylist(playlist: UserPlaylist, title: String) {
-        if (!requireSignIn()) return
         val name = title.trim()
         if (name.isBlank() || name == playlist.title) return
+        if (playlist.browseId.startsWith("local:playlist:")) {
+            LocalPlaylistStore.renamePlaylist(playlist.browseId, name)
+            setPlaylistTitle(playlist, name)
+            return
+        }
+        if (!requireSignIn()) return
         viewModelScope.launch {
             YtMusicRepository.renamePlaylist(playlist.playlistId, name).fold(
                 onSuccess = {
@@ -1252,6 +1293,13 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
      * see [YtMusicRepository.playlistEntries] for why not the open page's list.
      */
     fun loadPlaylistEntries(playlist: UserPlaylist, onResult: (Result<List<Song>>) -> Unit) {
+        if (playlist.browseId.startsWith("local:playlist:")) {
+            val local = LocalPlaylistStore.getPlaylist(playlist.browseId)
+            if (local != null) {
+                onResult(Result.success(local.songs))
+                return
+            }
+        }
         if (!requireSignIn()) return onResult(Result.failure(IllegalStateException("signed out")))
         viewModelScope.launch {
             onResult(YtMusicRepository.playlistEntries(playlist.browseId))
@@ -1270,6 +1318,18 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         reordered: List<Song>,
         onResult: (Boolean) -> Unit = {},
     ) {
+        if (playlist.browseId.startsWith("local:playlist:")) {
+            LocalPlaylistStore.updatePlaylistSongs(playlist.browseId, reordered)
+            _detailStack.value = _detailStack.value.map { page ->
+                if (page.browseId != playlist.browseId || page.songs !is UiState.Success) {
+                    page
+                } else {
+                    page.copy(songs = UiState.Success(reordered.withArtwork(page.thumbnailUrl)))
+                }
+            }
+            onResult(true)
+            return
+        }
         if (!requireSignIn()) return onResult(false)
         viewModelScope.launch {
             YtMusicRepository.reorderPlaylist(
@@ -1294,6 +1354,17 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun deletePlaylist(playlist: UserPlaylist) {
+        if (playlist.browseId.startsWith("local:playlist:")) {
+            LocalPlaylistStore.deletePlaylist(playlist.browseId)
+            _playlists.value = _playlists.value
+                .filterNot { it.browseId == playlist.browseId || it.playlistId == playlist.playlistId }
+            editPlaylistShelf { items ->
+                items.filterNot { it.browseId == playlist.browseId }
+            }
+            _detailStack.value = _detailStack.value
+                .filterNot { it.browseId == playlist.browseId }
+            return
+        }
         if (!requireSignIn()) return
         viewModelScope.launch {
             YtMusicRepository.deletePlaylist(playlist.playlistId).fold(
@@ -1336,7 +1407,11 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
      * changes its mind about what a playlist is depending on where it is held.
      */
     fun editablePlaylist(browseId: String?): UserPlaylist? {
-        if (browseId == null || _playlistOwned.value[browseId] != true) return null
+        if (browseId == null) return null
+        if (browseId.startsWith("local:playlist:")) {
+            return LocalPlaylistStore.getPlaylist(browseId)?.let { LocalPlaylistStore.toUserPlaylist(it) }
+        }
+        if (_playlistOwned.value[browseId] != true) return null
         return _playlists.value.firstOrNull { it.browseId == browseId }
     }
 

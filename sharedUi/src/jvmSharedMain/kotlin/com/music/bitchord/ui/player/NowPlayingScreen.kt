@@ -3621,25 +3621,15 @@ fun NowPlayingScreen(
                         onNext = onNext,
                     )
 
-                    // Keep the volume slot's full footprint when its contents are
-                    // hidden. Removing the slot itself shortened the controls by 50dp
-                    // and moved every control below it. A display preference should not
-                    // change the half-player's geometry.
-                    Spacer(Modifier.height(12.dp + controlSpread / 2))
-
                     if (!hideVolumeBar) {
+                        Spacer(Modifier.height(12.dp + controlSpread / 2))
                         VolumeRow(
                             value = { volume.level.value },
                             onValueChange = onVolumeChange,
                             onValueChangeFinished = onVolumeChangeFinished,
                         )
-                    } else {
-                        Spacer(Modifier.height(VOLUME_ROW_HEIGHT))
+                        Spacer(Modifier.height(6.dp))
                     }
-
-                    // The volume slider already has 13dp below its drawn track.
-                    // Balance that invisible inset with the caption gap below the icons.
-                    Spacer(Modifier.height(6.dp))
 
                     playerActions()
                     Spacer(Modifier.height(18.dp))

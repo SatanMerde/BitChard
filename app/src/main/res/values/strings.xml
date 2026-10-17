@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">BitChord</string>
+    <string name="app_name">BitChard</string>
     <string name="playback_channel_name">Now playing</string>
     <string name="download_channel_name">Downloads</string>
     <string name="download_channel_description">Songs being saved to your Music folder</string>
@@ -1159,6 +1159,17 @@
     <string name="local_playlist_subtitle">%1$d songs · On this device</string>
     <string name="spotify_import_empty_playlist">No songs in this playlist</string>
     <string name="spotify_library_subtitle">Your Spotify playlists</string>
+    <string name="spotify_batch_import_card_title">Batch Import</string>
+    <string name="spotify_batch_import_card_subtitle">Import all playlists and followed artists</string>
+    <string name="spotify_batch_import_button">Import All</string>
+    <string name="spotify_batch_import_dialog_title">Import from Spotify</string>
+    <string name="spotify_batch_import_playlists">Import playlists (%1$d)</string>
+    <string name="spotify_batch_import_artists">Import followed artists</string>
+    <string name="spotify_batch_import_save_local">Save to BitChard (Local playlists)</string>
+    <string name="spotify_batch_import_save_ytm">Save to YouTube Music account</string>
+    <string name="spotify_batch_import_start">Start Import</string>
+    <string name="spotify_batch_import_done">Import completed!</string>
+    <string name="spotify_batch_import_summary">%1$d playlists and %2$d artists imported</string>
     <string name="onboarding_title">Millions of songs, stream on BitChord</string>
     <string name="onboarding_name_prompt">What should we call you?</string>
     <string name="onboarding_name_hint">Your name</string>

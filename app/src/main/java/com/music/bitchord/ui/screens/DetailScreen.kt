@@ -1957,8 +1957,13 @@ private fun CompactSongRow(
                 style = MaterialTheme.typography.titleMedium,
                 color = if (isCurrent) palette.accent else palette.onBackground,
             )
+            val subtitleText = if (!song.playCount.isNullOrBlank()) {
+                "${song.artist} • ${song.playCount}"
+            } else {
+                song.artist
+            }
             Text(
-                text = song.artist,
+                text = subtitleText,
                 style = MaterialTheme.typography.bodyMedium,
                 color = palette.onBackgroundVariant,
                 maxLines = 1,

@@ -94,6 +94,52 @@ object LocalPlaylistStore {
         return _playlists.value.firstOrNull { it.id == cleanId || it.id == id || it.browseId == id }
     }
 
+    fun updatePlaylistSongs(id: String, newSongs: List<Song>) {
+        val cleanId = id.removePrefix("local:playlist:").removePrefix("VL")
+        val updated = _playlists.value.map {
+            if (it.id == cleanId || it.id == id || it.browseId == id) {
+                it.copy(songs = newSongs)
+            } else it
+        }
+        _playlists.value = updated
+        persist(updated)
+    }
+
+    fun addSongsToPlaylist(id: String, newSongs: List<Song>) {
+        val cleanId = id.removePrefix("local:playlist:").removePrefix("VL")
+        val updated = _playlists.value.map {
+            if (it.id == cleanId || it.id == id || it.browseId == id) {
+                it.copy(songs = it.songs + newSongs)
+            } else it
+        }
+        _playlists.value = updated
+        persist(updated)
+    }
+
+    fun removeSongFromPlaylist(id: String, videoId: String) {
+        val cleanId = id.removePrefix("local:playlist:").removePrefix("VL")
+        val updated = _playlists.value.map {
+            if (it.id == cleanId || it.id == id || it.browseId == id) {
+                val index = it.songs.indexOfFirst { s -> s.videoId == videoId }
+                if (index != -1) {
+                    val mod = it.songs.toMutableList()
+                    mod.removeAt(index)
+                    it.copy(songs = mod)
+                } else it
+            } else it
+        }
+        _playlists.value = updated
+        persist(updated)
+    }
+
+    fun toUserPlaylist(playlist: LocalPlaylist): com.music.bitchord.data.model.UserPlaylist =
+        com.music.bitchord.data.model.UserPlaylist(
+            playlistId = playlist.browseId,
+            title = playlist.title,
+            subtitle = "${playlist.songs.size} songs",
+            thumbnailUrl = playlist.songs.firstOrNull { !it.thumbnailUrl.isNullOrBlank() }?.thumbnailUrl,
+        )
+
     private fun persist(list: List<LocalPlaylist>) {
         if (!this::prefs.isInitialized) return
         runCatching {

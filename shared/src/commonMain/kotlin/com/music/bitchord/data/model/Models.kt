@@ -135,6 +135,8 @@ data class Song(
     val playbackSourceType: PlaybackSourceType? = null,
     /** Browse id for an album, playlist, or other source page. */
     val playbackSourceId: String? = null,
+    /** Play or stream count (e.g. "2.3M plays", "102K écoutes") on artist top songs or search hits. */
+    val playCount: String? = null,
 ) {
     /** Legacy derived property: true if and only if [queueTier] is [QueueTier.AUTOPLAY]. */
     val fromAutoplay: Boolean get() = queueTier == QueueTier.AUTOPLAY
@@ -638,7 +640,7 @@ data class UserPlaylist(
     val subtitle: String,
     val thumbnailUrl: String?,
 ) {
-    val browseId: String get() = "VL$playlistId"
+    val browseId: String get() = if (playlistId.startsWith("local:")) playlistId else "VL$playlistId"
 }
 
 /**
