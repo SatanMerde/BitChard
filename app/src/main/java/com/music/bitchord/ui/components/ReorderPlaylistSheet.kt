@@ -77,8 +77,17 @@ fun ReorderPlaylistSheet(
     modifier: Modifier = Modifier,
 ) {
     val original = (entries as? UiState.Success)?.data.orEmpty()
-    val order = remember(original) { mutableStateListOf<Song>().apply { addAll(original) } }
-    val changed = order.map { it.setVideoId } != original.map { it.setVideoId }
+    val originalWithKeys = remember(original) {
+        original.mapIndexed { index, song ->
+            if (song.setVideoId.isNullOrEmpty()) {
+                song.copy(setVideoId = "local_pos_${song.videoId}_$index")
+            } else {
+                song
+            }
+        }
+    }
+    val order = remember(originalWithKeys) { mutableStateListOf<Song>().apply { addAll(originalWithKeys) } }
+    val changed = order.map { it.setVideoId } != originalWithKeys.map { it.setVideoId }
 
     Column(modifier.fillMaxWidth().navigationBarsPadding()) {
         Row(
@@ -108,7 +117,15 @@ fun ReorderPlaylistSheet(
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-            Button(onClick = { onSave(order.toList()) }, enabled = changed && !saving) {
+            Button(
+                onClick = {
+                    val cleaned = order.map {
+                        if (it.setVideoId?.startsWith("local_pos_") == true) it.copy(setVideoId = null) else it
+                    }
+                    onSave(cleaned)
+                },
+                enabled = changed && !saving,
+            ) {
                 if (saving) {
                     CircularProgressIndicator(strokeWidth = 2.dp, modifier = Modifier.size(16.dp))
                 } else {

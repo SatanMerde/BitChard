@@ -1009,7 +1009,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         onResult: (added: Int, alreadyThere: Int, failed: Int) -> Unit = { _, _, _ -> },
     ) {
         if (playlists.isEmpty()) return
-        if (!_signedIn.value && playlists.none { it.browseId.startsWith("local:playlist:") }) return
+        if (!_signedIn.value && playlists.none { it.browseId.startsWith("local:") || LocalPlaylistStore.getPlaylist(it.browseId) != null }) return
         viewModelScope.launch {
             val outcomes = playlists.map { addOne(it, song) }
             onResult(
@@ -1023,7 +1023,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     private enum class AddOutcome { ADDED, ALREADY_THERE, FAILED }
 
     private suspend fun addOne(playlist: UserPlaylist, song: Song): AddOutcome {
-        if (playlist.browseId.startsWith("local:playlist:")) {
+        val isLocal = playlist.browseId.startsWith("local:") || LocalPlaylistStore.getPlaylist(playlist.browseId) != null
+        if (isLocal) {
             val local = LocalPlaylistStore.getPlaylist(playlist.browseId) ?: return AddOutcome.FAILED
             if (local.songs.any { it.videoId == song.videoId }) return AddOutcome.ALREADY_THERE
             LocalPlaylistStore.addSongsToPlaylist(playlist.browseId, listOf(song))
@@ -1171,18 +1172,22 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
      * row out from under the reader rather than waiting for a re-fetch.
      */
     fun removeFromPlaylist(browseId: String, song: Song) {
-        if (browseId.startsWith("local:playlist:")) {
+        val isLocal = browseId.startsWith("local:") || LocalPlaylistStore.getPlaylist(browseId) != null
+        if (isLocal) {
             LocalPlaylistStore.removeSongFromPlaylist(browseId, song.videoId)
             _detailStack.value = _detailStack.value.map { page ->
                 val songs = (page.songs as? UiState.Success)?.data
                 if (page.browseId != browseId || songs == null) {
                     page
                 } else {
-                    page.copy(
-                        songs = UiState.Success(
-                            songs.filterNot { it.videoId == song.videoId },
-                        ),
-                    )
+                    val updated = songs.toMutableList()
+                    val idx = updated.indexOfFirst { it.videoId == song.videoId }
+                    if (idx != -1) updated.removeAt(idx)
+                    if (updated.isEmpty()) {
+                        page.copy(songs = UiState.Error(text(R.string.spotify_import_empty_playlist)))
+                    } else {
+                        page.copy(songs = UiState.Success(updated))
+                    }
                 }
             }
             return
@@ -1233,6 +1238,22 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
      * it just can't offer to take it back out yet.
      */
     fun addSuggestedSong(browseId: String, song: Song) {
+        val isLocal = browseId.startsWith("local:") || LocalPlaylistStore.getPlaylist(browseId) != null
+        if (isLocal) {
+            LocalPlaylistStore.addSongsToPlaylist(browseId, listOf(song))
+            _detailStack.value = _detailStack.value.map { page ->
+                if (page.browseId != browseId) {
+                    page
+                } else {
+                    page.copy(
+                        suggestedSongs = page.suggestedSongs
+                            .filterNot { it.videoId == song.videoId },
+                    )
+                }
+            }
+            appendToOpenPlaylist(browseId, song, null)
+            return
+        }
         if (!requireSignIn()) return
         val playlistId = browseId.removePrefix("VL")
         viewModelScope.launch {
@@ -1275,7 +1296,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             if (page.browseId != browseId) return@map page
             val songs = when (val state = page.songs) {
                 is UiState.Success -> state.data
-                is UiState.Error -> if (state.message == text(R.string.no_tracks_here)) emptyList() else return@map page
+                is UiState.Error -> if (state.message == text(R.string.no_tracks_here) || state.message == text(R.string.spotify_import_empty_playlist)) emptyList() else return@map page
                 UiState.Loading -> return@map page
             }
             // Already there — a track added twice is two real entries on
@@ -1301,7 +1322,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     fun renamePlaylist(playlist: UserPlaylist, title: String) {
         val name = title.trim()
         if (name.isBlank() || name == playlist.title) return
-        if (playlist.browseId.startsWith("local:playlist:")) {
+        val isLocal = playlist.browseId.startsWith("local:") || LocalPlaylistStore.getPlaylist(playlist.browseId) != null
+        if (isLocal) {
             LocalPlaylistStore.renamePlaylist(playlist.browseId, name)
             setPlaylistTitle(playlist, name)
             return
@@ -1323,7 +1345,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
      * see [YtMusicRepository.playlistEntries] for why not the open page's list.
      */
     fun loadPlaylistEntries(playlist: UserPlaylist, onResult: (Result<List<Song>>) -> Unit) {
-        if (playlist.browseId.startsWith("local:playlist:")) {
+        val isLocal = playlist.browseId.startsWith("local:") || LocalPlaylistStore.getPlaylist(playlist.browseId) != null
+        if (isLocal) {
             val local = LocalPlaylistStore.getPlaylist(playlist.browseId)
             if (local != null) {
                 onResult(Result.success(local.songs))
@@ -1348,13 +1371,17 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         reordered: List<Song>,
         onResult: (Boolean) -> Unit = {},
     ) {
-        if (playlist.browseId.startsWith("local:playlist:")) {
-            LocalPlaylistStore.updatePlaylistSongs(playlist.browseId, reordered)
+        val isLocal = playlist.browseId.startsWith("local:") || LocalPlaylistStore.getPlaylist(playlist.browseId) != null
+        if (isLocal) {
+            val cleaned = reordered.map {
+                if (it.setVideoId?.startsWith("local_pos_") == true) it.copy(setVideoId = null) else it
+            }
+            LocalPlaylistStore.updatePlaylistSongs(playlist.browseId, cleaned)
             _detailStack.value = _detailStack.value.map { page ->
                 if (page.browseId != playlist.browseId || page.songs !is UiState.Success) {
                     page
                 } else {
-                    page.copy(songs = UiState.Success(reordered.withArtwork(page.thumbnailUrl)))
+                    page.copy(songs = UiState.Success(cleaned.withArtwork(page.thumbnailUrl)))
                 }
             }
             onResult(true)
@@ -1384,7 +1411,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun deletePlaylist(playlist: UserPlaylist) {
-        if (playlist.browseId.startsWith("local:playlist:")) {
+        val isLocal = playlist.browseId.startsWith("local:") || LocalPlaylistStore.getPlaylist(playlist.browseId) != null
+        if (isLocal) {
             LocalPlaylistStore.deletePlaylist(playlist.browseId)
             _playlists.value = _playlists.value
                 .filterNot { it.browseId == playlist.browseId || it.playlistId == playlist.playlistId }
@@ -1438,8 +1466,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
      */
     fun editablePlaylist(browseId: String?): UserPlaylist? {
         if (browseId == null) return null
-        if (browseId.startsWith("local:playlist:")) {
-            return LocalPlaylistStore.getPlaylist(browseId)?.let { LocalPlaylistStore.toUserPlaylist(it) }
+        val local = LocalPlaylistStore.getPlaylist(browseId)
+        if (local != null || browseId.startsWith("local:")) {
+            return (local ?: LocalPlaylistStore.getPlaylist(browseId.removePrefix("local:playlist:")))
+                ?.let { LocalPlaylistStore.toUserPlaylist(it) }
         }
         if (_playlistOwned.value[browseId] != true) return null
         return _playlists.value.firstOrNull { it.browseId == browseId }

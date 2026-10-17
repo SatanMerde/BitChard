@@ -58,6 +58,7 @@ import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.StarBorder
+import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -337,6 +338,7 @@ fun DetailScreen(
      * [LocalFolder].
      */
     folder: LocalFolder? = null,
+    onOpenAddSongs: (() -> Unit)? = null,
 ) {
     val rawSongs = (page.songs as? UiState.Success)?.data.orEmpty()
     // A folder keeps its own sort — the one its top bar menu sets — rather
@@ -664,7 +666,31 @@ fun DetailScreen(
 
             when (val state = page.songs) {
                 is UiState.Loading -> detailSkeleton(isArtist)
-                is UiState.Error -> item { MessageState(state.message) }
+                is UiState.Error -> item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 22.dp, vertical = 24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        MessageState(state.message)
+                        if (onOpenAddSongs != null && page.type == BrowseType.PLAYLIST) {
+                            Spacer(Modifier.height(16.dp))
+                            Button(
+                                onClick = onOpenAddSongs,
+                                shape = RoundedCornerShape(24.dp),
+                            ) {
+                                Icon(
+                                    Icons.Rounded.Add,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp),
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                Text(stringResource(R.string.add_to_playlist))
+                            }
+                        }
+                    }
+                }
                 is UiState.Success -> if (folder != null && folderState != null) {
                     localFolderItems(
                         folder = folder,
@@ -765,6 +791,29 @@ fun DetailScreen(
                                 thickness = 0.5.dp,
                                 color = palette.divider,
                             )
+                        }
+                    }
+                    if (onOpenAddSongs != null && page.type == BrowseType.PLAYLIST) {
+                        item(key = "add-to-playlist-footer-button") {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 22.dp, vertical = 20.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Button(
+                                    onClick = onOpenAddSongs,
+                                    shape = RoundedCornerShape(24.dp),
+                                ) {
+                                    Icon(
+                                        Icons.Rounded.Add,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(20.dp),
+                                    )
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(stringResource(R.string.add_to_playlist))
+                                }
+                            }
                         }
                     }
                 }

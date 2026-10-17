@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.PlaylistPlay
 import androidx.compose.material.icons.automirrored.rounded.QueueMusic
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.Edit
@@ -162,6 +163,7 @@ fun BrowseActionsSheet(
      * playlist the account only saved.
      */
     onReorder: (() -> Unit)? = null,
+    onAddSongs: (() -> Unit)? = null,
     onDelete: (() -> Unit)? = null,
     /**
      * Removes the files this release was downloaded as, when it was downloaded
@@ -290,6 +292,9 @@ fun BrowseActionsSheet(
                         renaming = true
                     }
                 }
+            }
+            onAddSongs?.let {
+                ActionRow(Icons.Rounded.Add, stringResource(R.string.add_to_playlist), onClick = it)
             }
             onReorder?.let {
                 ActionRow(Icons.Rounded.SwapVert, stringResource(R.string.reorder_songs), onClick = it)

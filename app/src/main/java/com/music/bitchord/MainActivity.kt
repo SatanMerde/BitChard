@@ -223,6 +223,7 @@ import com.music.bitchord.ui.components.BrowseActionsSheet
 import com.music.bitchord.ui.components.BrowseTarget
 import com.music.bitchord.ui.components.ConfirmationAlert
 import com.music.bitchord.ui.components.DownloadManagerSheet
+import com.music.bitchord.ui.components.AddToPlaylistSheet
 import com.music.bitchord.ui.components.PlaylistPickerSheet
 import com.music.bitchord.ui.components.ReorderPlaylistSheet
 import com.music.bitchord.ui.components.LongPressOrigin
@@ -676,6 +677,8 @@ private fun BitChordApp(
     /** Its entries as YouTube has them now — fetched fresh when the sheet opens. */
     var reorderEntries by remember { mutableStateOf<UiState<List<Song>>>(UiState.Loading) }
     var reorderSaving by remember { mutableStateOf(false) }
+    /** BrowseId of playlist currently having songs added via the AddToPlaylistSheet. */
+    var addingSongsToPlaylist by remember { mutableStateOf<String?>(null) }
     /** Holding an album or playlist: the popup when it was a hold, else the sheet. */
     val openBrowseMenu: (BrowseTarget) -> Unit = { target ->
         browseMenuOrigin = LongPressOrigin.consume()
@@ -3058,6 +3061,9 @@ private fun BitChordApp(
                                 viewModel.openDetail(id, name, "Artist", null, BrowseType.ARTIST)
                             },
                             onAddSuggested = { song -> viewModel.addSuggestedSong(page.browseId, song) },
+                            onOpenAddSongs = if (page.type == BrowseType.PLAYLIST && (page.browseId.startsWith("local:") || com.music.bitchord.data.spotify.LocalPlaylistStore.getPlaylist(page.browseId) != null || viewModel.editablePlaylist(page.browseId) != null)) {
+                                { addingSongsToPlaylist = page.browseId }
+                            } else null,
                             // Saving is an account action, so it isn't offered to a
                             // guest at all — same as the like and add-to-playlist rows
                             // in the track menu.
@@ -4371,8 +4377,11 @@ private fun BitChordApp(
             // "Remove from this playlist" is only a sentence on a playlist
             // page the account can actually edit, and only for a row that
             // carries the per-entry id a removal is expressed in.
+            val isLocalPlaylist = detail?.browseId?.let { id ->
+                id.startsWith("local:") || com.music.bitchord.data.spotify.LocalPlaylistStore.getPlaylist(id) != null
+            } == true
             val editable = viewModel.editablePlaylist(detail?.browseId)
-                ?.takeIf { !fromPlayer && (song.setVideoId != null || detail?.browseId?.startsWith("local:playlist:") == true) }
+                ?.takeIf { !fromPlayer && (song.setVideoId != null || isLocalPlaylist) }
             SongActionsSheet(
                 song = song,
                 presentation = presentation,
@@ -4713,10 +4722,10 @@ private fun BitChordApp(
             val ownedPlaylists by viewModel.playlistOwned.collectAsStateWithLifecycle()
             val playlist = target.browseId
                 ?.let { id ->
-                    if (id.startsWith("local:playlist:")) {
-                        com.music.bitchord.data.spotify.LocalPlaylistStore.getPlaylist(id)?.let {
-                            com.music.bitchord.data.spotify.LocalPlaylistStore.toUserPlaylist(it)
-                        }
+                    val local = com.music.bitchord.data.spotify.LocalPlaylistStore.getPlaylist(id)
+                    if (local != null || id.startsWith("local:")) {
+                        (local ?: com.music.bitchord.data.spotify.LocalPlaylistStore.getPlaylist(id.removePrefix("local:playlist:")))
+                            ?.let { com.music.bitchord.data.spotify.LocalPlaylistStore.toUserPlaylist(it) }
                     } else if (signedIn && ownedPlaylists[id] == true) {
                         playlists.firstOrNull { it.browseId == id }
                     } else {
@@ -4828,6 +4837,12 @@ private fun BitChordApp(
                         viewModel.renamePlaylist(p, name)
                     }
                 },
+                onAddSongs = playlist?.let { p ->
+                    {
+                        browseActions = null
+                        addingSongsToPlaylist = p.browseId
+                    }
+                },
                 onReorder = playlist?.let { p ->
                     {
                         browseActions = null
@@ -4929,6 +4944,41 @@ private fun BitChordApp(
                             )
                             if (saved && reorderTarget == target) reorderTarget = null
                         }
+                    },
+                )
+            }
+        }
+
+        addingSongsToPlaylist?.let { browseId ->
+            val close = { addingSongsToPlaylist = null }
+            val currentPlaylistTitle = if (detail?.browseId == browseId) {
+                detail.title
+            } else {
+                com.music.bitchord.data.spotify.LocalPlaylistStore.getPlaylist(browseId)?.title
+                    ?: playlists.firstOrNull { it.browseId == browseId }?.title
+                    ?: stringResource(R.string.playlist)
+            }
+            val existingSongs = if (detail?.browseId == browseId) {
+                (detail.songs as? UiState.Success)?.data.orEmpty()
+            } else {
+                com.music.bitchord.data.spotify.LocalPlaylistStore.getPlaylist(browseId)?.songs.orEmpty()
+            }
+            val initialSuggestions = if (detail?.browseId == browseId) {
+                detail.suggestedSongs
+            } else emptyList()
+
+            ModalBottomSheet(
+                onDismissRequest = close,
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+                containerColor = MaterialTheme.colorScheme.background,
+            ) {
+                AddToPlaylistSheet(
+                    playlistTitle = currentPlaylistTitle,
+                    existingSongIds = remember(existingSongs) { existingSongs.map { it.videoId }.toSet() },
+                    initialSuggestions = initialSuggestions,
+                    onClose = close,
+                    onAddSong = { song ->
+                        viewModel.addSuggestedSong(browseId, song)
                     },
                 )
             }
