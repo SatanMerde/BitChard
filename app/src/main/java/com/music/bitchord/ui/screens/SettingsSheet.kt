@@ -141,6 +141,7 @@ import coil3.SingletonImageLoader
 import coil3.compose.AsyncImage
 import com.music.bitchord.ui.components.isGlassSupported
 import com.music.bitchord.ui.components.languageDisplayNameRes
+import com.music.bitchord.ui.dj.BitgAiConfigDialog
 import com.music.bitchord.ui.components.MessageState
 import com.music.bitchord.ui.components.SearchField
 import com.music.bitchord.ui.components.thumbnailBorder
@@ -287,6 +288,9 @@ fun SettingsScreen(
     val bitgVoiceSpeed by AppSettings.bitgVoiceSpeed.collectAsStateWithLifecycle()
     val bitgVoiceEnabled by AppSettings.bitgVoiceEnabled.collectAsStateWithLifecycle()
     val bitgLanguage by AppSettings.bitgLanguage.collectAsStateWithLifecycle()
+    val bitgAiProvider by AppSettings.bitgAiProvider.collectAsStateWithLifecycle()
+    val bitgApiKey by AppSettings.bitgApiKey.collectAsStateWithLifecycle()
+    var showBitgAiConfigDialog by remember { mutableStateOf(false) }
 
     // Read here so the row can say "In a party · ABC123" rather than making
     // somebody open the screen to find out whether they are still in one.
@@ -1271,6 +1275,28 @@ fun SettingsScreen(
         }
 
         SearchableSettingsGroup(search, header = stringResource(R.string.bitg_settings_title)) {
+            val aiBrainTitle = stringResource(R.string.bitg_ai_section_title)
+            val aiProviderLabel = when (bitgAiProvider) {
+                "gemini" -> "Gemini"
+                "groq" -> "Groq"
+                "openai" -> "OpenAI"
+                "claude" -> "Claude"
+                else -> "Custom"
+            }
+            row(aiBrainTitle, "bitg", "ia", "ai", "llm", "gemini", "groq", "openai", "claude", "api key", "cle", "cerveau") {
+                SettingsRow(
+                    icon = Icons.Rounded.AutoAwesome,
+                    title = aiBrainTitle,
+                    subtitle = if (bitgApiKey.isNotBlank()) {
+                        "Fournisseur : $aiProviderLabel • Clé API active"
+                    } else {
+                        stringResource(R.string.bitg_ai_activate)
+                    },
+                    badge = if (bitgApiKey.isNotBlank()) "Connecté" else null,
+                    trailing = { Chevron() },
+                    onClick = { showBitgAiConfigDialog = true },
+                )
+            }
             val voiceTitle = stringResource(R.string.bitg_voice_enabled)
             row(voiceTitle, "bitg", "dj", "voice", "ia", "commentary") {
                 SettingsRow(
@@ -2040,6 +2066,10 @@ fun SettingsScreen(
                 }
             },
         )
+    }
+
+    if (showBitgAiConfigDialog) {
+        BitgAiConfigDialog(onDismiss = { showBitgAiConfigDialog = false })
     }
 
 }

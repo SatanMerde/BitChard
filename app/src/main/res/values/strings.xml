@@ -1236,6 +1236,19 @@
     <string name="bitg_voice_enabled" translatable="false">Spoken Commentary</string>
     <string name="bitg_voice_enabled_subtitle" translatable="false">BitG speaks live to introduce music sessions</string>
     <string name="bitg_language" translatable="false">BitG Voice Language</string>
+    <string name="bitg_ai_section_title" translatable="false">AI Brain (LLM)</string>
+    <string name="bitg_ai_provider" translatable="false">AI Provider</string>
+    <string name="bitg_api_key" translatable="false">API Key</string>
+    <string name="bitg_api_key_hint" translatable="false">Enter or paste your API key</string>
+    <string name="bitg_custom_model" translatable="false">Model Name (optional)</string>
+    <string name="bitg_custom_endpoint" translatable="false">Custom Endpoint URL</string>
+    <string name="bitg_ai_active" translatable="false">Real AI Active</string>
+    <string name="bitg_ai_activate" translatable="false">⚡ Enable Real AI (API Key)</string>
+    <string name="bitg_ai_test" translatable="false">Test AI Connection</string>
+    <string name="bitg_ai_testing" translatable="false">Testing connection...</string>
+    <string name="bitg_ai_test_success" translatable="false">Connection successful! BitG is ready.</string>
+    <string name="bitg_ai_test_error" translatable="false">Connection failed: %1$s</string>
+    <string name="bitg_ai_desc" translatable="false">BitG analyzes your listening history over time to understand your musical DNA and generate custom DJ sets and spoken commentary.</string>
     <string name="local_favorites" translatable="false">Liked songs</string>
     <string name="local_favorites_subtitle" translatable="false">%1$d tracks saved locally</string>
 </resources>

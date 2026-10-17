@@ -393,6 +393,18 @@ object AppSettings {
     /** Voice language for BitG ("auto", "fr", "en"). */
     val bitgLanguage = MutableStateFlow("auto")
 
+    /** AI Provider for BitG ("gemini", "openai", "groq", "anthropic", "custom"). */
+    val bitgAiProvider = MutableStateFlow("gemini")
+
+    /** User API key for the chosen BitG AI provider. */
+    val bitgApiKey = MutableStateFlow("")
+
+    /** Optional custom model identifier (e.g. "gemini-2.0-flash", "gpt-4o-mini"). */
+    val bitgCustomModel = MutableStateFlow("")
+
+    /** Optional custom OpenAI-compatible endpoint URL for BitG. */
+    val bitgCustomEndpoint = MutableStateFlow("")
+
     val showQueueHistory = MutableStateFlow(false)
 
     /** Swiping a song row plays it next instead of adding it to the end of the queue. */
@@ -891,6 +903,10 @@ object AppSettings {
         bitgVoiceSpeed.value = prefs.getFloat(KEY_BITG_VOICE_SPEED, 1.03f).coerceIn(0.5f, 2.0f)
         bitgVoiceEnabled.value = prefs.getBoolean(KEY_BITG_VOICE_ENABLED, true)
         bitgLanguage.value = prefs.getString(KEY_BITG_LANGUAGE, "auto") ?: "auto"
+        bitgAiProvider.value = prefs.getString(KEY_BITG_AI_PROVIDER, "gemini") ?: "gemini"
+        bitgApiKey.value = prefs.getString(KEY_BITG_API_KEY, "").orEmpty()
+        bitgCustomModel.value = prefs.getString(KEY_BITG_CUSTOM_MODEL, "").orEmpty()
+        bitgCustomEndpoint.value = prefs.getString(KEY_BITG_CUSTOM_ENDPOINT, "").orEmpty()
         if (highPerformanceMode.value) {
             reduceAnimation.value = false
             reduceDynamicBlur.value = false
@@ -1361,6 +1377,29 @@ object AppSettings {
     fun setBitgLanguage(lang: String) {
         bitgLanguage.value = lang
         prefs.edit().putString(KEY_BITG_LANGUAGE, lang).apply()
+    }
+
+    fun setBitgAiProvider(provider: String) {
+        bitgAiProvider.value = provider
+        prefs.edit().putString(KEY_BITG_AI_PROVIDER, provider).apply()
+    }
+
+    fun setBitgApiKey(key: String) {
+        val trimmed = key.trim()
+        bitgApiKey.value = trimmed
+        prefs.edit().putString(KEY_BITG_API_KEY, trimmed).apply()
+    }
+
+    fun setBitgCustomModel(model: String) {
+        val trimmed = model.trim()
+        bitgCustomModel.value = trimmed
+        prefs.edit().putString(KEY_BITG_CUSTOM_MODEL, trimmed).apply()
+    }
+
+    fun setBitgCustomEndpoint(endpoint: String) {
+        val trimmed = endpoint.trim()
+        bitgCustomEndpoint.value = trimmed
+        prefs.edit().putString(KEY_BITG_CUSTOM_ENDPOINT, trimmed).apply()
     }
 
     fun setSyncedLyrics(value: Boolean) {
@@ -2077,6 +2116,10 @@ object AppSettings {
     private const val KEY_BITG_VOICE_SPEED = "bitg_voice_speed"
     private const val KEY_BITG_VOICE_ENABLED = "bitg_voice_enabled"
     private const val KEY_BITG_LANGUAGE = "bitg_language"
+    private const val KEY_BITG_AI_PROVIDER = "bitg_ai_provider"
+    private const val KEY_BITG_API_KEY = "bitg_api_key"
+    private const val KEY_BITG_CUSTOM_MODEL = "bitg_custom_model"
+    private const val KEY_BITG_CUSTOM_ENDPOINT = "bitg_custom_endpoint"
     private const val KEY_ANIMATED_CANVAS = "animated_canvas"
     private const val KEY_CANVAS_OVER_CELLULAR = "canvas_over_cellular"
     private const val KEY_SPOTIFY_CANVAS_AUTO_HIDE = "spotify_canvas_auto_hide"

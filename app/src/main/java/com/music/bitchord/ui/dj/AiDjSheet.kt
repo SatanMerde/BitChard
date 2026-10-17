@@ -41,6 +41,7 @@ import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -158,8 +159,11 @@ fun AiDjSheet(
     val speechText by AiDjManager.currentSpeech.collectAsStateWithLifecycle()
 
     var showBitgSettings by remember { mutableStateOf(false) }
+    var showAiConfigDialog by remember { mutableStateOf(false) }
     var promptQuery by remember { mutableStateOf("") }
 
+    val bitgAiProvider by AppSettings.bitgAiProvider.collectAsStateWithLifecycle()
+    val bitgApiKey by AppSettings.bitgApiKey.collectAsStateWithLifecycle()
     val voicePitch by AppSettings.bitgVoicePitch.collectAsStateWithLifecycle()
     val voiceSpeed by AppSettings.bitgVoiceSpeed.collectAsStateWithLifecycle()
     val voiceEnabled by AppSettings.bitgVoiceEnabled.collectAsStateWithLifecycle()
@@ -197,6 +201,10 @@ fun AiDjSheet(
         label = "BitGGlowAlpha",
     )
 
+    if (showAiConfigDialog) {
+        BitgAiConfigDialog(onDismiss = { showAiConfigDialog = false })
+    }
+
     if (showBitgSettings) {
         AlertDialog(
             onDismissRequest = { showBitgSettings = false },
@@ -218,6 +226,52 @@ fun AiDjSheet(
                         .fillMaxWidth()
                         .verticalScroll(rememberScrollState()),
                 ) {
+                    // AI Brain config card
+                    Surface(
+                        shape = RoundedCornerShape(16.dp),
+                        color = Color(0xFF1F172E),
+                        border = BorderStroke(1.dp, BitgViolet.copy(alpha = 0.7f)),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(16.dp))
+                            .clickable {
+                                showBitgSettings = false
+                                showAiConfigDialog = true
+                            }
+                            .padding(14.dp),
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Rounded.AutoAwesome,
+                                contentDescription = null,
+                                tint = BitgNeonCyan,
+                                modifier = Modifier.size(24.dp),
+                            )
+                            Spacer(Modifier.width(12.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = stringResource(R.string.bitg_ai_section_title),
+                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                        fontFamily = SFProDisplay,
+                                        fontWeight = FontWeight.Bold,
+                                    ),
+                                    color = Color.White,
+                                )
+                                Text(
+                                    text = if (bitgApiKey.isNotBlank()) {
+                                        "Fournisseur : ${bitgAiProvider.uppercase()} • Clé API active"
+                                    } else {
+                                        "Activer Gemini, Groq, OpenAI... (Clé API)"
+                                    },
+                                    style = MaterialTheme.typography.bodySmall.copy(fontFamily = SFProDisplay),
+                                    color = Color.White.copy(alpha = 0.65f),
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(Modifier.height(16.dp))
+
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -419,7 +473,45 @@ fun AiDjSheet(
                 }
             }
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(10.dp))
+
+            // AI Status & Configuration Badge
+            Surface(
+                shape = RoundedCornerShape(18.dp),
+                color = if (bitgApiKey.isNotBlank()) Color(0xFF1E1430) else Color(0xFF221A10),
+                border = BorderStroke(
+                    1.dp,
+                    if (bitgApiKey.isNotBlank()) BitgViolet.copy(alpha = 0.8f) else Color(0xFFFFB300).copy(alpha = 0.6f),
+                ),
+                modifier = Modifier
+                    .clip(RoundedCornerShape(18.dp))
+                    .clickable { showAiConfigDialog = true }
+                    .padding(horizontal = 14.dp, vertical = 7.dp),
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Rounded.AutoAwesome,
+                        contentDescription = null,
+                        tint = if (bitgApiKey.isNotBlank()) BitgNeonCyan else Color(0xFFFFB300),
+                        modifier = Modifier.size(15.dp),
+                    )
+                    Spacer(Modifier.width(7.dp))
+                    Text(
+                        text = if (bitgApiKey.isNotBlank()) {
+                            "IA BitG : ${bitgAiProvider.uppercase()} (Apprentissage actif)"
+                        } else {
+                            "⚡ Activer la vraie IA (Clé API)"
+                        },
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontFamily = SFProDisplay,
+                            fontWeight = FontWeight.SemiBold,
+                        ),
+                        color = Color.White,
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(12.dp))
 
             // Futuristic Sonic Core Visualizer
             Box(

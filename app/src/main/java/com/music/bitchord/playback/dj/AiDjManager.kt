@@ -137,8 +137,33 @@ object AiDjManager {
 
         activeJob?.cancel()
         activeJob = scope.launch {
-            val songs = loadTracksForVibe(context, vibe)
             val isFrench = getEffectiveLanguage() == "fr"
+
+            if (BitgAiService.isAiConfigured()) {
+                _currentVibe.value = if (isFrench) "BitG • Analyse de tes goûts..." else "BitG • Analyzing your tastes..."
+                val aiResult = BitgAiService.generateAiDjSession(
+                    context = context,
+                    userPrompt = "Lancer une session d'ouverture exclusive basée sur l'historique d'écoute et les artistes préférés",
+                    vibe = vibe,
+                    isFrench = isFrench,
+                ).getOrNull()
+
+                if (aiResult != null && _isActive.value) {
+                    _currentVibe.value = "BitG • ${aiResult.vibeTitle}"
+                    speak(aiResult.spokenCommentary) {
+                        if (!_isActive.value) return@speak
+                        scope.launch {
+                            val songs = searchMultipleQueries(aiResult.searchQueries)
+                            if (_isActive.value && songs.isNotEmpty() && controller != null) {
+                                controller.playSongs(songs, 0)
+                            }
+                        }
+                    }
+                    return@launch
+                }
+            }
+
+            val songs = loadTracksForVibe(context, vibe)
             val leadSong = songs.firstOrNull()
 
             val text = if (isFrench) {
@@ -181,8 +206,33 @@ object AiDjManager {
 
         activeJob?.cancel()
         activeJob = scope.launch {
-            val songs = loadTracksForVibe(context, vibe)
             val isFrench = getEffectiveLanguage() == "fr"
+
+            if (BitgAiService.isAiConfigured()) {
+                _currentVibe.value = if (isFrench) "BitG • Changement d'ambiance..." else "BitG • Switching vibe..."
+                val aiResult = BitgAiService.generateAiDjSession(
+                    context = context,
+                    userPrompt = "Changer d'ambiance pour la vibe : ${if (isFrench) vibe.labelFr else vibe.labelEn}",
+                    vibe = vibe,
+                    isFrench = isFrench,
+                ).getOrNull()
+
+                if (aiResult != null && _isActive.value) {
+                    _currentVibe.value = "BitG • ${aiResult.vibeTitle}"
+                    speak(aiResult.spokenCommentary) {
+                        if (!_isActive.value) return@speak
+                        scope.launch {
+                            val songs = searchMultipleQueries(aiResult.searchQueries)
+                            if (_isActive.value && songs.isNotEmpty() && controller != null) {
+                                controller.playSongs(songs, 0)
+                            }
+                        }
+                    }
+                    return@launch
+                }
+            }
+
+            val songs = loadTracksForVibe(context, vibe)
             val leadSong = songs.firstOrNull()
 
             val text = when (vibe) {
@@ -340,11 +390,34 @@ object AiDjManager {
         _isActive.value = true
 
         val isFrench = getEffectiveLanguage() == "fr"
-        val parsed = parseUserPrompt(rawPrompt, isFrench)
-        _currentVibe.value = "BitG • ${parsed.cleanSubject}"
 
         activeJob?.cancel()
         activeJob = scope.launch {
+            if (BitgAiService.isAiConfigured()) {
+                _currentVibe.value = if (isFrench) "BitG • Réflexion IA..." else "BitG • AI Thinking..."
+                val aiResult = BitgAiService.generateAiDjSession(
+                    context = context,
+                    userPrompt = rawPrompt,
+                    isFrench = isFrench,
+                ).getOrNull()
+
+                if (aiResult != null && _isActive.value) {
+                    _currentVibe.value = "BitG • ${aiResult.vibeTitle}"
+                    speak(aiResult.spokenCommentary) {
+                        if (!_isActive.value) return@speak
+                        scope.launch {
+                            val songs = searchMultipleQueries(aiResult.searchQueries)
+                            if (_isActive.value && songs.isNotEmpty() && controller != null) {
+                                controller.playSongs(songs, 0)
+                            }
+                        }
+                    }
+                    return@launch
+                }
+            }
+
+            val parsed = parseUserPrompt(rawPrompt, isFrench)
+            _currentVibe.value = "BitG • ${parsed.cleanSubject}"
             speak(parsed.spokenText) {
                 if (!_isActive.value) return@speak
                 scope.launch {
@@ -355,6 +428,37 @@ object AiDjManager {
                 }
             }
         }
+    }
+
+    private suspend fun searchMultipleQueries(queries: List<String>): List<Song> = withContext(Dispatchers.IO) {
+        val out = mutableListOf<Song>()
+        val seenIds = mutableSetOf<String>()
+
+        for (query in queries) {
+            val tracks = runCatching {
+                YtMusicRepository.search(query, SearchFilter.SONGS).getOrNull()?.mapNotNull {
+                    when (it) {
+                        is SearchResult.Track -> it.song
+                        is SearchResult.TopTrack -> it.song
+                        else -> null
+                    }
+                }
+            }.getOrNull().orEmpty()
+
+            tracks.take(3).forEach { song ->
+                if (seenIds.add(song.videoId)) {
+                    out.add(song)
+                }
+            }
+
+            if (out.size >= 20) break
+        }
+
+        if (out.isEmpty() && queries.isNotEmpty()) {
+            return@withContext searchForPrompt(queries.first())
+        }
+
+        out
     }
 
     private suspend fun searchForPrompt(query: String): List<Song> = withContext(Dispatchers.IO) {

@@ -1388,6 +1388,19 @@
     <string name="bitg_voice_enabled" translatable="false">Commentaires vocaux</string>
     <string name="bitg_voice_enabled_subtitle" translatable="false">BitG parle en direct pour introduire tes sessions</string>
     <string name="bitg_language" translatable="false">Langue de la voix BitG</string>
+    <string name="bitg_ai_section_title" translatable="false">Cerveau IA (LLM)</string>
+    <string name="bitg_ai_provider" translatable="false">Fournisseur d\'IA</string>
+    <string name="bitg_api_key" translatable="false">Clé API</string>
+    <string name="bitg_api_key_hint" translatable="false">Entre ou colle ta clé API ici</string>
+    <string name="bitg_custom_model" translatable="false">Nom du modèle (optionnel)</string>
+    <string name="bitg_custom_endpoint" translatable="false">URL d\'endpoint personnalisé</string>
+    <string name="bitg_ai_active" translatable="false">Vraie IA Active</string>
+    <string name="bitg_ai_activate" translatable="false">⚡ Activer la vraie IA (Clé API)</string>
+    <string name="bitg_ai_test" translatable="false">Tester la connexion</string>
+    <string name="bitg_ai_testing" translatable="false">Test de connexion en cours...</string>
+    <string name="bitg_ai_test_success" translatable="false">Connexion réussie ! BitG est prêt.</string>
+    <string name="bitg_ai_test_error" translatable="false">Échec : %1$s</string>
+    <string name="bitg_ai_desc" translatable="false">BitG analyse vos écoutes au fil du temps pour comprendre votre ADN musical et générer des sessions DJ et commentaires parlés sur mesure.</string>
     <string name="local_favorites" translatable="false">Titres likés</string>
     <string name="local_favorites_subtitle" translatable="false">%1$d titres enregistrés en local</string>
 </resources>
