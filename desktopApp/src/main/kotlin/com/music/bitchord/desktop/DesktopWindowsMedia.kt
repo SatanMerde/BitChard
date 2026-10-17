@@ -49,6 +49,7 @@ internal object DesktopWindowsMedia {
         if (!available || !started.compareAndSet(false, true)) return
         if (!nativeStart()) {
             started.set(false)
+            runCatching { nativeStop() }
             DesktopTrackLog.log("Windows media controls could not be created")
             return
         }
@@ -61,9 +62,11 @@ internal object DesktopWindowsMedia {
     }
 
     fun stop() {
-        if (!started.compareAndSet(true, false)) return
+        started.set(false)
         controller = null
-        runCatching { nativeStop() }
+        if (available) {
+            runCatching { nativeStop() }
+        }
     }
 
     /** Publishes the current track. Called on every change the shell would show. */

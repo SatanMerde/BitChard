@@ -250,7 +250,13 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*) {
 
 JNIEXPORT jboolean JNICALL
 Java_com_music_bitchord_desktop_DesktopWindowsMedia_nativeStart(JNIEnv*, jobject) {
-    if (g_thread.joinable()) return g_running ? JNI_TRUE : JNI_FALSE;
+    if (g_thread.joinable()) {
+        if (!g_running) {
+            g_thread.join();
+        } else {
+            return JNI_TRUE;
+        }
+    }
     g_thread = std::thread(pump);
     // The controls exist or they do not within a moment; a caller that had to
     // poll would be the only one who cared.
@@ -259,6 +265,9 @@ Java_com_music_bitchord_desktop_DesktopWindowsMedia_nativeStart(JNIEnv*, jobject
     }
     for (int i = 0; i < 100 && !g_running; ++i) {
         Sleep(5);
+    }
+    if (!g_running && g_thread.joinable()) {
+        g_thread.join();
     }
     return g_running ? JNI_TRUE : JNI_FALSE;
 }
@@ -279,6 +288,11 @@ Java_com_music_bitchord_desktop_DesktopWindowsMedia_nativeUpdate(
 
 JNIEXPORT void JNICALL
 Java_com_music_bitchord_desktop_DesktopWindowsMedia_nativeStop(JNIEnv*, jobject) {
+    if (g_window != nullptr) PostMessageW(g_window, WM_BITCHORD_QUIT, 0, 0);
+    if (g_thread.joinable()) g_thread.join();
+}
+
+JNIEXPORT void JNICALL JNI_OnUnload(JavaVM*, void*) {
     if (g_window != nullptr) PostMessageW(g_window, WM_BITCHORD_QUIT, 0, 0);
     if (g_thread.joinable()) g_thread.join();
 }
