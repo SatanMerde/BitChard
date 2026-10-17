@@ -101,13 +101,28 @@ jobs:
         path: release-apks/*.apk
 
     - name: Create or Update GitHub Release
-      uses: softprops/action-gh-release@v2
       if: github.ref == 'refs/heads/main'
-      with:
-        tag_name: "v${{ steps.get_version.outputs.version }}"
-        name: "BitChard v${{ steps.get_version.outputs.version }}"
-        make_latest: true
-        draft: false
-        prerelease: false
-        files: release-apks/*.apk
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        TAG="v${{ steps.get_version.outputs.version }}"
+        echo "Publishing release for $TAG..."
+        
+        # Create or update the versioned release and mark it latest
+        if gh release view "$TAG" >/dev/null 2>&1; then
+          echo "Updating existing release $TAG..."
+          gh release upload "$TAG" release-apks/*.apk --clobber
+        else
+          echo "Creating new release $TAG..."
+          gh release create "$TAG" release-apks/*.apk \
+            --title "BitChard $TAG" \
+            --generate-notes \
+            --latest
+        fi
+
+        # Also update latest release tag assets if it exists
+        if gh release view "latest" >/dev/null 2>&1; then
+          echo "Updating latest release assets..."
+          gh release upload "latest" release-apks/*.apk --clobber || true
+        fi
 
