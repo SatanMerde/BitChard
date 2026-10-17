@@ -387,6 +387,9 @@ object AppSettings {
     /** Speed rate of BitG AI DJ's speech (0.5 to 2.0). */
     val bitgVoiceSpeed = MutableStateFlow(1.03f)
 
+    /** Selected TTS Voice name for BitG (or empty for automatic highest quality HD voice). */
+    val bitgVoiceName = MutableStateFlow("")
+
     /** Whether BitG speaks live audio commentary and introductions. */
     val bitgVoiceEnabled = MutableStateFlow(true)
 
@@ -901,6 +904,7 @@ object AppSettings {
         translationLanguage.value = prefs.getString(KEY_TRANSLATION_LANGUAGE, "").orEmpty()
         bitgVoicePitch.value = prefs.getFloat(KEY_BITG_VOICE_PITCH, 1.0f).coerceIn(0.5f, 1.5f)
         bitgVoiceSpeed.value = prefs.getFloat(KEY_BITG_VOICE_SPEED, 1.03f).coerceIn(0.5f, 2.0f)
+        bitgVoiceName.value = prefs.getString(KEY_BITG_VOICE_NAME, "").orEmpty()
         bitgVoiceEnabled.value = prefs.getBoolean(KEY_BITG_VOICE_ENABLED, true)
         bitgLanguage.value = prefs.getString(KEY_BITG_LANGUAGE, "auto") ?: "auto"
         bitgAiProvider.value = prefs.getString(KEY_BITG_AI_PROVIDER, "gemini") ?: "gemini"
@@ -1368,6 +1372,12 @@ object AppSettings {
         val clamped = speed.coerceIn(0.5f, 2.0f)
         bitgVoiceSpeed.value = clamped
         prefs.edit().putFloat(KEY_BITG_VOICE_SPEED, clamped).apply()
+    }
+
+    fun setBitgVoiceName(name: String) {
+        val trimmed = name.trim()
+        bitgVoiceName.value = trimmed
+        prefs.edit().putString(KEY_BITG_VOICE_NAME, trimmed).apply()
     }
 
     fun setBitgVoiceEnabled(enabled: Boolean) {
@@ -2115,6 +2125,7 @@ object AppSettings {
     private const val KEY_TRANSLATION_LANGUAGE = "translation_language"
     private const val KEY_BITG_VOICE_PITCH = "bitg_voice_pitch"
     private const val KEY_BITG_VOICE_SPEED = "bitg_voice_speed"
+    private const val KEY_BITG_VOICE_NAME = "bitg_voice_name"
     private const val KEY_BITG_VOICE_ENABLED = "bitg_voice_enabled"
     private const val KEY_BITG_LANGUAGE = "bitg_language"
     private const val KEY_BITG_AI_PROVIDER = "bitg_ai_provider"

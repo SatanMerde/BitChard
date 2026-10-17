@@ -121,6 +121,25 @@ class QueueWindowTest {
     }
 
     @Test
+    fun shrinkingQueueWindowPreservesOrderAndDoesNotThrow() {
+        val window = QueueWindow(50, shuffleSeed = 42L).startAt(10, shuffle = true)
+        assertEquals(50, window.canonicalSize)
+        // Shrink from 50 to 49 (exact user scenario)
+        window.extendTo(49)
+        assertEquals(49, window.canonicalSize)
+        assertEquals(49, window.order.size)
+        assertEquals((0 until 49).toSet(), window.order.toSet())
+        assertTrue(window.cursor >= 0)
+        assertEquals(10, window.currentCanonicalIndex)
+
+        // Further shrink to 5
+        window.shrinkTo(5)
+        assertEquals(5, window.canonicalSize)
+        assertEquals(5, window.order.size)
+        assertEquals((0 until 5).toSet(), window.order.toSet())
+    }
+
+    @Test
     fun explicitNavigationMayReplayButDoesNotClearConsumedShuffleState() {
         val window = QueueWindow(6, shuffleSeed = 1L).startAt(0, shuffle = true)
         val first = window.advanceAutomatically()!!

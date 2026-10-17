@@ -249,18 +249,39 @@ class QueueWindow(
         fun fromSnapshot(snapshot: QueueWindowSnapshot): QueueWindow = restore(snapshot)
     }
 
-    /** Add canonical indices [canonicalN, newCanonicalSize) without rebuilding old order. */
+    /** Add canonical indices [canonicalN, newCanonicalSize) or shrink window if tracks were removed. */
     fun extendTo(newCanonicalSize: Int): QueueWindow {
-        require(newCanonicalSize >= canonicalCount) {
-            "cannot shrink a QueueWindow from $canonicalCount to $newCanonicalSize"
-        }
+        require(newCanonicalSize >= 0) { "canonicalSize must be non-negative" }
         if (newCanonicalSize == canonicalCount) return this
+        if (newCanonicalSize < canonicalCount) return shrinkTo(newCanonicalSize)
 
         val firstNew = canonicalCount
         canonicalCount = newCanonicalSize
         logicalOrder += freshOrder(firstNew, activeCycleId)
         plannedCycles.entries.forEach { planned ->
             planned.setValue(planned.value + freshOrder(firstNew, planned.key))
+        }
+        rebuildInverse()
+        return this
+    }
+
+    /** Shrink canonical indices to [0, newCanonicalSize) while preserving existing relative order. */
+    fun shrinkTo(newCanonicalSize: Int): QueueWindow {
+        require(newCanonicalSize >= 0) { "canonicalSize must be non-negative" }
+        if (newCanonicalSize >= canonicalCount) return extendTo(newCanonicalSize)
+
+        canonicalCount = newCanonicalSize
+        logicalOrder = logicalOrder.filter { it < newCanonicalSize }.toIntArray()
+        plannedCycles.entries.forEach { (cycleKey, plannedArr) ->
+            plannedCycles[cycleKey] = plannedArr.filter { it < newCanonicalSize }.toIntArray()
+        }
+        consumed.removeAll { it >= newCanonicalSize }
+        if (currentIndex != null && currentIndex!! >= newCanonicalSize) {
+            currentIndex = if (newCanonicalSize > 0) newCanonicalSize - 1 else null
+        }
+        logicalCursor = currentIndex?.let { logicalOrder.indexOf(it) } ?: -1
+        if (lastCycleFinal != null && lastCycleFinal!! >= newCanonicalSize) {
+            lastCycleFinal = null
         }
         rebuildInverse()
         return this

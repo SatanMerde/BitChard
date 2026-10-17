@@ -5,6 +5,7 @@ import android.media.AudioAttributes
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import android.speech.tts.Voice
 import androidx.media3.session.MediaController
 import com.music.bitchord.data.LocalMediaRepository
 import com.music.bitchord.data.YtMusicRepository
@@ -59,6 +60,12 @@ object AiDjManager {
     private val _currentSpeech = MutableStateFlow("")
     val currentSpeech: StateFlow<String> = _currentSpeech.asStateFlow()
 
+    data class BitgVoiceOption(
+        val id: String,
+        val displayName: String,
+        val isNeural: Boolean,
+    )
+
     fun init(context: Context) {
         if (tts != null && isTtsInitialized) return
 
@@ -69,7 +76,7 @@ object AiDjManager {
 
                 runCatching {
                     val attrs = AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
                         .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
                         .build()
                     tts?.setAudioAttributes(attrs)
@@ -93,26 +100,134 @@ object AiDjManager {
         }
     }
 
-    private fun applyTtsSettings() {
-        val ttsEngine = tts ?: return
-        val configuredLang = AppSettings.bitgLanguage.value
-        when (configuredLang) {
-            "fr" -> ttsEngine.setLanguage(Locale.FRENCH)
-            "en" -> ttsEngine.setLanguage(Locale.US)
+    fun getAvailableVoices(): List<BitgVoiceOption> {
+        val ttsEngine = tts ?: return emptyList()
+        val targetLocale = when (getEffectiveLanguage()) {
+            "fr" -> Locale.FRENCH
+            "en" -> Locale.US
             else -> {
-                val systemLocale = Locale.getDefault()
-                val langResult = ttsEngine.setLanguage(systemLocale)
-                if (langResult == TextToSpeech.LANG_MISSING_DATA || langResult == TextToSpeech.LANG_NOT_SUPPORTED) {
-                    if (systemLocale.language == "fr") {
-                        ttsEngine.setLanguage(Locale.FRENCH)
-                    } else {
-                        ttsEngine.setLanguage(Locale.US)
-                    }
-                }
+                val sys = Locale.getDefault()
+                if (sys.language == "fr") Locale.FRENCH else if (sys.language == "en") Locale.US else sys
             }
         }
+
+        val voices = runCatching { ttsEngine.voices }.getOrNull()?.filter {
+            it.locale.language.equals(targetLocale.language, ignoreCase = true) &&
+                !it.features.contains(TextToSpeech.Engine.KEY_FEATURE_NOT_INSTALLED)
+        }.orEmpty()
+
+        val sorted = voices.sortedWith(
+            compareByDescending<Voice> { it.quality }
+                .thenByDescending {
+                    val n = it.name.lowercase()
+                    n.contains("neural") || n.contains("wavenet") || n.contains("natural") || n.contains("network")
+                }
+                .thenBy { it.name }
+        )
+
+        val list = mutableListOf<BitgVoiceOption>()
+        list.add(BitgVoiceOption("", "Automatique (Studio HD Naturel)", true))
+
+        sorted.forEachIndexed { index, v ->
+            val n = v.name.lowercase()
+            val isNeural = n.contains("neural") || n.contains("wavenet") || n.contains("natural") || n.contains("network") || v.quality >= Voice.QUALITY_HIGH
+            val gender = when {
+                n.contains("female") || n.contains("-f-") || n.contains("fr-fr-language") -> "Féminine"
+                n.contains("male") || n.contains("-m-") -> "Masculine"
+                else -> null
+            }
+            val qualityLabel = when {
+                v.quality >= Voice.QUALITY_VERY_HIGH -> "Studio Ultra HD"
+                v.quality >= Voice.QUALITY_HIGH || isNeural -> "Haute Définition HD"
+                else -> "Standard"
+            }
+            val display = buildString {
+                append("Voix ")
+                append(index + 1)
+                if (gender != null) append(" ($gender)")
+                append(" • ")
+                append(qualityLabel)
+            }
+            list.add(BitgVoiceOption(v.name, display, isNeural))
+        }
+        return list
+    }
+
+    fun applyTtsSettings() {
+        val ttsEngine = tts ?: return
+        val configuredLang = AppSettings.bitgLanguage.value
+        val targetLocale = when (configuredLang) {
+            "fr" -> Locale.FRENCH
+            "en" -> Locale.US
+            else -> {
+                val systemLocale = Locale.getDefault()
+                if (systemLocale.language == "fr") Locale.FRENCH
+                else if (systemLocale.language == "en") Locale.US
+                else systemLocale
+            }
+        }
+
+        runCatching { ttsEngine.language = targetLocale }
+
+        val selectedVoiceName = AppSettings.bitgVoiceName.value
+        runCatching {
+            val available = ttsEngine.voices?.filter {
+                it.locale.language.equals(targetLocale.language, ignoreCase = true) &&
+                    !it.features.contains(TextToSpeech.Engine.KEY_FEATURE_NOT_INSTALLED)
+            }.orEmpty()
+
+            val chosenVoice = if (selectedVoiceName.isNotBlank()) {
+                available.firstOrNull { it.name == selectedVoiceName }
+            } else null ?: run {
+                // Automatically pick best studio/neural voice
+                available.maxWithOrNull(
+                    compareBy<Voice> { it.quality }
+                        .thenBy {
+                            val n = it.name.lowercase()
+                            when {
+                                n.contains("neural") || n.contains("wavenet") || n.contains("natural") -> 4
+                                n.contains("network") -> 3
+                                n.contains("high") -> 2
+                                else -> 0
+                            }
+                        }
+                )
+            }
+
+            if (chosenVoice != null) {
+                ttsEngine.voice = chosenVoice
+            }
+        }
+
+        // Set rich studio audio routing
+        runCatching {
+            val attrs = AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_MEDIA)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                .build()
+            ttsEngine.setAudioAttributes(attrs)
+        }
+
         ttsEngine.setPitch(AppSettings.bitgVoicePitch.value)
         ttsEngine.setSpeechRate(AppSettings.bitgVoiceSpeed.value)
+    }
+
+    fun testVoice(sampleText: String? = null) {
+        val isFrench = getEffectiveLanguage() == "fr"
+        val text = sampleText ?: if (isFrench) {
+            "Salut ! C'est BitG sur ta musique. Qu'est-ce qu'on s'écoute de bon aujourd'hui ?"
+        } else {
+            "Hey! It's BitG on the decks. What are we vibing to today?"
+        }
+        val ttsEngine = tts ?: return
+        applyTtsSettings()
+        val utteranceId = "preview-${System.currentTimeMillis()}"
+        val params = Bundle().apply {
+            putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1.0f)
+            putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId)
+        }
+        _isSpeaking.value = true
+        ttsEngine.speak(text, TextToSpeech.QUEUE_FLUSH, params, utteranceId)
     }
 
     private fun getEffectiveLanguage(): String {

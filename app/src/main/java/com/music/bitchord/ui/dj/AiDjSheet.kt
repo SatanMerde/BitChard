@@ -36,6 +36,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Settings
@@ -168,6 +169,7 @@ fun AiDjSheet(
     val voiceSpeed by AppSettings.bitgVoiceSpeed.collectAsStateWithLifecycle()
     val voiceEnabled by AppSettings.bitgVoiceEnabled.collectAsStateWithLifecycle()
     val voiceLang by AppSettings.bitgLanguage.collectAsStateWithLifecycle()
+    val voiceName by AppSettings.bitgVoiceName.collectAsStateWithLifecycle()
 
     val speechLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult(),
@@ -384,6 +386,86 @@ fun AiDjSheet(
                                 )
                             }
                         }
+                    }
+
+                    Spacer(Modifier.height(16.dp))
+
+                    Text(
+                        text = "Sélection de la voix (Studio HD)",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontFamily = SFProDisplay,
+                            fontWeight = FontWeight.SemiBold,
+                        ),
+                        color = Color.White,
+                    )
+                    Spacer(Modifier.height(8.dp))
+
+                    val availableVoices = remember(voiceLang) { AiDjManager.getAvailableVoices() }
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        availableVoices.forEach { voiceOption ->
+                            val isSelected = (voiceName.isBlank() && voiceOption.id.isBlank()) || voiceName == voiceOption.id
+                            Surface(
+                                shape = RoundedCornerShape(12.dp),
+                                color = if (isSelected) BitgViolet.copy(alpha = 0.5f) else Color(0xFF20202C),
+                                border = BorderStroke(
+                                    1.dp,
+                                    if (isSelected) BitgNeonCyan.copy(alpha = 0.8f) else Color.Transparent,
+                                ),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .clickable {
+                                        AppSettings.setBitgVoiceName(voiceOption.id)
+                                        AiDjManager.applyTtsSettings()
+                                    }
+                                    .padding(horizontal = 12.dp, vertical = 9.dp),
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                ) {
+                                    Text(
+                                        text = voiceOption.displayName,
+                                        color = if (isSelected) Color.White else Color.White.copy(alpha = 0.8f),
+                                        style = MaterialTheme.typography.bodySmall.copy(
+                                            fontFamily = SFProDisplay,
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                        ),
+                                        modifier = Modifier.weight(1f),
+                                    )
+                                    if (isSelected) {
+                                        Icon(
+                                            imageVector = Icons.Rounded.AutoAwesome,
+                                            contentDescription = null,
+                                            tint = BitgNeonCyan,
+                                            modifier = Modifier.size(16.dp),
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(Modifier.height(16.dp))
+
+                    OutlinedButton(
+                        onClick = { AiDjManager.testVoice() },
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = BitgNeonCyan),
+                        border = BorderStroke(1.dp, BitgNeonCyan.copy(alpha = 0.6f)),
+                        shape = RoundedCornerShape(14.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.VolumeUp,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = "Tester la voix de BitG",
+                            fontFamily = SFProDisplay,
+                            fontWeight = FontWeight.SemiBold,
+                        )
                     }
                 }
             },
