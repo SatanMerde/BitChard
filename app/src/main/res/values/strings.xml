@@ -1221,7 +1221,7 @@
     <string name="signed_by">Signed by %1$s</string>
     <string name="ai_dj_title">BitG AI DJ</string>
     <string name="ai_dj_card_title">BitG</string>
-    <string name="ai_dj_card_subtitle">Spotify-like DJ with live voice &amp; dynamic mix</string>
+    <string name="ai_dj_card_subtitle">Your personal AI DJ with live voice &amp; dynamic mix</string>
     <string name="ai_dj_start">Launch BitG</string>
     <string name="ai_dj_control">BitG Controls</string>
     <string name="ai_dj_switch_vibe">Switch Vibe</string>

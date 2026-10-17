@@ -168,6 +168,29 @@ fun MediaController.upgradeQuality() {
     )
 }
 
+/** Drops a deleted playlist song from the controller queue and active bounded context. */
+fun MediaController.dropFromContext(videoId: String, sourceId: String? = null) {
+    val cur = currentMediaItemIndex
+    for (i in mediaItemCount - 1 downTo 0) {
+        val item = getMediaItemAt(i)
+        val matchVideo = item.mediaId == videoId
+        val matchSource = sourceId == null || item.playbackSourceId == sourceId
+        if (matchVideo && matchSource) {
+            if (i == cur && mediaItemCount > 1) {
+                seekToNextMediaItem()
+            }
+            removeMediaItem(i)
+        }
+    }
+    sendCustomCommand(
+        SessionCommand(ACTION_DROP_FROM_CONTEXT, Bundle.EMPTY),
+        bundleOf(
+            EXTRA_DROP_SONG_ID to videoId,
+            EXTRA_DROP_SOURCE_ID to sourceId,
+        ),
+    )
+}
+
 /**
  * Asks the service to revert the playing track to YouTube's original stream.
  */
@@ -490,6 +513,10 @@ val MediaItem.queueTier: QueueTier
 /** @see Song.queueEntryId */
 val MediaItem.queueEntryId: String?
     get() = mediaMetadata.extras?.getString(EXTRA_QUEUE_ENTRY_ID) ?: mediaItemEntryIds[this]
+
+/** @see Song.playbackSourceId */
+val MediaItem.playbackSourceId: String?
+    get() = mediaMetadata.extras?.getString(EXTRA_PLAYBACK_SOURCE_ID)
 
 /** Public metadata keys for queue categorization and immutable queue entry identity. */
 const val EXTRA_QUEUE_TIER = "bitchord.queueTier"

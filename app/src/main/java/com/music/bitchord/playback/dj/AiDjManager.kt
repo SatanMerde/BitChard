@@ -231,6 +231,100 @@ object AiDjManager {
         }
     }
 
+    data class ParsedDjPrompt(
+        val cleanSubject: String,
+        val searchQuery: String,
+        val spokenText: String,
+    )
+
+    fun parseUserPrompt(prompt: String, isFrench: Boolean): ParsedDjPrompt {
+        val trimmed = prompt.trim()
+        if (trimmed.isEmpty()) {
+            return ParsedDjPrompt(
+                cleanSubject = "Mix",
+                searchQuery = "Top hits",
+                spokenText = if (isFrench) "C'est parti pour une sélection sur mesure !" else "Let's roll with a custom mix!",
+            )
+        }
+
+        var subject = trimmed
+
+        if (isFrench) {
+            // Remove conversational politeness & trailing filler
+            subject = subject.replace(Regex("(?i)\\b(s'il te plaît|s'il vous plaît|svp|merci|stp)\\b"), "").trim()
+
+            // Remove leading trigger phrases
+            val frTriggers = listOf(
+                Regex("^(est-ce que tu peux( me)?|peux-tu( me)?|peux tu( me)?|tu peux( me)?)\\s+(mettre|lancer|balancer|jouer|passer)\\s+", RegexOption.IGNORE_CASE),
+                Regex("^(je voudrais( bien)?|j'aimerais( bien)?|je veux( bien)?|j'ai envie d'écouter|j'ai envie de|je souhaite)\\s+", RegexOption.IGNORE_CASE),
+                Regex("^(mets-moi|mets moi|mets-nous|mets nous|mets|balance-moi|balance moi|balance|lance-moi|lance moi|lance|joue-moi|joue moi|joue|fais péter|fais peter|fais tourner|passe-moi|passe moi|passe|écoute|écouter)\\s+", RegexOption.IGNORE_CASE),
+            )
+            for (trigger in frTriggers) {
+                subject = trigger.replace(subject, "").trim()
+            }
+
+            // Remove leading partitives / articles
+            val frArticles = Regex("^(du |de la |de l'|des |d'|un peu de |le |la |les |l')", RegexOption.IGNORE_CASE)
+            val withoutArticle = frArticles.replace(subject, "").trim()
+            if (withoutArticle.isNotBlank()) {
+                subject = withoutArticle
+            }
+
+            subject = subject.trimEnd('.', '!', '?', ',', ';').trim()
+            val displaySubject = subject.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+
+            val frPhrases = listOf(
+                "Ça roule ! Je te balance du $displaySubject, monte le son !",
+                "C'est parti pour une session $displaySubject, installe-toi bien !",
+                "Reçu 5 sur 5 ! Place à $displaySubject tout de suite.",
+                "Excellente idée ! Je te cale du $displaySubject, fais péter les watts !",
+                "Et voici du $displaySubject rien que pour toi, bonne écoute !",
+                "Tout de suite dans les oreilles : du bon $displaySubject, monte le volume !"
+            )
+            val spoken = frPhrases.random()
+
+            return ParsedDjPrompt(
+                cleanSubject = displaySubject,
+                searchQuery = displaySubject,
+                spokenText = spoken,
+            )
+        } else {
+            subject = subject.replace(Regex("(?i)\\b(please|thanks|thank you)\\b"), "").trim()
+
+            val enTriggers = listOf(
+                Regex("^(could you( please)?|can you( please)?|would you( please)?)\\s+(play|put on|spin|blast)\\s+", RegexOption.IGNORE_CASE),
+                Regex("^(i'd like( to hear| some)?|i want( to listen to| to hear| some)?|i feel like listening to)\\s+", RegexOption.IGNORE_CASE),
+                Regex("^(play( me)?|put on|blast|spin|give me)\\s+", RegexOption.IGNORE_CASE),
+            )
+            for (trigger in enTriggers) {
+                subject = trigger.replace(subject, "").trim()
+            }
+
+            val enArticles = Regex("^(some |the |a |an )", RegexOption.IGNORE_CASE)
+            val withoutArticle = enArticles.replace(subject, "").trim()
+            if (withoutArticle.isNotBlank()) {
+                subject = withoutArticle
+            }
+
+            subject = subject.trimEnd('.', '!', '?', ',', ';').trim()
+            val displaySubject = subject.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+
+            val enPhrases = listOf(
+                "You got it! Spinning some $displaySubject for you right now, turn it up!",
+                "Great choice! Here comes a fresh $displaySubject session, enjoy!",
+                "Say no more! Queueing up $displaySubject, let's ride!",
+                "Right on! Dropping some $displaySubject into the mix for you!"
+            )
+            val spoken = enPhrases.random()
+
+            return ParsedDjPrompt(
+                cleanSubject = displaySubject,
+                searchQuery = displaySubject,
+                spokenText = spoken,
+            )
+        }
+    }
+
     /**
      * Ask BitG anything! (Voice or text prompt request like Spotify AI DJ).
      */
@@ -240,25 +334,21 @@ object AiDjManager {
         controller: MediaController?,
         scope: CoroutineScope,
     ) {
-        val cleanPrompt = prompt.trim()
-        if (cleanPrompt.isBlank()) return
+        val rawPrompt = prompt.trim()
+        if (rawPrompt.isBlank()) return
         init(context)
         _isActive.value = true
-        _currentVibe.value = "BitG : $cleanPrompt"
+
+        val isFrench = getEffectiveLanguage() == "fr"
+        val parsed = parseUserPrompt(rawPrompt, isFrench)
+        _currentVibe.value = "BitG • ${parsed.cleanSubject}"
 
         activeJob?.cancel()
         activeJob = scope.launch {
-            val isFrench = getEffectiveLanguage() == "fr"
-            val text = if (isFrench) {
-                "C'est noté ! Je te lance une sélection $cleanPrompt, monte le son !"
-            } else {
-                "On it! Cooking up a $cleanPrompt session for you. Enjoy!"
-            }
-
-            speak(text) {
+            speak(parsed.spokenText) {
                 if (!_isActive.value) return@speak
                 scope.launch {
-                    val songs = searchForPrompt(cleanPrompt)
+                    val songs = searchForPrompt(parsed.searchQuery)
                     if (_isActive.value && songs.isNotEmpty() && controller != null) {
                         controller.playSongs(songs, 0)
                     }

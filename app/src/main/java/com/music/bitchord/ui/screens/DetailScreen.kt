@@ -51,6 +51,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.PlayArrow
 import com.music.bitchord.data.model.LibraryState
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.GraphicEq
@@ -729,10 +730,13 @@ fun DetailScreen(
                                 items(top.chunked(SONGS_PER_COLUMN)) { column ->
                                     Column(Modifier.width(columnWidth)) {
                                         column.forEach { song ->
+                                            val songIndex = top.indexOf(song)
                                             CompactSongRow(
                                                 song = song,
                                                 palette = palette,
-                                                onClick = { onSongClick(top, top.indexOf(song)) },
+                                                rank = if (songIndex >= 0) songIndex + 1 else null,
+                                                artistPageName = page.title,
+                                                onClick = { onSongClick(top, songIndex) },
                                                 onLongPress = { onSongLongPress(song) },
                                                 downloadedTint = downloadedTint,
                                                 isCurrent = isCurrentRow(song),
@@ -1976,6 +1980,8 @@ private fun CompactSongRow(
     palette: ArtworkPalette,
     onClick: () -> Unit,
     onLongPress: () -> Unit,
+    rank: Int? = null,
+    artistPageName: String? = null,
     downloadedTint: Color? = null,
     isCurrent: Boolean = false,
     isPlaying: Boolean = false,
@@ -1987,6 +1993,17 @@ private fun CompactSongRow(
             .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        if (rank != null) {
+            Text(
+                text = rank.toString(),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = if (isCurrent) palette.accent else palette.onBackgroundVariant,
+                modifier = Modifier.width(24.dp),
+                textAlign = TextAlign.Center,
+            )
+            Spacer(Modifier.width(10.dp))
+        }
         Box(Modifier.size(48.dp)) {
             AsyncImage(
                 model = song.artworkAt(ROW_ART_PX),
@@ -2006,18 +2023,40 @@ private fun CompactSongRow(
                 style = MaterialTheme.typography.titleMedium,
                 color = if (isCurrent) palette.accent else palette.onBackground,
             )
-            val subtitleText = if (!song.playCount.isNullOrBlank()) {
-                "${song.artist} • ${song.playCount}"
-            } else {
-                song.artist
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (song.isVideo) {
+                    Icon(
+                        imageVector = Icons.Rounded.PlayArrow,
+                        contentDescription = null,
+                        modifier = Modifier.size(13.dp).padding(end = 2.dp),
+                        tint = palette.onBackgroundVariant,
+                    )
+                }
+                val isSoleArtist = artistPageName != null &&
+                    song.artist.equals(artistPageName, ignoreCase = true) &&
+                    song.artists.size <= 1
+                val playCount = song.playCount
+                val subtitleText = when {
+                    !playCount.isNullOrBlank() -> {
+                        when {
+                            song.isVideo && !isSoleArtist -> "${song.artist} • Vidéo • $playCount"
+                            song.isVideo -> "Vidéo • $playCount"
+                            !isSoleArtist -> "${song.artist} • $playCount"
+                            else -> playCount
+                        }
+                    }
+                    song.isVideo && !isSoleArtist -> "${song.artist} • Vidéo"
+                    song.isVideo -> "Vidéo"
+                    else -> song.artist
+                }
+                Text(
+                    text = subtitleText,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = palette.onBackgroundVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
-            Text(
-                text = subtitleText,
-                style = MaterialTheme.typography.bodyMedium,
-                color = palette.onBackgroundVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
         }
         if (downloadedTint != null) {
             DownloadedBadge(song.videoId, downloadedTint)

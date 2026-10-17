@@ -285,6 +285,25 @@ class ContextRegistry(
         return result
     }
 
+    /**
+     * Drops any track whose [Song.videoId] matches [videoId] from the active context.
+     * Returns true if any song was removed.
+     */
+    fun removeSong(videoId: String): Boolean {
+        var callbackSnapshot: ContextSnapshot? = null
+        val removed = synchronized(lock) {
+            val state = active ?: return false
+            val remaining = state.songs.filterNot { it.videoId == videoId }
+            if (remaining.size == state.songs.size) return false
+            state.songs = immutableSongs(remaining)
+            state.version = newVersionLocked()
+            callbackSnapshot = state.snapshot()
+            true
+        }
+        callbackSnapshot?.let(::notifyGrowth)
+        return removed
+    }
+
     /** Adds a growth listener and returns its removal id. */
     fun addGrowthListener(listener: (ContextSnapshot) -> Unit): Long = synchronized(lock) {
         val id = nextListenerId++

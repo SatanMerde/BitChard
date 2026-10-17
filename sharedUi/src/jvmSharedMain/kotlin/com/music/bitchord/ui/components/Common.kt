@@ -570,6 +570,7 @@ private fun SongRowContent(
             Spacer(Modifier.height(2.dp))
             val subtitle = listOfNotNull(
                 song.artist.takeIf { it.isNotBlank() },
+                song.playCount?.takeIf { it.isNotBlank() },
                 song.downloadFormat,
             ).joinToString(" · ")
             val quality = if (showSourceQuality) song.sourceQualityBadge() else null

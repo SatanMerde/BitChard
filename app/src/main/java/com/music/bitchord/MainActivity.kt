@@ -213,6 +213,7 @@ import com.music.bitchord.playback.toggleShuffle
 import com.music.bitchord.playback.upgradeQuality
 import com.music.bitchord.playback.revertToOriginal
 import com.music.bitchord.playback.swapToVersion
+import com.music.bitchord.playback.dropFromContext
 import com.music.bitchord.playback.smart.VersionAudioAligner
 import com.music.bitchord.download.DownloadSession
 import com.music.bitchord.download.DownloadStore
@@ -4434,6 +4435,7 @@ private fun BitChordApp(
                     {
                         songActions = null
                         viewModel.removeFromPlaylist(it.browseId, song)
+                        controller?.dropFromContext(song.videoId, it.browseId)
                     }
                 },
                 onOpenAlbum = { id ->

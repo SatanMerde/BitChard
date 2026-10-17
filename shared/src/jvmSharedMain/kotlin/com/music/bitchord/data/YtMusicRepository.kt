@@ -1039,7 +1039,19 @@ object YtMusicRepository {
             }
             val fullSongs = fullSongsDeferred.await()
             val fullShelves = shelvesDeferred.awaitAll()
-            val resolvedSongs = if (!fullSongs.isNullOrEmpty()) fullSongs else page.songs
+            val resolvedSongs = if (!fullSongs.isNullOrEmpty()) {
+                val initialByVideoId = page.songs.associateBy { it.videoId }
+                fullSongs.map { song ->
+                    val initial = initialByVideoId[song.videoId]
+                    if (initial?.playCount != null && song.playCount == null) {
+                        song.copy(playCount = initial.playCount)
+                    } else {
+                        song
+                    }
+                }
+            } else {
+                page.songs
+            }
             page.copy(songs = resolvedSongs, sections = fullShelves)
         }
     }

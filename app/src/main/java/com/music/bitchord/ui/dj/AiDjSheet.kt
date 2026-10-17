@@ -3,7 +3,6 @@ package com.music.bitchord.ui.dj
 import android.app.Activity
 import android.content.Intent
 import android.speech.RecognizerIntent
-import android.speech.SpeechRecognizer
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -14,6 +13,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -36,10 +36,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Mic
-import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.Sync
@@ -55,8 +53,10 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -84,7 +84,62 @@ import androidx.media3.session.MediaController
 import com.music.bitchord.R
 import com.music.bitchord.data.settings.AppSettings
 import com.music.bitchord.playback.dj.AiDjManager
+import com.music.bitchord.ui.theme.SFProDisplay
 import kotlinx.coroutines.CoroutineScope
+
+// BitG Luxury Cyber Palette
+private val BitgViolet = Color(0xFF8A2BE2)
+private val BitgNeonCyan = Color(0xFF00D2FF)
+private val BitgCrimson = Color(0xFFFA2D48)
+private val BitgSheetBackground = Color(0xFF0C0C10)
+private val BitgGlassSurface = Color(0xFF161620)
+private val BitgGlassBorder = Color(0x25FFFFFF)
+
+@Composable
+private fun EqualizerWave(
+    isSpeaking: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    val transition = rememberInfiniteTransition(label = "EqualizerWaveTransition")
+    val heights = (0 until 5).map { index ->
+        val duration = if (isSpeaking) 320 + index * 70 else 1000 + index * 160
+        val minHeight = if (isSpeaking) 10f else 6f
+        val maxHeight = if (isSpeaking) 36f else 18f
+        val animatedHeight by transition.animateFloat(
+            initialValue = minHeight,
+            targetValue = maxHeight,
+            animationSpec = infiniteRepeatable(
+                animation = tween(duration, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse,
+            ),
+            label = "EqualizerBar$index",
+        )
+        animatedHeight
+    }
+
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(5.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        heights.forEachIndexed { idx, barHeight ->
+            val barBrush = when (idx) {
+                0 -> Brush.verticalGradient(listOf(BitgNeonCyan, BitgViolet))
+                1 -> Brush.verticalGradient(listOf(BitgViolet, BitgCrimson))
+                2 -> Brush.verticalGradient(listOf(BitgCrimson, BitgViolet))
+                3 -> Brush.verticalGradient(listOf(BitgViolet, BitgNeonCyan))
+                else -> Brush.verticalGradient(listOf(BitgNeonCyan, BitgViolet))
+            }
+            Box(
+                modifier = Modifier
+                    .width(5.dp)
+                    .height(barHeight.dp)
+                    .clip(RoundedCornerShape(3.dp))
+                    .background(barBrush),
+            )
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -122,24 +177,39 @@ fun AiDjSheet(
         }
     }
 
-    val infiniteTransition = rememberInfiniteTransition(label = "BitGOrbPulse")
+    val infiniteTransition = rememberInfiniteTransition(label = "BitGSonicHaloPulse")
     val pulseScale by infiniteTransition.animateFloat(
         initialValue = 1.0f,
-        targetValue = if (isSpeaking) 1.18f else 1.06f,
+        targetValue = if (isSpeaking) 1.15f else 1.05f,
         animationSpec = infiniteRepeatable(
-            animation = tween(if (isSpeaking) 500 else 1400, easing = FastOutSlowInEasing),
+            animation = tween(if (isSpeaking) 450 else 1400, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse,
         ),
-        label = "BitGOrbScale",
+        label = "BitGCoreScale",
+    )
+    val glowAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.22f,
+        targetValue = if (isSpeaking) 0.55f else 0.35f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(if (isSpeaking) 500 else 1600, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "BitGGlowAlpha",
     )
 
     if (showBitgSettings) {
         AlertDialog(
             onDismissRequest = { showBitgSettings = false },
+            containerColor = Color(0xFF14141C),
+            shape = RoundedCornerShape(24.dp),
             title = {
                 Text(
                     text = stringResource(R.string.bitg_settings_title),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontFamily = SFProDisplay,
+                        fontWeight = FontWeight.Bold,
+                    ),
+                    color = Color.White,
                 )
             },
             text = {
@@ -158,66 +228,105 @@ fun AiDjSheet(
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 text = stringResource(R.string.bitg_voice_enabled),
-                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    fontFamily = SFProDisplay,
+                                    fontWeight = FontWeight.SemiBold,
+                                ),
+                                color = Color.White,
                             )
                             Text(
                                 text = stringResource(R.string.bitg_voice_enabled_subtitle),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                style = MaterialTheme.typography.bodySmall.copy(fontFamily = SFProDisplay),
+                                color = Color.White.copy(alpha = 0.6f),
                             )
                         }
                         Switch(
                             checked = voiceEnabled,
                             onCheckedChange = { AppSettings.setBitgVoiceEnabled(it) },
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = Color.White,
+                                checkedTrackColor = BitgViolet,
+                                uncheckedThumbColor = Color.White.copy(alpha = 0.6f),
+                                uncheckedTrackColor = Color(0xFF2C2C38),
+                            ),
                         )
                     }
 
-                    Spacer(Modifier.height(14.dp))
+                    Spacer(Modifier.height(16.dp))
 
                     Text(
                         text = "${stringResource(R.string.bitg_voice_pitch)}: ${(voicePitch * 100).toInt()}%",
-                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontFamily = SFProDisplay,
+                            fontWeight = FontWeight.SemiBold,
+                        ),
+                        color = Color.White,
                     )
                     Slider(
                         value = voicePitch,
                         onValueChange = { AppSettings.setBitgVoicePitch(it) },
                         valueRange = 0.5f..1.5f,
-                    )
-
-                    Spacer(Modifier.height(8.dp))
-
-                    Text(
-                        text = "${stringResource(R.string.bitg_voice_speed)}: ${(voiceSpeed * 100).toInt()}%",
-                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                    )
-                    Slider(
-                        value = voiceSpeed,
-                        onValueChange = { AppSettings.setBitgVoiceSpeed(it) },
-                        valueRange = 0.5f..2.0f,
+                        colors = SliderDefaults.colors(
+                            thumbColor = BitgNeonCyan,
+                            activeTrackColor = BitgViolet,
+                            inactiveTrackColor = Color(0xFF2C2C38),
+                        ),
                     )
 
                     Spacer(Modifier.height(10.dp))
 
                     Text(
-                        text = stringResource(R.string.bitg_language),
-                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                        text = "${stringResource(R.string.bitg_voice_speed)}: ${(voiceSpeed * 100).toInt()}%",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontFamily = SFProDisplay,
+                            fontWeight = FontWeight.SemiBold,
+                        ),
+                        color = Color.White,
                     )
-                    Spacer(Modifier.height(6.dp))
+                    Slider(
+                        value = voiceSpeed,
+                        onValueChange = { AppSettings.setBitgVoiceSpeed(it) },
+                        valueRange = 0.5f..2.0f,
+                        colors = SliderDefaults.colors(
+                            thumbColor = BitgNeonCyan,
+                            activeTrackColor = BitgViolet,
+                            inactiveTrackColor = Color(0xFF2C2C38),
+                        ),
+                    )
+
+                    Spacer(Modifier.height(12.dp))
+
+                    Text(
+                        text = stringResource(R.string.bitg_language),
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontFamily = SFProDisplay,
+                            fontWeight = FontWeight.SemiBold,
+                        ),
+                        color = Color.White,
+                    )
+                    Spacer(Modifier.height(8.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         listOf("auto" to "Auto", "fr" to "Français", "en" to "English").forEach { (code, label) ->
                             val selected = voiceLang == code
                             Surface(
                                 shape = RoundedCornerShape(16.dp),
-                                color = if (selected) Color(0xFF1DB954) else MaterialTheme.colorScheme.surfaceVariant,
+                                color = if (selected) BitgViolet else Color(0xFF20202C),
+                                border = BorderStroke(
+                                    1.dp,
+                                    if (selected) BitgNeonCyan.copy(alpha = 0.6f) else Color.Transparent,
+                                ),
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(16.dp))
                                     .clickable { AppSettings.setBitgLanguage(code) }
-                                    .padding(horizontal = 12.dp, vertical = 6.dp),
+                                    .padding(horizontal = 14.dp, vertical = 7.dp),
                             ) {
                                 Text(
                                     text = label,
-                                    color = if (selected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
-                                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                                    color = Color.White,
+                                    style = MaterialTheme.typography.labelMedium.copy(
+                                        fontFamily = SFProDisplay,
+                                        fontWeight = FontWeight.Bold,
+                                    ),
                                 )
                             }
                         }
@@ -226,7 +335,12 @@ fun AiDjSheet(
             },
             confirmButton = {
                 TextButton(onClick = { showBitgSettings = false }) {
-                    Text(stringResource(R.string.done))
+                    Text(
+                        text = stringResource(R.string.done),
+                        color = BitgNeonCyan,
+                        fontFamily = SFProDisplay,
+                        fontWeight = FontWeight.Bold,
+                    )
                 }
             },
         )
@@ -235,17 +349,27 @@ fun AiDjSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
-        containerColor = MaterialTheme.colorScheme.surface,
+        shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
+        containerColor = BitgSheetBackground,
+        dragHandle = {
+            Box(
+                modifier = Modifier
+                    .padding(vertical = 12.dp)
+                    .width(42.dp)
+                    .height(4.dp)
+                    .clip(CircleShape)
+                    .background(Color.White.copy(alpha = 0.2f)),
+            )
+        },
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 12.dp)
+                .padding(horizontal = 24.dp, vertical = 6.dp)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // Top Bar with Settings
+            // Header: Dynamic Pill Status Badge & Glass Settings Button
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -253,88 +377,160 @@ fun AiDjSheet(
             ) {
                 Surface(
                     shape = RoundedCornerShape(20.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f),
+                    color = BitgGlassSurface,
+                    border = BorderStroke(1.dp, BitgGlassBorder),
                 ) {
-                    Text(
-                        text = currentVibe,
-                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-                    )
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .clip(CircleShape)
+                                .background(if (isActive) BitgNeonCyan else Color.White.copy(alpha = 0.4f)),
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = currentVibe,
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontFamily = SFProDisplay,
+                                fontWeight = FontWeight.SemiBold,
+                            ),
+                            color = Color.White,
+                        )
+                    }
                 }
-                IconButton(onClick = { showBitgSettings = true }) {
+
+                IconButton(
+                    onClick = { showBitgSettings = true },
+                    modifier = Modifier
+                        .size(38.dp)
+                        .clip(CircleShape)
+                        .background(BitgGlassSurface)
+                        .border(1.dp, BitgGlassBorder, CircleShape),
+                ) {
                     Icon(
                         imageVector = Icons.Default.Settings,
                         contentDescription = stringResource(R.string.bitg_settings_title),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        tint = Color.White.copy(alpha = 0.85f),
+                        modifier = Modifier.size(18.dp),
                     )
                 }
             }
 
-            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.height(16.dp))
 
-            // Animated Glowing BitG Orb
+            // Futuristic Sonic Core Visualizer
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(110.dp)
-                    .scale(pulseScale)
-                    .clip(CircleShape)
-                    .background(
-                        brush = Brush.radialGradient(
-                            colors = listOf(
-                                Color(0xFF1DB954),
-                                Color(0xFF00D2FF),
-                                Color(0xFF9D00FF),
+                modifier = Modifier.size(140.dp),
+            ) {
+                // Soft Ambient Halo Glow
+                Box(
+                    modifier = Modifier
+                        .size(136.dp)
+                        .scale(pulseScale)
+                        .clip(CircleShape)
+                        .background(
+                            brush = Brush.radialGradient(
+                                colors = listOf(
+                                    BitgViolet.copy(alpha = glowAlpha),
+                                    BitgNeonCyan.copy(alpha = glowAlpha * 0.6f),
+                                    Color.Transparent,
+                                ),
                             ),
                         ),
-                    )
-                    .clickable {
-                        // Click on orb to trigger voice request
-                        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-                            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                            putExtra(RecognizerIntent.EXTRA_PROMPT, "Parle à BitG...")
-                        }
-                        runCatching { speechLauncher.launch(intent) }
-                    },
-            ) {
-                Icon(
-                    imageVector = if (isSpeaking) Icons.Default.GraphicEq else Icons.Default.Mic,
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(52.dp),
                 )
+
+                // Sonic Ring Core
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(108.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFF12121A))
+                        .border(
+                            border = BorderStroke(
+                                2.dp,
+                                Brush.sweepGradient(
+                                    listOf(
+                                        BitgViolet,
+                                        BitgNeonCyan,
+                                        BitgCrimson,
+                                        BitgViolet,
+                                    ),
+                                ),
+                            ),
+                            shape = CircleShape,
+                        )
+                        .clickable {
+                            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                                putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                                putExtra(RecognizerIntent.EXTRA_PROMPT, "Parle à BitG...")
+                            }
+                            runCatching { speechLauncher.launch(intent) }.onFailure {
+                                Toast.makeText(context, "Reconnaissance vocale non disponible", Toast.LENGTH_SHORT).show()
+                            }
+                        },
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        EqualizerWave(isSpeaking = isSpeaking)
+                        Spacer(Modifier.height(6.dp))
+                        Icon(
+                            imageVector = Icons.Default.Mic,
+                            contentDescription = null,
+                            tint = if (isSpeaking) BitgNeonCyan else Color.White.copy(alpha = 0.7f),
+                            modifier = Modifier.size(16.dp),
+                        )
+                    }
+                }
             }
 
-            Spacer(Modifier.height(14.dp))
+            Spacer(Modifier.height(12.dp))
 
             Text(
                 text = stringResource(R.string.ai_dj_title),
-                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontFamily = SFProDisplay,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = (-0.4).sp,
+                ),
+                color = Color.White,
             )
 
             Spacer(Modifier.height(4.dp))
 
             Text(
-                text = stringResource(R.string.ai_dj_card_subtitle),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                text = when {
+                    isSpeaking -> "🎙️ BitG parle en direct..."
+                    isActive -> "🎵 Session en cours • Appuie pour lui parler"
+                    else -> "Prêt à mixer • Demande-lui un artiste ou une vibe"
+                },
+                style = MaterialTheme.typography.bodySmall.copy(fontFamily = SFProDisplay),
+                color = if (isSpeaking) BitgNeonCyan else Color.White.copy(alpha = 0.65f),
                 textAlign = TextAlign.Center,
             )
 
+            // Dynamic Glass Speech Bubble
             if (speechText.isNotBlank()) {
-                Spacer(Modifier.height(14.dp))
+                Spacer(Modifier.height(16.dp))
                 Surface(
-                    shape = RoundedCornerShape(16.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .border(
-                            width = 1.dp,
-                            color = if (isSpeaking) Color(0xFF1DB954).copy(alpha = 0.6f) else Color.Transparent,
-                            shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(20.dp),
+                    color = Color(0xFF161622),
+                    border = BorderStroke(
+                        1.dp,
+                        Brush.horizontalGradient(
+                            listOf(
+                                BitgViolet.copy(alpha = if (isSpeaking) 0.7f else 0.25f),
+                                BitgNeonCyan.copy(alpha = if (isSpeaking) 0.5f else 0.2f),
+                            ),
                         ),
+                    ),
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     Row(
                         modifier = Modifier.padding(14.dp),
@@ -343,14 +539,17 @@ fun AiDjSheet(
                         Icon(
                             imageVector = Icons.Default.GraphicEq,
                             contentDescription = null,
-                            tint = if (isSpeaking) Color(0xFF1DB954) else MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(22.dp),
+                            tint = if (isSpeaking) BitgNeonCyan else Color.White.copy(alpha = 0.6f),
+                            modifier = Modifier.size(20.dp),
                         )
                         Spacer(Modifier.width(10.dp))
                         Text(
                             text = speechText,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                fontFamily = SFProDisplay,
+                                fontWeight = FontWeight.Medium,
+                            ),
+                            color = Color.White,
                             lineHeight = 20.sp,
                         )
                     }
@@ -359,16 +558,16 @@ fun AiDjSheet(
 
             Spacer(Modifier.height(16.dp))
 
-            // Voice & Prompt Input Bar (Like Spotify AI DJ)
+            // Futuristic Floating Prompt Input Bar
             OutlinedTextField(
                 value = promptQuery,
                 onValueChange = { promptQuery = it },
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = {
                     Text(
-                        text = stringResource(R.string.bitg_prompt_hint),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        text = "Demande un artiste, un titre, un style...",
+                        style = MaterialTheme.typography.bodyMedium.copy(fontFamily = SFProDisplay),
+                        color = Color.White.copy(alpha = 0.4f),
                     )
                 },
                 leadingIcon = {
@@ -386,7 +585,8 @@ fun AiDjSheet(
                         Icon(
                             imageVector = Icons.Default.Mic,
                             contentDescription = stringResource(R.string.bitg_prompt_speak),
-                            tint = Color(0xFF1DB954),
+                            tint = BitgNeonCyan,
+                            modifier = Modifier.size(20.dp),
                         )
                     }
                 },
@@ -400,19 +600,36 @@ fun AiDjSheet(
                                 AiDjManager.askBitG(context, query, controller, scope)
                             },
                         ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.Send,
-                                contentDescription = stringResource(R.string.bitg_prompt_send),
-                                tint = Color(0xFF1DB954),
-                            )
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .clip(CircleShape)
+                                    .background(
+                                        Brush.linearGradient(
+                                            listOf(BitgViolet, BitgNeonCyan),
+                                        ),
+                                    ),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.Send,
+                                    contentDescription = stringResource(R.string.bitg_prompt_send),
+                                    tint = Color.White,
+                                    modifier = Modifier.size(15.dp),
+                                )
+                            }
                         }
                     }
                 },
                 singleLine = true,
-                shape = RoundedCornerShape(24.dp),
+                shape = RoundedCornerShape(26.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color(0xFF1DB954),
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                    focusedContainerColor = BitgGlassSurface,
+                    unfocusedContainerColor = BitgGlassSurface,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    focusedBorderColor = BitgViolet,
+                    unfocusedBorderColor = BitgGlassBorder,
                 ),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
                 keyboardActions = KeyboardActions(
@@ -427,9 +644,9 @@ fun AiDjSheet(
                 ),
             )
 
-            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.height(12.dp))
 
-            // Suggestion Chips
+            // Curated Suggestion Chips
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -437,28 +654,34 @@ fun AiDjSheet(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 listOf(
-                    "Rap FR chill",
-                    "Rock 80s",
-                    "Session Workout",
-                    "Lo-Fi Beats",
-                    "Électro Pop",
-                    "Daft Punk",
+                    "🔥 Vald",
+                    "⚡ Drill FR",
+                    "🌙 Lo-Fi Chill",
+                    "🎸 Rock 80s",
+                    "✨ Daft Punk",
+                    "🏖️ Deep House",
+                    "💎 Pépites Cachées",
                 ).forEach { suggestion ->
+                    val cleanLabel = suggestion.substringAfter(" ")
                     Surface(
-                        shape = RoundedCornerShape(16.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+                        shape = RoundedCornerShape(18.dp),
+                        color = Color(0xFF191924),
+                        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.08f)),
                         modifier = Modifier
-                            .clip(RoundedCornerShape(16.dp))
+                            .clip(RoundedCornerShape(18.dp))
                             .clickable {
                                 keyboardController?.hide()
-                                AiDjManager.askBitG(context, suggestion, controller, scope)
+                                AiDjManager.askBitG(context, cleanLabel, controller, scope)
                             }
-                            .padding(horizontal = 12.dp, vertical = 6.dp),
+                            .padding(horizontal = 14.dp, vertical = 8.dp),
                     ) {
                         Text(
                             text = suggestion,
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontFamily = SFProDisplay,
+                                fontWeight = FontWeight.SemiBold,
+                            ),
+                            color = Color.White.copy(alpha = 0.9f),
                         )
                     }
                 }
@@ -466,17 +689,27 @@ fun AiDjSheet(
 
             Spacer(Modifier.height(20.dp))
 
-            // Action Buttons
+            // Primary Action Button: "Changer d'ambiance" with BitChard Signature Cyber Gradient
             Button(
                 onClick = {
                     AiDjManager.switchVibe(context, controller, scope)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(25.dp),
+                    .height(52.dp)
+                    .clip(RoundedCornerShape(26.dp))
+                    .background(
+                        Brush.horizontalGradient(
+                            listOf(
+                                Color(0xFF7B2CBF),
+                                Color(0xFF9D4EDD),
+                                BitgCrimson,
+                            ),
+                        ),
+                    ),
+                shape = RoundedCornerShape(26.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF1DB954),
+                    containerColor = Color.Transparent,
                     contentColor = Color.White,
                 ),
             ) {
@@ -484,13 +717,16 @@ fun AiDjSheet(
                 Spacer(Modifier.width(8.dp))
                 Text(
                     text = stringResource(R.string.ai_dj_switch_vibe),
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontFamily = SFProDisplay,
+                        fontWeight = FontWeight.Bold,
+                    ),
                 )
             }
 
             Spacer(Modifier.height(10.dp))
 
-            // Fixed Stop DJ Session Button
+            // Secondary Action Button: Stop DJ Session (Glass finish)
             OutlinedButton(
                 onClick = {
                     AiDjManager.stop(controller, pauseMusic = false)
@@ -501,19 +737,24 @@ fun AiDjSheet(
                     .fillMaxWidth()
                     .height(48.dp),
                 shape = RoundedCornerShape(24.dp),
+                border = BorderStroke(1.dp, BitgCrimson.copy(alpha = 0.35f)),
                 colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = MaterialTheme.colorScheme.error,
+                    containerColor = Color(0xFF181216),
+                    contentColor = BitgCrimson,
                 ),
             ) {
                 Icon(Icons.Default.Stop, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
                 Text(
                     text = stringResource(R.string.ai_dj_stop),
-                    fontWeight = FontWeight.SemiBold,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontFamily = SFProDisplay,
+                        fontWeight = FontWeight.SemiBold,
+                    ),
                 )
             }
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(14.dp))
         }
     }
 }

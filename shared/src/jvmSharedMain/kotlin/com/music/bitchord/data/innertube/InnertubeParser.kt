@@ -657,7 +657,7 @@ object InnertubeParser {
         // A track row on an album lists its play count where a search row
         // lists the artist, so a segment that reads as a tally is no credit.
         val artist = parts.firstOrNull {
-            !it.matches(DURATION) && it.lowercase(Locale.ROOT) !in TYPE_WORDS && !it.matches(TALLY)
+            !it.matches(DURATION) && it.lowercase(Locale.ROOT) !in TYPE_WORDS && !isPlayCountString(it) && !it.matches(TALLY)
         }
 
         // The artist/album names in the subtitle carry browse endpoints; pull
@@ -671,8 +671,13 @@ object InnertubeParser {
 
         val playCount = columns.drop(1).firstNotNullOfOrNull { column ->
             val text = column.o("musicResponsiveListItemFlexColumnRenderer").o("text").runs()
-            text.takeIf { it.matches(PLAY_COUNT) }
-        } ?: parts.firstOrNull { it.matches(PLAY_COUNT) }
+            extractPlayCountFromText(text)
+        } ?: renderer.a("fixedColumns").orEmpty().firstNotNullOfOrNull { column ->
+            val text = column.o("musicResponsiveListItemFixedColumnRenderer").o("text").runs()
+            extractPlayCountFromText(text)
+        } ?: parts.firstNotNullOfOrNull { part ->
+            extractPlayCountFromText(part)
+        }
 
         val thumbnails = renderer.o("thumbnail").o("musicThumbnailRenderer")
             .o("thumbnail").a("thumbnails")
@@ -728,9 +733,11 @@ object InnertubeParser {
         val credits = creditsOf(subtitleRuns)
         val creditedArtists = artistNamesFromRuns(subtitleRuns)
         val artist = parts.firstOrNull {
-            !it.matches(DURATION) && it.lowercase(Locale.ROOT) !in TYPE_WORDS && !it.matches(TALLY)
+            !it.matches(DURATION) && it.lowercase(Locale.ROOT) !in TYPE_WORDS && !isPlayCountString(it) && !it.matches(TALLY)
         }
-        val playCount = parts.firstOrNull { it.matches(PLAY_COUNT) }
+        val playCount = parts.firstNotNullOfOrNull { part ->
+            extractPlayCountFromText(part)
+        }
         val thumbnails = renderer.o("thumbnail").o("musicThumbnailRenderer")
             .o("thumbnail").a("thumbnails")
 
@@ -1460,13 +1467,39 @@ object InnertubeParser {
      * counting one of the words YouTube counts with.
      */
     private val TALLY = Regex(
-        """[\d.,\s]+[KMBkmbMdMioMlnмлн]?\s*(plays|views|vues|écoutes|ecoutes|d'écoutes|de vues|reproducciones|visualizaciones|aufrufe|wiedergaben|ascolti|visualizzazioni|прослушиваний|просмотров|likes|songs|tracks|subscribers|hours?|minutes?|seconds?)\b.*""",
+        """[\d.,\s\u00A0\u202F]+[KMBkmbMdMioMlnмлн]?\s*(plays|views|vues|écoutes|ecoutes|d'écoutes|de vues|reproducciones|visualizaciones|aufrufe|wiedergaben|ascolti|visualizzazioni|прослушиваний|просмотров|likes|songs|tracks|subscribers|hours?|minutes?|seconds?)\b.*""",
         RegexOption.IGNORE_CASE,
     )
     private val PLAY_COUNT = Regex(
-        """[\d.,\s]+[KMBkmbMdMioMlnмлн]?\s*(plays|views|vues|écoutes|ecoutes|d'écoutes|de vues|reproducciones|visualizaciones|aufrufe|wiedergaben|ascolti|visualizzazioni|прослушиваний|просмотров)\b.*""",
+        """[\d.,\s\u00A0\u202F]+[KMBkmbMdMioMlnмлн]?\s*(plays|views|vues|écoutes|ecoutes|d'écoutes|de vues|reproducciones|visualizaciones|aufrufe|wiedergaben|ascolti|visualizzazioni|прослушиваний|просмотров)\b.*""",
         RegexOption.IGNORE_CASE,
     )
+    private val DIGIT_GROUP_SEPARATOR = """[\s\u00A0\u202F.,]"""
+    private val FORMATTED_COUNT = Regex("""^\d{1,3}($DIGIT_GROUP_SEPARATOR\d{3})+$""")
+    private val COMPACT_COUNT = Regex("""^\d+([.,]\d+)?\s*[KMBkmbMdMioMlnмлн]$""")
+    private val LARGE_RAW_COUNT = Regex("""^\d{5,}$""")
+
+    internal fun isPlayCountString(s: String?): Boolean {
+        if (s == null) return false
+        val trimmed = s.trim()
+        if (trimmed.isEmpty() || trimmed.matches(DURATION) || trimmed.matches(YEAR)) return false
+        return trimmed.matches(PLAY_COUNT) ||
+            trimmed.matches(FORMATTED_COUNT) ||
+            trimmed.matches(COMPACT_COUNT) ||
+            trimmed.matches(LARGE_RAW_COUNT)
+    }
+
+    internal fun extractPlayCountFromText(text: String?): String? {
+        if (text == null) return null
+        val trimmed = text.trim()
+        if (isPlayCountString(trimmed)) return trimmed
+        val segments = trimmed.split(" • ")
+        for (seg in segments) {
+            val segTrimmed = seg.trim()
+            if (isPlayCountString(segTrimmed)) return segTrimmed
+        }
+        return null
+    }
     /** Header words that mark a page as a release, whose rows share its credit. */
     private val RELEASE_WORDS = setOf("album", "single", "ep")
     private val HEADER_RENDERERS = listOf(

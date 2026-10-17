@@ -189,6 +189,9 @@ private val BOUNDED_CONTINUATION_RETRIES_MS = longArrayOf(2_000L, 5_000L, 15_000
 /** Session command used by album/playlist playback to install a bounded context. */
 const val ACTION_START_BOUNDED_CONTEXT = "com.music.bitchord.action.START_BOUNDED_CONTEXT"
 const val ACTION_CLEAR_BOUNDED_CONTEXT = "com.music.bitchord.action.CLEAR_BOUNDED_CONTEXT"
+const val ACTION_DROP_FROM_CONTEXT = "com.music.bitchord.action.DROP_FROM_CONTEXT"
+const val EXTRA_DROP_SONG_ID = "bitchord.drop.song_id"
+const val EXTRA_DROP_SOURCE_ID = "bitchord.drop.source_id"
 const val EXTRA_BOUNDED_CONTEXT_SONGS = "bitchord.boundedContext.songs"
 const val EXTRA_BOUNDED_CONTEXT_START_INDEX = "bitchord.boundedContext.startIndex"
 const val EXTRA_BOUNDED_CONTEXT_SOURCE_TITLE = "bitchord.boundedContext.sourceTitle"
@@ -765,6 +768,7 @@ class PlaybackService : MediaLibraryService() {
     /** Commands exposed as the secondary buttons on the media notification. */
     private val boundedContextCommand = SessionCommand(ACTION_START_BOUNDED_CONTEXT, Bundle.EMPTY)
     private val clearBoundedContextCommand = SessionCommand(ACTION_CLEAR_BOUNDED_CONTEXT, Bundle.EMPTY)
+    private val dropFromContextCommand = SessionCommand(ACTION_DROP_FROM_CONTEXT, Bundle.EMPTY)
     private val favoriteCommand = SessionCommand(ACTION_TOGGLE_FAVORITE, Bundle.EMPTY)
     private val autoplayCommand = SessionCommand(ACTION_TOGGLE_AUTOPLAY, Bundle.EMPTY)
     private val shuffleCommand = SessionCommand(ACTION_TOGGLE_SHUFFLE, Bundle.EMPTY)
@@ -2658,6 +2662,42 @@ class PlaybackService : MediaLibraryService() {
         boundedContextSource = null
         boundedContextRequest = null
         QueueShuffle.clearCanonicalContext()
+    }
+
+    /** Drops a deleted playlist track immediately from active context and playback queue. */
+    private fun dropFromBoundedContext(args: Bundle) {
+        val songId = args.getString(EXTRA_DROP_SONG_ID) ?: return
+        val sourceId = args.getString(EXTRA_DROP_SOURCE_ID)
+
+        val activeSourceId = boundedContextSource?.id
+        if (sourceId == null || activeSourceId == null || activeSourceId == sourceId) {
+            boundedContextRegistry.removeSong(songId)
+            QueueShuffle.dropFromCanonicalContext(songId)
+        }
+
+        val exoPlayer = player ?: return
+        val currentIdx = exoPlayer.currentMediaItemIndex
+        var needsAdvance = false
+
+        for (index in exoPlayer.mediaItemCount - 1 downTo 0) {
+            val item = exoPlayer.getMediaItemAt(index)
+            val matchVideo = item.mediaId == songId
+            val matchSource = sourceId == null || item.playbackSourceId == sourceId
+            if (matchVideo && matchSource) {
+                if (index == currentIdx) {
+                    needsAdvance = true
+                }
+                exoPlayer.removeMediaItem(index)
+            }
+        }
+
+        if (needsAdvance && exoPlayer.mediaItemCount > 0) {
+            if (exoPlayer.playWhenReady) {
+                exoPlayer.play()
+            }
+        }
+
+        saveQueueSnapshotImmediately(exoPlayer)
     }
 
     /** Follows the continuation independently of the detail-page lifecycle. */
@@ -7817,6 +7857,7 @@ class PlaybackService : MediaLibraryService() {
                 .add(favoriteCommand)
                 .add(boundedContextCommand)
                 .add(clearBoundedContextCommand)
+                .add(dropFromContextCommand)
                 .add(autoplayCommand)
                 .add(shuffleCommand)
                 .add(startStationCommand)
@@ -7854,6 +7895,7 @@ class PlaybackService : MediaLibraryService() {
             when (customCommand.customAction) {
                 ACTION_START_BOUNDED_CONTEXT -> startBoundedContext(args)
                 ACTION_CLEAR_BOUNDED_CONTEXT -> clearBoundedContext()
+                ACTION_DROP_FROM_CONTEXT -> dropFromBoundedContext(args)
                 ACTION_TOGGLE_AUTOPLAY -> toggleAutoplayFromNotification()
                 ACTION_TOGGLE_SHUFFLE -> toggleShuffleFromSession()
                 ACTION_START_STATION -> startStationFromSession()

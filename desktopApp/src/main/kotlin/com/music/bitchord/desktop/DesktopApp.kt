@@ -5418,9 +5418,13 @@ private fun DesktopArtistPage(
                                             items(top.withIndex().chunked(ARTIST_SONGS_PER_COLUMN)) { column ->
                                                 Column(Modifier.width(columnWidth)) {
                                                     column.forEach { (index, song) ->
+                                                        val subtitleText = listOfNotNull(
+                                                            song.artist.takeIf { it.isNotBlank() },
+                                                            song.playCount?.takeIf { it.isNotBlank() },
+                                                        ).joinToString(" • ")
                                                         CompactTrackRow(
                                                             title = song.title,
-                                                            subtitle = song.artist,
+                                                            subtitle = subtitleText,
                                                             thumbnailUrl = song.thumbnailUrl,
                                                             onClick = { onPlaySongs(top, index) },
                                                             onLongPress = { onOpenMenu(song) },

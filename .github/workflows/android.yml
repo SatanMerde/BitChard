@@ -127,3 +127,8 @@ jobs:
           gh release upload "latest" release-apks/*.apk --clobber || true
         fi
 
+        # Trigger desktop PC release workflow
+        echo "Triggering PC release workflow for ${{ steps.get_version.outputs.version }}..."
+        gh workflow run release.yml -f version="${{ steps.get_version.outputs.version }}" || true
+
+

@@ -81,6 +81,15 @@ object QueueShuffle {
         ctx = null
     }
 
+    /** Drops any item whose mediaId matches [videoId] from canonical context. */
+    fun dropFromCanonicalContext(videoId: String) {
+        val currentCtx = ctx ?: return
+        val remaining = currentCtx.items.filterNot { it.mediaId == videoId }
+        if (remaining.size < currentCtx.items.size) {
+            setCanonicalContext(remaining)
+        }
+    }
+
     /**
      * Checks if the active [canonicalContext] matches the player's active queue.
      *

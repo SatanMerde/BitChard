@@ -1,12 +1,14 @@
 name: Release
 on:
+  release:
+    types: [published, created]
   push:
     tags: ["v*.*.*"]
   workflow_dispatch:
     inputs:
       version:
         description: "Version to stamp into the packages, without the leading v"
-        required: true
+        required: false
 
 permissions:
   contents: write
@@ -34,7 +36,12 @@ jobs:
         id: version
         run: |
           version="${{ inputs.version }}"
-          [ -n "$version" ] || version="${GITHUB_REF_NAME#v}"
+          [ -n "$version" ] || version="${{ github.event.release.tag_name }}"
+          [ -n "$version" ] || version="${GITHUB_REF_NAME}"
+          version="${version#v}"
+          if [ -z "$version" ]; then
+            version=$(grep 'extra\["bitchordVersionName"\]' build.gradle.kts | head -n 1 | cut -d'"' -f4)
+          fi
           echo "value=$version" >> "$GITHUB_OUTPUT"
           echo "Building $version"
 
@@ -117,7 +124,12 @@ jobs:
         shell: bash
         run: |
           version="${{ inputs.version }}"
-          [ -n "$version" ] || version="${GITHUB_REF_NAME#v}"
+          [ -n "$version" ] || version="${{ github.event.release.tag_name }}"
+          [ -n "$version" ] || version="${GITHUB_REF_NAME}"
+          version="${version#v}"
+          if [ -z "$version" ]; then
+            version=$(grep 'extra\["bitchordVersionName"\]' build.gradle.kts | head -n 1 | cut -d'"' -f4)
+          fi
           echo "value=$version" >> "$GITHUB_OUTPUT"
           echo "Building $version"
 
@@ -166,7 +178,7 @@ jobs:
         include:
           - os: macos-14
             arch: arm64
-          - os: macos-15-intel
+          - os: macos-13
             arch: x64
     runs-on: ${{ matrix.os }}
     steps:
@@ -184,7 +196,12 @@ jobs:
         id: version
         run: |
           version="${{ inputs.version }}"
-          [ -n "$version" ] || version="${GITHUB_REF_NAME#v}"
+          [ -n "$version" ] || version="${{ github.event.release.tag_name }}"
+          [ -n "$version" ] || version="${GITHUB_REF_NAME}"
+          version="${version#v}"
+          if [ -z "$version" ]; then
+            version=$(grep 'extra\["bitchordVersionName"\]' build.gradle.kts | head -n 1 | cut -d'"' -f4)
+          fi
           echo "value=$version" >> "$GITHUB_OUTPUT"
           echo "Building $version"
 
@@ -228,10 +245,12 @@ jobs:
           path: dist/*
 
   release:
-    name: Publish
+    name: Publish PC Binaries
     needs: [linux, windows, macos]
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
       - uses: actions/download-artifact@v4
         with:
           pattern: "*-artifacts"
@@ -240,13 +259,39 @@ jobs:
 
       - run: ls -lh dist
 
-      - name: Draft the release
-        if: github.ref_type == 'tag'
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: BitChord ${{ github.ref_name }}
-          draft: true
-          files: dist/*
+      - name: Work out release tag
+        id: tag
+        run: |
+          tag="${{ inputs.version }}"
+          [ -n "$tag" ] && tag="v$tag"
+          [ -n "$tag" ] || tag="${{ github.event.release.tag_name }}"
+          if [ -z "$tag" ] || [ "$tag" = "v" ]; then
+            if [ "${{ github.ref_type }}" = "tag" ]; then
+              tag="${{ github.ref_name }}"
+            fi
+          fi
+          if [ -z "$tag" ] || [ "$tag" = "v" ]; then
+            v=$(grep 'extra\["bitchordVersionName"\]' build.gradle.kts | head -n 1 | cut -d'"' -f4)
+            tag="v$v"
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "Target tag: $tag"
+
+      - name: Upload Binaries to GitHub Release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.tag.outputs.tag }}"
+          echo "Uploading PC artifacts to release $TAG..."
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/* --clobber
+          else
+            echo "Release $TAG not found, creating it..."
+            gh release create "$TAG" dist/* \
+              --title "BitChard $TAG" \
+              --generate-notes \
+              --latest
+          fi
+          if gh release view "latest" >/dev/null 2>&1; then
+            gh release upload "latest" dist/* --clobber || true
+          fi
