@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import android.util.Log
 import java.util.Locale
 import java.util.UUID
 
@@ -34,6 +35,7 @@ import java.util.UUID
  * and high-fidelity native TextToSpeech engine with customizable pitch, speed, and language.
  */
 object AiDjManager {
+    private const val TAG = "AiDjManager"
 
     enum class DjVibe(val labelFr: String, val labelEn: String) {
         FAVORITES("Vos Incontournables", "Your Favorites"),
@@ -59,6 +61,12 @@ object AiDjManager {
 
     private val _currentSpeech = MutableStateFlow("")
     val currentSpeech: StateFlow<String> = _currentSpeech.asStateFlow()
+
+    private val _isLastResponseAi = MutableStateFlow(false)
+    val isLastResponseAi: StateFlow<Boolean> = _isLastResponseAi.asStateFlow()
+
+    private val _aiErrorNotice = MutableStateFlow<String?>(null)
+    val aiErrorNotice: StateFlow<String?> = _aiErrorNotice.asStateFlow()
 
     data class BitgVoiceOption(
         val id: String,
@@ -510,13 +518,16 @@ object AiDjManager {
         activeJob = scope.launch {
             if (BitgAiService.isAiConfigured()) {
                 _currentVibe.value = if (isFrench) "BitG • Réflexion IA..." else "BitG • AI Thinking..."
-                val aiResult = BitgAiService.generateAiDjSession(
+                val aiOutcome = BitgAiService.generateAiDjSession(
                     context = context,
                     userPrompt = rawPrompt,
                     isFrench = isFrench,
-                ).getOrNull()
+                )
+                val aiResult = aiOutcome.getOrNull()
 
                 if (aiResult != null && _isActive.value) {
+                    _isLastResponseAi.value = true
+                    _aiErrorNotice.value = null
                     _currentVibe.value = "BitG • ${aiResult.vibeTitle}"
                     speak(aiResult.spokenCommentary) {
                         if (!_isActive.value) return@speak
@@ -528,9 +539,14 @@ object AiDjManager {
                         }
                     }
                     return@launch
+                } else if (aiOutcome.isFailure) {
+                    val err = aiOutcome.exceptionOrNull()?.message ?: "Erreur IA"
+                    Log.w(TAG, "AI Session failed: $err")
+                    _aiErrorNotice.value = err
                 }
             }
 
+            _isLastResponseAi.value = false
             val parsed = parseUserPrompt(rawPrompt, isFrench)
             _currentVibe.value = "BitG • ${parsed.cleanSubject}"
             speak(parsed.spokenText) {

@@ -158,6 +158,8 @@ fun AiDjSheet(
     val isSpeaking by AiDjManager.isSpeaking.collectAsStateWithLifecycle()
     val currentVibe by AiDjManager.currentVibe.collectAsStateWithLifecycle()
     val speechText by AiDjManager.currentSpeech.collectAsStateWithLifecycle()
+    val isLastAi by AiDjManager.isLastResponseAi.collectAsStateWithLifecycle()
+    val aiErrorNotice by AiDjManager.aiErrorNotice.collectAsStateWithLifecycle()
 
     var showBitgSettings by remember { mutableStateOf(false) }
     var showAiConfigDialog by remember { mutableStateOf(false) }
@@ -708,24 +710,46 @@ fun AiDjSheet(
                 ) {
                     Row(
                         modifier = Modifier.padding(14.dp),
-                        verticalAlignment = Alignment.CenterVertically,
+                        verticalAlignment = Alignment.Top,
                     ) {
                         Icon(
                             imageVector = Icons.Default.GraphicEq,
                             contentDescription = null,
                             tint = if (isSpeaking) BitgNeonCyan else Color.White.copy(alpha = 0.6f),
-                            modifier = Modifier.size(20.dp),
+                            modifier = Modifier.padding(top = 2.dp).size(20.dp),
                         )
                         Spacer(Modifier.width(10.dp))
-                        Text(
-                            text = speechText,
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                fontFamily = SFProDisplay,
-                                fontWeight = FontWeight.Medium,
-                            ),
-                            color = Color.White,
-                            lineHeight = 20.sp,
-                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = speechText,
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    fontFamily = SFProDisplay,
+                                    fontWeight = FontWeight.Medium,
+                                ),
+                                color = Color.White,
+                                lineHeight = 20.sp,
+                            )
+                            Spacer(Modifier.height(6.dp))
+                            if (isLastAi) {
+                                Text(
+                                    text = "✨ Réponse générée par IA (${bitgAiProvider.uppercase()})",
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontFamily = SFProDisplay,
+                                        fontWeight = FontWeight.SemiBold,
+                                    ),
+                                    color = BitgNeonCyan,
+                                )
+                            } else if (bitgApiKey.isNotBlank()) {
+                                Text(
+                                    text = "⚡ Réponse de secours hors-ligne${aiErrorNotice?.let { " • $it" } ?: ""}",
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontFamily = SFProDisplay,
+                                        fontWeight = FontWeight.SemiBold,
+                                    ),
+                                    color = Color(0xFFFFB300),
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -820,50 +844,9 @@ fun AiDjSheet(
 
             Spacer(Modifier.height(12.dp))
 
-            // Curated Suggestion Chips
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                listOf(
-                    "🔥 Vald",
-                    "⚡ Drill FR",
-                    "🌙 Lo-Fi Chill",
-                    "🎸 Rock 80s",
-                    "✨ Daft Punk",
-                    "🏖️ Deep House",
-                    "💎 Pépites Cachées",
-                ).forEach { suggestion ->
-                    val cleanLabel = suggestion.substringAfter(" ")
-                    Surface(
-                        shape = RoundedCornerShape(18.dp),
-                        color = Color(0xFF191924),
-                        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.08f)),
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(18.dp))
-                            .clickable {
-                                keyboardController?.hide()
-                                AiDjManager.askBitG(context, cleanLabel, controller, scope)
-                            }
-                            .padding(horizontal = 14.dp, vertical = 8.dp),
-                    ) {
-                        Text(
-                            text = suggestion,
-                            style = MaterialTheme.typography.labelMedium.copy(
-                                fontFamily = SFProDisplay,
-                                fontWeight = FontWeight.SemiBold,
-                            ),
-                            color = Color.White.copy(alpha = 0.9f),
-                        )
-                    }
-                }
-            }
+            Spacer(Modifier.height(16.dp))
 
-            Spacer(Modifier.height(20.dp))
-
-            // Primary Action Button: "Changer d'ambiance" with BitChard Signature Cyber Gradient
+            // Primary Action Button: "Autres morceaux" with BitChard Signature Cyber Gradient
             Button(
                 onClick = {
                     AiDjManager.switchVibe(context, controller, scope)
@@ -894,36 +877,6 @@ fun AiDjSheet(
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontFamily = SFProDisplay,
                         fontWeight = FontWeight.Bold,
-                    ),
-                )
-            }
-
-            Spacer(Modifier.height(10.dp))
-
-            // Secondary Action Button: Stop DJ Session (Glass finish)
-            OutlinedButton(
-                onClick = {
-                    AiDjManager.stop(controller, pauseMusic = false)
-                    Toast.makeText(context, "Session BitG terminée", Toast.LENGTH_SHORT).show()
-                    onDismiss()
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                shape = RoundedCornerShape(24.dp),
-                border = BorderStroke(1.dp, BitgCrimson.copy(alpha = 0.35f)),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    containerColor = Color(0xFF181216),
-                    contentColor = BitgCrimson,
-                ),
-            ) {
-                Icon(Icons.Default.Stop, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    text = stringResource(R.string.ai_dj_stop),
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontFamily = SFProDisplay,
-                        fontWeight = FontWeight.SemiBold,
                     ),
                 )
             }

@@ -1224,7 +1224,7 @@
     <string name="ai_dj_card_subtitle">Your personal AI DJ with live voice &amp; dynamic mix</string>
     <string name="ai_dj_start">Launch BitG</string>
     <string name="ai_dj_control">BitG Controls</string>
-    <string name="ai_dj_switch_vibe">Switch Vibe</string>
+    <string name="ai_dj_switch_vibe">Play Other Tracks</string>
     <string name="ai_dj_stop">Stop BitG Session</string>
     <string name="ai_dj_active_badge">BITG ACTIVE</string>
     <string name="bitg_prompt_hint" translatable="false">Ask BitG anything (e.g. 80s rock, chill rap)...</string>

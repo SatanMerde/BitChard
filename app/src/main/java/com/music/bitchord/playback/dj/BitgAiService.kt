@@ -133,7 +133,7 @@ object BitgAiService {
         runCatching {
             when (provider) {
                 "gemini" -> callGeminiRaw(testPrompt, apiKey, AppSettings.bitgCustomModel.value)
-                "anthropic" -> callAnthropicRaw(testPrompt, apiKey, AppSettings.bitgCustomModel.value)
+                "anthropic", "claude" -> callAnthropicRaw(testPrompt, apiKey, AppSettings.bitgCustomModel.value)
                 else -> {
                     val endpoint = when (provider) {
                         "groq" -> "https://api.groq.com/openai/v1/chat/completions"
@@ -192,7 +192,7 @@ object BitgAiService {
         val rawResponseResult = runCatching {
             when (provider) {
                 "gemini" -> callGeminiJson(systemPrompt, userContent, apiKey, AppSettings.bitgCustomModel.value)
-                "anthropic" -> callAnthropicJson(systemPrompt, userContent, apiKey, AppSettings.bitgCustomModel.value)
+                "anthropic", "claude" -> callAnthropicJson(systemPrompt, userContent, apiKey, AppSettings.bitgCustomModel.value)
                 else -> {
                     val endpoint = when (provider) {
                         "groq" -> "https://api.groq.com/openai/v1/chat/completions"
@@ -305,12 +305,12 @@ object BitgAiService {
 
     // ── Google Gemini Implementation ────────────────────────────────────────
 
-    private const val DEFAULT_GEMINI_MODEL = "gemini-2.5-flash"
+    private const val DEFAULT_GEMINI_MODEL = "gemini-2.0-flash"
     private val GEMINI_FALLBACK_MODELS = listOf(
-        "gemini-2.5-flash",
-        "gemini-2.5-flash-lite",
+        "gemini-2.0-flash",
         "gemini-1.5-flash",
-        "gemini-3.8-flash",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash-lite-preview-02-05",
     )
 
     private class GeminiModelNotFoundException(message: String) : RuntimeException(message)
@@ -321,7 +321,7 @@ object BitgAiService {
         apiKey: String,
         customModel: String,
     ): String {
-        val initialModel = customModel.trim().takeIf { it.isNotBlank() && it != "gemini-2.0-flash" } ?: DEFAULT_GEMINI_MODEL
+        val initialModel = customModel.trim().takeIf { it.isNotBlank() } ?: DEFAULT_GEMINI_MODEL
         val candidateModels = (listOf(initialModel) + GEMINI_FALLBACK_MODELS).distinct()
 
         var lastError: Exception? = null
@@ -357,8 +357,8 @@ object BitgAiService {
                         val text = candidate?.get("content")?.jsonObject?.get("parts")?.jsonArray?.firstOrNull()?.jsonObject?.get("text")?.jsonPrimitive?.content
                         return text ?: error("No content returned from Gemini: $body")
                     }
-                    if (response.code == 404 && (body.contains("no longer available") || body.contains("NOT_FOUND"))) {
-                        throw GeminiModelNotFoundException("Gemini error 404 for $model: $body")
+                    if (response.code == 404 || (response.code == 400 && body.contains("not found", ignoreCase = true))) {
+                        throw GeminiModelNotFoundException("Gemini error ${response.code} for $model: $body")
                     }
                     error("Gemini API error ${response.code}: $body")
                 }
@@ -367,11 +367,8 @@ object BitgAiService {
             outcome.fold(
                 onSuccess = { return it },
                 onFailure = { err ->
-                    if (err is GeminiModelNotFoundException) {
-                        lastError = err
-                    } else {
-                        throw err
-                    }
+                    Log.w(TAG, "Gemini attempt on $model failed: ${err.message}")
+                    lastError = err as? Exception ?: Exception(err)
                 },
             )
         }
@@ -379,7 +376,7 @@ object BitgAiService {
     }
 
     private fun callGeminiRaw(testPrompt: String, apiKey: String, customModel: String): String {
-        val initialModel = customModel.trim().takeIf { it.isNotBlank() && it != "gemini-2.0-flash" } ?: DEFAULT_GEMINI_MODEL
+        val initialModel = customModel.trim().takeIf { it.isNotBlank() } ?: DEFAULT_GEMINI_MODEL
         val candidateModels = (listOf(initialModel) + GEMINI_FALLBACK_MODELS).distinct()
 
         var lastError: Exception? = null
@@ -408,8 +405,8 @@ object BitgAiService {
                     if (response.isSuccessful) {
                         return "OK"
                     }
-                    if (response.code == 404 && (body.contains("no longer available") || body.contains("NOT_FOUND"))) {
-                        throw GeminiModelNotFoundException("Gemini error 404 for $model: $body")
+                    if (response.code == 404 || (response.code == 400 && body.contains("not found", ignoreCase = true))) {
+                        throw GeminiModelNotFoundException("Gemini error ${response.code} for $model: $body")
                     }
                     error("Gemini error ${response.code}: $body")
                 }
@@ -418,11 +415,8 @@ object BitgAiService {
             outcome.fold(
                 onSuccess = { return "OK" },
                 onFailure = { err ->
-                    if (err is GeminiModelNotFoundException) {
-                        lastError = err
-                    } else {
-                        throw err
-                    }
+                    Log.w(TAG, "Gemini test on $model failed: ${err.message}")
+                    lastError = err as? Exception ?: Exception(err)
                 },
             )
         }

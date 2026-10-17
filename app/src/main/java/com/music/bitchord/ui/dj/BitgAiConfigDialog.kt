@@ -341,12 +341,12 @@ fun BitgAiConfigDialog(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         listOf(
-                            "" to "2.5 Flash (Recommandé)",
-                            "gemini-2.5-flash-lite" to "2.5 Flash-Lite",
+                            "" to "2.0 Flash (Recommandé)",
                             "gemini-1.5-flash" to "1.5 Flash",
-                            "gemini-3.8-flash" to "3.8 Flash",
+                            "gemini-1.5-pro" to "1.5 Pro",
+                            "gemini-2.0-flash-lite-preview-02-05" to "2.0 Flash-Lite",
                         ).forEach { (mId, mLabel) ->
-                            val isSelected = (mId.isEmpty() && (customModelText.isBlank() || customModelText == "gemini-2.5-flash")) ||
+                            val isSelected = (mId.isEmpty() && (customModelText.isBlank() || customModelText == "gemini-2.0-flash")) ||
                                 (mId.isNotEmpty() && customModelText == mId)
                             Surface(
                                 shape = RoundedCornerShape(12.dp),
