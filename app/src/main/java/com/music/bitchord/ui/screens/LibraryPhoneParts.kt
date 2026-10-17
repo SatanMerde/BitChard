@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Cloud
 import androidx.compose.material.icons.rounded.Download
+import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.Lan
 import androidx.compose.material.icons.rounded.Storage
@@ -53,11 +54,19 @@ fun libraryLinks(): List<LibraryLink> {
         ),
         icon = icon,
     )
+    val localFavs by com.music.bitchord.data.favorites.LocalFavoritesStore.favorites.collectAsStateWithLifecycle()
     return listOfNotNull(
+        link(
+            stringResource(R.string.local_favorites),
+            stringResource(R.string.local_favorites_subtitle, localFavs.size),
+            "local:favorites",
+            Icons.Rounded.Favorite,
+        ),
         link(
             stringResource(R.string.downloads),
             stringResource(R.string.downloaded_songs),
             "local:downloads",
+            Icons.Rounded.Download,
         ),
         link(
             stringResource(R.string.local_music),
@@ -124,6 +133,7 @@ fun libraryDeviceItems(downloadedReleases: List<SavedCollection>): List<ShelfIte
  * one of the folders.
  */
 fun deviceFolderIcon(browseId: String): ImageVector? = when (browseId) {
+    "local:favorites" -> Icons.Rounded.Favorite
     "local:downloads" -> Icons.Rounded.Download
     "local:all" -> Icons.Rounded.Folder
     CACHE_FOLDER_BROWSE_ID -> Icons.Rounded.Storage

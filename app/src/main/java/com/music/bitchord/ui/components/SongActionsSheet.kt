@@ -262,14 +262,15 @@ fun SongActionsSheet(
             GroupSeparator(palette)
         }
 
+        // Liked songs & Playlists: fully functional offline and without Google account
+        ActionRow(
+            icon = if (liked) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+            label = if (liked) stringResource(R.string.remove_from_liked) else stringResource(R.string.like),
+            tint = if (liked) palette.accent else null,
+            accent = palette.accent,
+            onClick = onToggleLike,
+        )
         if (signedIn && !isOffline) {
-            ActionRow(
-                icon = if (liked) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
-                label = if (liked) stringResource(R.string.remove_from_liked) else stringResource(R.string.like),
-                tint = if (liked) palette.accent else null,
-                accent = palette.accent,
-                onClick = onToggleLike,
-            )
             ActionRow(
                 icon = if (disliked) Icons.Rounded.ThumbDown else Icons.Rounded.ThumbDownOffAlt,
                 label = if (disliked) stringResource(R.string.undo_dislike) else stringResource(R.string.dislike),
@@ -277,12 +278,13 @@ fun SongActionsSheet(
                 accent = palette.accent,
                 onClick = onToggleDislike,
             )
-            ActionRow(
-                icon = Icons.AutoMirrored.Rounded.PlaylistAdd,
-                label = stringResource(R.string.add_to_playlist),
-                accent = palette.accent,
-                onClick = onAddToPlaylist,
-            )
+        }
+        ActionRow(
+            icon = Icons.AutoMirrored.Rounded.PlaylistAdd,
+            label = stringResource(R.string.add_to_playlist),
+            accent = palette.accent,
+            onClick = onAddToPlaylist,
+        )
             onRemoveFromPlaylist?.let {
                 ActionRow(
                     icon = Icons.Rounded.PlaylistRemove,
@@ -292,7 +294,6 @@ fun SongActionsSheet(
                 )
             }
             GroupSeparator(palette)
-        }
 
         DownloadRow(song, palette, isOffline, onDownload)
         WebDavUploadRow(song, palette, isOffline, onUploadToWebDav)

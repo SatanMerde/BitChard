@@ -1215,12 +1215,23 @@
     <string name="wear_os_code_hint">Pairing code</string>
     <string name="wear_os_done">Done</string>
     <string name="signed_by">Signed by %1$s</string>
-    <string name="ai_dj_title">BitChard AI DJ</string>
-    <string name="ai_dj_card_title">AI DJ — BitChard</string>
-    <string name="ai_dj_card_subtitle">Spotify-like DJ with live spoken commentary &amp; dynamic mix</string>
-    <string name="ai_dj_start">Launch AI DJ</string>
-    <string name="ai_dj_control">Open DJ Controls</string>
+    <string name="ai_dj_title">BitG AI DJ</string>
+    <string name="ai_dj_card_title">BitG</string>
+    <string name="ai_dj_card_subtitle">Spotify-like DJ with live voice &amp; dynamic mix</string>
+    <string name="ai_dj_start">Launch BitG</string>
+    <string name="ai_dj_control">BitG Controls</string>
     <string name="ai_dj_switch_vibe">Switch Vibe</string>
-    <string name="ai_dj_stop">Stop DJ Session</string>
-    <string name="ai_dj_active_badge">DJ ACTIVE</string>
+    <string name="ai_dj_stop">Stop BitG Session</string>
+    <string name="ai_dj_active_badge">BITG ACTIVE</string>
+    <string name="bitg_prompt_hint" translatable="false">Ask BitG anything (e.g. 80s rock, chill rap)...</string>
+    <string name="bitg_prompt_speak" translatable="false">Speak to BitG</string>
+    <string name="bitg_prompt_send" translatable="false">Ask</string>
+    <string name="bitg_settings_title" translatable="false">BitG Settings</string>
+    <string name="bitg_voice_pitch" translatable="false">Voice Pitch</string>
+    <string name="bitg_voice_speed" translatable="false">Speech Speed</string>
+    <string name="bitg_voice_enabled" translatable="false">Spoken Commentary</string>
+    <string name="bitg_voice_enabled_subtitle" translatable="false">BitG speaks live to introduce music sessions</string>
+    <string name="bitg_language" translatable="false">BitG Voice Language</string>
+    <string name="local_favorites" translatable="false">Liked songs</string>
+    <string name="local_favorites_subtitle" translatable="false">%1$d tracks saved locally</string>
 </resources>

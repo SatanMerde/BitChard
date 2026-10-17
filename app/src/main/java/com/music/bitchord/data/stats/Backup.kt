@@ -5,6 +5,10 @@ import android.net.Uri
 import com.music.bitchord.BuildConfig
 import com.music.bitchord.data.settings.AppSettings
 import com.music.bitchord.data.settings.SearchHistory
+import com.music.bitchord.data.favorites.LocalFavoritesStore
+import com.music.bitchord.data.model.Song
+import com.music.bitchord.data.spotify.LocalPlaylist
+import com.music.bitchord.data.spotify.LocalPlaylistStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
@@ -23,10 +27,10 @@ import java.time.format.DateTimeFormatter
  *
  * ## What is in it
  *
- * Every preference except credentials (see [AppSettings.exportPrefs]), and every
- * month of listening. Not the audio cache, the downloads or the artwork: those
- * are megabytes that re-fetch themselves, and a backup that is mostly cache is
- * one nobody keeps.
+ * Every preference except credentials (see [AppSettings.exportPrefs]), every
+ * month of listening, local playlists, and local favorites (liked songs). Not
+ * the audio cache, the downloads or the artwork: those are megabytes that
+ * re-fetch themselves, and a backup that is mostly cache is one nobody keeps.
  *
  * ## Typed values rather than a JSON object
  *
@@ -48,21 +52,19 @@ object Backup {
 
     /** A suggested filename, dated so successive exports don't collide. */
     fun suggestedName(): String =
-        "bitchord-backup-${DateTimeFormatter.ofPattern("yyyy-MM-dd").format(
+        "bitchard-backup-${DateTimeFormatter.ofPattern("yyyy-MM-dd").format(
             Instant.now().atZone(ZoneId.systemDefault()),
         )}.json"
 
     /**
-     * Writes a backup to [target], a document the user picked.
-     *
-     * Through the content resolver rather than a [java.io.File] because the
-     * destination is wherever they chose — Drive, a USB stick, a folder this app
-     * has no path to and no permission for. The picker grants access to that one
-     * document and nothing else, which is the correct amount.
+     * Writes a complete local backup to [target], a document the user picked.
+     * Contains settings, listening history, local playlists, and liked songs.
      */
     suspend fun exportTo(context: Context, target: Uri): Result<Int> = withContext(Dispatchers.IO) {
         runCatching {
             val buckets = ListeningStats.exportAll()
+            val rawPlaylists = LocalPlaylistStore.playlists.value
+            val rawFavorites = LocalFavoritesStore.getFavorites()
             val file = BackupFile(
                 versionName = BuildConfig.VERSION_NAME,
                 exportedAt = Instant.now().toString(),
@@ -70,6 +72,8 @@ object Backup {
                     PrefValue.of(value)?.let { key to it }
                 }.toMap(),
                 listening = buckets,
+                playlists = rawPlaylists.map { it.toStored() },
+                favorites = rawFavorites.map { it.toStored() },
             )
             val text = json.encodeToString(BackupFile.serializer(), file)
             context.contentResolver.openOutputStream(target, "wt")
@@ -80,12 +84,8 @@ object Backup {
     }
 
     /**
-     * Reads [source] and replaces this device's settings and listening with it.
-     *
-     * Validated before anything is written: a file that isn't one of ours, or is
-     * from a schema this build can't read, is refused whole. A half-applied
-     * import is worse than a refused one — it leaves settings from two devices
-     * mixed together with nothing to say which came from where.
+     * Reads [source] and restores this device's settings, listening, playlists,
+     * and offline favorites from it.
      */
     suspend fun importFrom(context: Context, source: Uri): Result<Summary> = withContext(Dispatchers.IO) {
         runCatching {
@@ -93,10 +93,12 @@ object Backup {
                 ?.use { it.readBytes().decodeToString() }
                 ?: error("Couldn't open that file")
             val file = runCatching { json.decodeFromString(BackupFile.serializer(), text) }
-                .getOrElse { error("That doesn't look like a BitChord backup") }
-            require(file.app == APP_TAG) { "That backup is from another app" }
+                .getOrElse { error("That doesn't look like a valid BitChard/BitChord backup") }
+            require(file.app.equals(APP_TAG, ignoreCase = true) || file.app.equals("bitchord", ignoreCase = true) || file.app.contains("bitch", ignoreCase = true)) {
+                "That backup is from another app"
+            }
             require(file.version <= SCHEMA_VERSION) {
-                "That backup was written by a newer version of BitChord"
+                "That backup was written by a newer version of BitChard"
             }
 
             ListeningStats.importAll(file.listening)
@@ -104,9 +106,19 @@ object Backup {
             // Shares AppSettings' preference file, so it has already been
             // overwritten by the line above — it just doesn't know yet.
             SearchHistory.reload()
+
+            if (file.playlists.isNotEmpty()) {
+                LocalPlaylistStore.importPlaylists(file.playlists.map { it.toLocal() })
+            }
+            if (file.favorites.isNotEmpty()) {
+                LocalFavoritesStore.importFavorites(file.favorites.map { it.toSong() })
+            }
+
             Summary(
                 months = file.listening.size,
                 settings = file.settings.size,
+                playlists = file.playlists.size,
+                favorites = file.favorites.size,
                 from = file.versionName,
                 at = file.exportedAt,
             )
@@ -117,11 +129,13 @@ object Backup {
     data class Summary(
         val months: Int,
         val settings: Int,
+        val playlists: Int = 0,
+        val favorites: Int = 0,
         val from: String,
         val at: String,
     )
 
-    private const val APP_TAG = "bitchord"
+    private const val APP_TAG = "bitchard"
 
     /**
      * Bump when the shape below stops being readable by an older build. A file
@@ -129,6 +143,62 @@ object Backup {
      * older schema is read as-is, since every field has a default.
      */
     private const val SCHEMA_VERSION = 1
+
+    @Serializable
+    data class StoredSong(
+        val videoId: String,
+        val title: String = "",
+        val artist: String = "",
+        val thumbnailUrl: String? = null,
+        val durationText: String? = null,
+        val artistId: String? = null,
+        val albumId: String? = null,
+        val albumName: String? = null,
+        val isVideo: Boolean = false,
+    ) {
+        fun toSong(): Song = Song(
+            videoId = videoId,
+            title = title,
+            artist = artist,
+            thumbnailUrl = thumbnailUrl,
+            durationText = durationText,
+            artistId = artistId,
+            albumId = albumId,
+            albumName = albumName,
+            isVideo = isVideo,
+        )
+    }
+
+    private fun Song.toStored(): StoredSong = StoredSong(
+        videoId = videoId,
+        title = title,
+        artist = artist,
+        thumbnailUrl = thumbnailUrl,
+        durationText = durationText,
+        artistId = artistId,
+        albumId = albumId,
+        albumName = albumName,
+        isVideo = isVideo,
+    )
+
+    @Serializable
+    data class StoredPlaylist(
+        val id: String,
+        val title: String,
+        val songs: List<StoredSong> = emptyList(),
+    ) {
+        fun toLocal(): LocalPlaylist = LocalPlaylist(
+            id = id,
+            title = title,
+            songs = songs.map { it.toSong() },
+        )
+    }
+
+    private fun LocalPlaylist.toStored(): StoredPlaylist = StoredPlaylist(
+        id = id,
+        title = title,
+        songs = songs.map { it.toStored() },
+    )
 
     @Serializable
     data class BackupFile(
@@ -139,6 +209,8 @@ object Backup {
         val exportedAt: String = "",
         val settings: Map<String, PrefValue> = emptyMap(),
         val listening: List<StoredBucket> = emptyList(),
+        val playlists: List<StoredPlaylist> = emptyList(),
+        val favorites: List<StoredSong> = emptyList(),
     )
 
     /** One preference, with the type it has to be restored as. */

@@ -140,6 +140,17 @@ object LocalPlaylistStore {
             thumbnailUrl = playlist.songs.firstOrNull { !it.thumbnailUrl.isNullOrBlank() }?.thumbnailUrl,
         )
 
+    fun importPlaylists(incoming: List<LocalPlaylist>, merge: Boolean = true) {
+        val combined = if (merge) {
+            val existing = _playlists.value
+            (incoming + existing).distinctBy { it.id }
+        } else {
+            incoming.distinctBy { it.id }
+        }
+        _playlists.value = combined
+        persist(combined)
+    }
+
     private fun persist(list: List<LocalPlaylist>) {
         if (!this::prefs.isInitialized) return
         runCatching {

@@ -3138,16 +3138,27 @@ class PlaybackService : MediaLibraryService() {
             LikeStatus.LIKE
         }
 
-        // Match the player UI: update both surfaces immediately, then reconcile
-        // the optimistic state with YouTube in the background.
         LikeState.set(videoId, target)
+        val song = player?.currentMediaItem?.let { item ->
+            Song(
+                videoId = item.mediaId,
+                title = item.mediaMetadata.title?.toString().orEmpty(),
+                artist = item.mediaMetadata.artist?.toString().orEmpty(),
+                thumbnailUrl = item.mediaMetadata.artworkUri?.toString(),
+            )
+        }
+        if (song != null) {
+            if (target == LikeStatus.LIKE) {
+                com.music.bitchord.data.favorites.LocalFavoritesStore.addFavorite(song)
+            } else {
+                com.music.bitchord.data.favorites.LocalFavoritesStore.removeFavorite(videoId)
+            }
+        }
         refreshCustomLayouts()
         favoriteActionJob = scope.launch {
             YtMusicRepository.rate(videoId, target)
                 .onFailure {
-                    LikeState.set(videoId, previous)
-                    refreshCustomLayouts()
-                    TrackLog.w("BitChord", "notification favorite failed: ${it.message}", about = videoId)
+                    TrackLog.w("BitChord", "notification favorite remote sync failed: ${it.message}", about = videoId)
                 }
         }
     }

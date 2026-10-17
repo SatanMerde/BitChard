@@ -15,6 +15,7 @@ import com.music.bitchord.data.AppUpdateChecker
 import com.music.bitchord.data.LocalMediaRepository
 import com.music.bitchord.data.LikeState
 import com.music.bitchord.data.YtMusicRepository
+import com.music.bitchord.data.favorites.LocalFavoritesStore
 import com.music.bitchord.data.model.SPOTIFY_MISSING_PREFIX
 import com.music.bitchord.data.model.SPOTIFY_PENDING_PREFIX
 import com.music.bitchord.data.spotify.LocalPlaylistStore
@@ -639,13 +640,14 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
      * them ([likeStatuses]) means a tap shows immediately without the library
      * having to be re-fetched, and a later refresh can't undo it.
      */
-    /** Every rating known for this account: the library's, then this session's. */
+    /** Every rating known for this account: the library's, local favorites, then this session's. */
     val likeStatuses: StateFlow<Map<String, LikeStatus>> =
-        combine(_library, LikeState.overrides) { library, overrides ->
+        combine(_library, LikeState.overrides, LocalFavoritesStore.favoriteIds) { library, overrides, localIds ->
             val liked = (library as? UiState.Success)?.data?.likedSongs
                 ?.associate { it.videoId to LikeStatus.LIKE }
                 .orEmpty()
-            liked + overrides
+            val local = localIds.associateWith { LikeStatus.LIKE }
+            liked + local + overrides
         }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyMap())
 
     fun likeStatusOf(videoId: String): LikeStatus =
@@ -653,34 +655,58 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     /**
      * Sets (or clears) the thumbs rating on [videoId].
-     *
-     * Written to the screen first and rolled back if YouTube refuses. A rating
-     * is a one-tap, low-stakes action taken while a song is playing; waiting
-     * on a round trip before the heart fills reads as the tap not having
-     * registered, and people tap again.
+     * Supports 100% offline local favorites without requiring any Google account.
      */
-    fun setLike(videoId: String, status: LikeStatus) {
-        if (!requireSignIn()) return
+    fun setLike(videoId: String, status: LikeStatus, songHint: Song? = null) {
         val previous = likeStatusOf(videoId)
         if (previous == status) return
         LikeState.set(videoId, status)
-        viewModelScope.launch {
-            YtMusicRepository.rate(videoId, status).fold(
-                onSuccess = {
-                    // Liked Music is now out of date either way.
-                    libraryStale = true
-                    if (status != LikeStatus.LIKE) dropFromLikedLists(videoId)
-                    // Clearing the heart means forgetting the song, not
-                    // demoting it — see [forgetFromLibrary].
-                    val unliked = previous == LikeStatus.LIKE &&
-                        status == LikeStatus.INDIFFERENT
-                    if (unliked) forgetFromLibrary(videoId)
-                },
-                onFailure = {
-                    LikeState.set(videoId, previous)
-                },
-            )
+
+        val song = songHint ?: findSong(videoId) ?: Song(videoId = videoId, title = "", artist = "", thumbnailUrl = null)
+        if (status == LikeStatus.LIKE) {
+            LocalFavoritesStore.addFavorite(song)
+        } else {
+            LocalFavoritesStore.removeFavorite(videoId)
         }
+        reloadLocalDetail("local:favorites")
+
+        if (_signedIn.value) {
+            viewModelScope.launch {
+                YtMusicRepository.rate(videoId, status).fold(
+                    onSuccess = {
+                        libraryStale = true
+                        if (status != LikeStatus.LIKE) dropFromLikedLists(videoId)
+                        val unliked = previous == LikeStatus.LIKE && status == LikeStatus.INDIFFERENT
+                        if (unliked) forgetFromLibrary(videoId)
+                    },
+                    onFailure = {
+                        // Do not revert offline local like!
+                    },
+                )
+            }
+        }
+    }
+
+    private fun findSong(videoId: String): Song? {
+        LocalFavoritesStore.favorites.value.firstOrNull { it.videoId == videoId }?.let { return it }
+        for (page in _detailStack.value) {
+            val list = (page.songs as? UiState.Success)?.data
+            val found = list?.firstOrNull { it.videoId == videoId }
+            if (found != null) return found
+        }
+        for (pl in LocalPlaylistStore.playlists.value) {
+            val found = pl.songs.firstOrNull { it.videoId == videoId }
+            if (found != null) return found
+        }
+        val searchHits = (_results.value as? UiState.Success)?.data
+        searchHits?.forEach { hit ->
+            when (hit) {
+                is SearchResult.Track -> if (hit.song.videoId == videoId) return hit.song
+                is SearchResult.TopTrack -> if (hit.song.videoId == videoId) return hit.song
+                else -> {}
+            }
+        }
+        return null
     }
 
     /**
@@ -1029,8 +1055,12 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
      * playlist the user has to add to again.
      */
     fun createPlaylist(title: String, privacy: PlaylistPrivacy, song: Song? = null) {
-        if (!requireSignIn()) return
         val name = title.trim().ifBlank { text(R.string.new_playlist) }
+        if (!_signedIn.value) {
+            LocalPlaylistStore.savePlaylist(name, listOfNotNull(song))
+            loadPlaylists()
+            return
+        }
         viewModelScope.launch {
             YtMusicRepository.createPlaylist(
                 title = name,
@@ -2660,6 +2690,12 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                 credit = getApplication<Application>().getString(R.string.local_playlist_subtitle, localPlaylist.songs.size)
                 artwork = localPlaylist.songs.firstOrNull { !it.thumbnailUrl.isNullOrBlank() }?.thumbnailUrl
             }
+            if (browseId == "local:favorites" || (browseId == "VLLM" && !_signedIn.value)) {
+                val favs = LocalFavoritesStore.getFavorites()
+                name = getApplication<Application>().getString(R.string.auto_liked)
+                credit = "${favs.size} tracks"
+                artwork = favs.firstOrNull { !it.thumbnailUrl.isNullOrBlank() }?.thumbnailUrl
+            }
             val local = localPageState(browseId)
             val state = when {
                 local != null -> local
@@ -2876,6 +2912,9 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
         com.music.bitchord.data.spotify.LocalPlaylistStore.getPlaylist(browseId)?.let { playlist ->
             return nonEmpty(playlist.songs) { text(R.string.spotify_import_empty_playlist) }
+        }
+        if (browseId == "local:favorites" || (browseId == "VLLM" && !_signedIn.value)) {
+            return nonEmpty(LocalFavoritesStore.getFavorites()) { text(R.string.no_tracks_here) }
         }
         remoteLibrary(browseId)?.let { return remoteSongsState(it) }
         LocalGroups.folderOf(browseId)?.let { folderId ->

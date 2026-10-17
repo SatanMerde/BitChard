@@ -5,6 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-prod-release:
     runs-on: ubuntu-latest
@@ -64,3 +67,16 @@ jobs:
       with:
         name: bitchord-wear-prod-release-signed
         path: wearos/build/outputs/apk/prod/release/*.apk
+
+    - name: Create or Update GitHub Release
+      uses: softprops/action-gh-release@v2
+      if: github.ref == 'refs/heads/main'
+      with:
+        tag_name: latest
+        name: "BitChard Latest Release"
+        draft: false
+        prerelease: false
+        files: |
+          app/build/outputs/apk/prod/release/*.apk
+          wearos/build/outputs/apk/prod/release/*.apk
+

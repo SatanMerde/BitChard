@@ -85,6 +85,8 @@ import androidx.appcompat.app.AppCompatDelegate
 import com.music.bitchord.data.lyrics.translationLanguageName
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -278,6 +280,10 @@ fun SettingsScreen(
     val listenBrainzToken by AppSettings.listenBrainzToken.collectAsStateWithLifecycle()
 
     val replayGenres by AppSettings.replayGenres.collectAsStateWithLifecycle()
+    val bitgVoicePitch by AppSettings.bitgVoicePitch.collectAsStateWithLifecycle()
+    val bitgVoiceSpeed by AppSettings.bitgVoiceSpeed.collectAsStateWithLifecycle()
+    val bitgVoiceEnabled by AppSettings.bitgVoiceEnabled.collectAsStateWithLifecycle()
+    val bitgLanguage by AppSettings.bitgLanguage.collectAsStateWithLifecycle()
 
     // Read here so the row can say "In a party · ABC123" rather than making
     // somebody open the screen to find out whether they are still in one.
@@ -347,8 +353,13 @@ fun SettingsScreen(
         if (source == null) return@rememberLauncherForActivityResult
         backupScope.launch {
             importStatus = Backup.importFrom(context, source).fold(
-                onSuccess = {
-                    context.getString(R.string.import_succeeded, context.countOfMonths(it.months), it.from)
+                onSuccess = { summary ->
+                    val base = context.getString(R.string.import_succeeded, context.countOfMonths(summary.months), summary.from)
+                    val extras = buildList {
+                        if (summary.favorites > 0) add("${summary.favorites} favoris")
+                        if (summary.playlists > 0) add("${summary.playlists} playlists")
+                    }
+                    if (extras.isNotEmpty()) "$base (${extras.joinToString(", ")})" else base
                 },
                 onFailure = {
                     context.getString(R.string.import_failed, it.message ?: context.getString(R.string.unknown_error))
@@ -1252,6 +1263,130 @@ fun SettingsScreen(
             SearchableSettingsGroup(search) {
                 row(stringResource(R.string.wear_os_section), "watch", "wear os", "galaxy watch", "pixel watch", "install") {
                     WearOsSettingsRow(onClick = onWearOs)
+                }
+            }
+        }
+
+        SearchableSettingsGroup(search, header = stringResource(R.string.bitg_settings_title)) {
+            val voiceTitle = stringResource(R.string.bitg_voice_enabled)
+            row(voiceTitle, "bitg", "dj", "voice", "ia", "commentary") {
+                SettingsRow(
+                    icon = Icons.Rounded.AutoAwesome,
+                    title = voiceTitle,
+                    subtitle = stringResource(R.string.bitg_voice_enabled_subtitle),
+                    trailing = {
+                        Switch(
+                            checked = bitgVoiceEnabled,
+                            onCheckedChange = AppSettings::setBitgVoiceEnabled,
+                            colors = SwitchDefaults.colors(
+                                checkedTrackColor = MaterialTheme.colorScheme.primary,
+                                checkedBorderColor = MaterialTheme.colorScheme.primary,
+                            ),
+                        )
+                    },
+                    onClick = { AppSettings.setBitgVoiceEnabled(!bitgVoiceEnabled) },
+                )
+            }
+            val speedTitle = stringResource(R.string.bitg_voice_speed)
+            row(speedTitle, "bitg", "dj", "speed", "voice", "tempo") {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = ROW_INSET, end = ROW_INSET, bottom = 12.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = speedTitle,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                        Text(
+                            text = String.format(java.util.Locale.US, "%.1fx", bitgVoiceSpeed),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+                    Slider(
+                        value = bitgVoiceSpeed,
+                        onValueChange = { AppSettings.setBitgVoiceSpeed(it) },
+                        valueRange = 0.5f..2.0f,
+                        steps = 5,
+                        colors = SliderDefaults.colors(
+                            thumbColor = MaterialTheme.colorScheme.primary,
+                            activeTrackColor = MaterialTheme.colorScheme.primary,
+                        ),
+                    )
+                }
+            }
+            val pitchTitle = stringResource(R.string.bitg_voice_pitch)
+            row(pitchTitle, "bitg", "dj", "pitch", "voice", "ton") {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = ROW_INSET, end = ROW_INSET, bottom = 12.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = pitchTitle,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                        Text(
+                            text = String.format(java.util.Locale.US, "%.1fx", bitgVoicePitch),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+                    Slider(
+                        value = bitgVoicePitch,
+                        onValueChange = { AppSettings.setBitgVoicePitch(it) },
+                        valueRange = 0.5f..1.5f,
+                        steps = 4,
+                        colors = SliderDefaults.colors(
+                            thumbColor = MaterialTheme.colorScheme.primary,
+                            activeTrackColor = MaterialTheme.colorScheme.primary,
+                        ),
+                    )
+                }
+            }
+            val langTitle = stringResource(R.string.bitg_language)
+            row(langTitle, "bitg", "dj", "lang", "language", "français", "english") {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = ROW_INSET, end = ROW_INSET, bottom = 12.dp)
+                ) {
+                    Text(
+                        text = langTitle,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        listOf("auto" to "Auto", "fr" to "Français", "en" to "English").forEach { (code, label) ->
+                            FilterChip(
+                                selected = bitgLanguage == code,
+                                onClick = { AppSettings.setBitgLanguage(code) },
+                                label = { Text(label) },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                )
+                            )
+                        }
+                    }
                 }
             }
         }

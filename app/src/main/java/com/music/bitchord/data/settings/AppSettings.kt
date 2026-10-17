@@ -381,6 +381,18 @@ object AppSettings {
     /** Hides the "Playing from" / "Played by" caption at the top of the main player. */
     val hideSongStatus = MutableStateFlow(false)
 
+    /** Pitch of BitG AI DJ's voice (0.5 to 1.5). */
+    val bitgVoicePitch = MutableStateFlow(1.0f)
+
+    /** Speed rate of BitG AI DJ's speech (0.5 to 2.0). */
+    val bitgVoiceSpeed = MutableStateFlow(1.03f)
+
+    /** Whether BitG speaks live audio commentary and introductions. */
+    val bitgVoiceEnabled = MutableStateFlow(true)
+
+    /** Voice language for BitG ("auto", "fr", "en"). */
+    val bitgLanguage = MutableStateFlow("auto")
+
     val showQueueHistory = MutableStateFlow(false)
 
     /** Swiping a song row plays it next instead of adding it to the end of the queue. */
@@ -784,6 +796,7 @@ object AppSettings {
         prefs = context.getSharedPreferences("bitchord_settings", Context.MODE_PRIVATE)
         this.authStore = authStore
         com.music.bitchord.data.spotify.LocalPlaylistStore.init(context)
+        com.music.bitchord.data.favorites.LocalFavoritesStore.init(context)
         readAll()
         watchConnection(context)
     }
@@ -874,6 +887,10 @@ object AppSettings {
         lyricsOffsetMs.value = prefs.getInt(KEY_LYRICS_OFFSET_MS, 0)
             .coerceIn(MIN_LYRICS_OFFSET_MS, MAX_LYRICS_OFFSET_MS)
         translationLanguage.value = prefs.getString(KEY_TRANSLATION_LANGUAGE, "").orEmpty()
+        bitgVoicePitch.value = prefs.getFloat(KEY_BITG_VOICE_PITCH, 1.0f).coerceIn(0.5f, 1.5f)
+        bitgVoiceSpeed.value = prefs.getFloat(KEY_BITG_VOICE_SPEED, 1.03f).coerceIn(0.5f, 2.0f)
+        bitgVoiceEnabled.value = prefs.getBoolean(KEY_BITG_VOICE_ENABLED, true)
+        bitgLanguage.value = prefs.getString(KEY_BITG_LANGUAGE, "auto") ?: "auto"
         if (highPerformanceMode.value) {
             reduceAnimation.value = false
             reduceDynamicBlur.value = false
@@ -1322,6 +1339,28 @@ object AppSettings {
     fun setTranslationLanguage(value: String) {
         translationLanguage.value = value
         prefs.edit().putString(KEY_TRANSLATION_LANGUAGE, value).apply()
+    }
+
+    fun setBitgVoicePitch(pitch: Float) {
+        val clamped = pitch.coerceIn(0.5f, 1.5f)
+        bitgVoicePitch.value = clamped
+        prefs.edit().putFloat(KEY_BITG_VOICE_PITCH, clamped).apply()
+    }
+
+    fun setBitgVoiceSpeed(speed: Float) {
+        val clamped = speed.coerceIn(0.5f, 2.0f)
+        bitgVoiceSpeed.value = clamped
+        prefs.edit().putFloat(KEY_BITG_VOICE_SPEED, clamped).apply()
+    }
+
+    fun setBitgVoiceEnabled(enabled: Boolean) {
+        bitgVoiceEnabled.value = enabled
+        prefs.edit().putBoolean(KEY_BITG_VOICE_ENABLED, enabled).apply()
+    }
+
+    fun setBitgLanguage(lang: String) {
+        bitgLanguage.value = lang
+        prefs.edit().putString(KEY_BITG_LANGUAGE, lang).apply()
     }
 
     fun setSyncedLyrics(value: Boolean) {
@@ -2034,6 +2073,10 @@ object AppSettings {
     private const val KEY_LYRICS_BLUR = "lyrics_blur"
     private const val KEY_LYRICS_OFFSET_MS = "lyrics_offset_ms"
     private const val KEY_TRANSLATION_LANGUAGE = "translation_language"
+    private const val KEY_BITG_VOICE_PITCH = "bitg_voice_pitch"
+    private const val KEY_BITG_VOICE_SPEED = "bitg_voice_speed"
+    private const val KEY_BITG_VOICE_ENABLED = "bitg_voice_enabled"
+    private const val KEY_BITG_LANGUAGE = "bitg_language"
     private const val KEY_ANIMATED_CANVAS = "animated_canvas"
     private const val KEY_CANVAS_OVER_CELLULAR = "canvas_over_cellular"
     private const val KEY_SPOTIFY_CANVAS_AUTO_HIDE = "spotify_canvas_auto_hide"
