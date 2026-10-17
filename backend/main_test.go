@@ -20,6 +20,8 @@ import (
 )
 
 func setupTestServer() *httptest.Server {
+	createLimiter = newIPRateLimiter(time.Minute, 10000, 10000)
+	presenceLimiter = newIPRateLimiter(time.Minute, 10000, 10000)
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /{$}", handleRoot)
 	mux.HandleFunc("GET /healthz", handleHealthz)
@@ -490,11 +492,21 @@ func TestWebSocketTokenAsSubprotocol(t *testing.T) {
 	defer ts.Close()
 
 	b, _ := json.Marshal(map[string]string{"userId": "u1", "deviceId": "d1", "displayName": "Host"})
-	res, _ := http.Post(ts.URL+"/api/parties", "application/json", bytes.NewReader(b))
+	res, err := http.Post(ts.URL+"/api/parties", "application/json", bytes.NewReader(b))
+	if err != nil {
+		t.Fatalf("POST /api/parties failed: %v", err)
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusCreated && res.StatusCode != http.StatusOK {
+		t.Fatalf("expected 201/200 from POST /api/parties, got %d", res.StatusCode)
+	}
 	var created map[string]interface{}
 	_ = json.NewDecoder(res.Body).Decode(&created)
-	code := created["code"].(string)
-	token := created["token"].(string)
+	code, _ := created["code"].(string)
+	token, _ := created["token"].(string)
+	if code == "" || token == "" {
+		t.Fatalf("expected code and token, got %v", created)
+	}
 
 	u, _ := url.Parse(ts.URL)
 	u.Scheme = "ws"
