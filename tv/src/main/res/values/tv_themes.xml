@@ -7,8 +7,4 @@
         <item name="android:windowActionBar">false</item>
     </style>
     <style name="Theme.BitChord.Tv" parent="Theme.BitChard.Tv" />
-    <style name="Theme.BitChard" parent="Theme.AppCompat.DayNight.NoActionBar">
-        <item name="android:windowBackground">@android:color/black</item>
-    </style>
-    <style name="Theme.BitChord" parent="Theme.BitChard" />
 </resources>
