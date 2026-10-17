@@ -62,13 +62,14 @@ jobs:
     - name: Get Version
       id: get_version
       run: |
-        VERSION=$(grep 'extra\["bitchordVersionName"\]' build.gradle.kts | head -n 1 | sed -E 's/.*"([^"]+)".*/\1/')
-        BETA=$(grep 'extra\["bitchordBetaSuffix"\]' build.gradle.kts | head -n 1 | sed -E 's/.*"([^"]+)".*/\1/')
+        VERSION=$(grep 'extra\["bitchordVersionName"\]' build.gradle.kts | head -n 1 | cut -d'"' -f4)
+        BETA=$(grep 'extra\["bitchordBetaSuffix"\]' build.gradle.kts | head -n 1 | cut -d'"' -f4)
         if [ -n "$BETA" ]; then
           FULL_VERSION="${VERSION}-${BETA}"
         else
           FULL_VERSION="${VERSION}"
         fi
+        echo "Extracted version: '${FULL_VERSION}'"
         echo "version=${FULL_VERSION}" >> $GITHUB_OUTPUT
 
     - name: Build Signed Prod Release APK
