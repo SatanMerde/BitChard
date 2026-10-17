@@ -51,6 +51,15 @@ internal fun lyricsGet(url: String): String? = runCatching {
     }
 }.getOrNull()
 
+/** Body of a GET with custom headers. */
+internal fun lyricsGetWithHeaders(url: String, headers: Map<String, String>): String? = runCatching {
+    val builder = Request.Builder().url(url)
+    headers.forEach { (key, value) -> builder.header(key, value) }
+    client.newCall(builder.build()).execute().use { response ->
+        if (response.isSuccessful) response.body?.string() else null
+    }
+}.getOrNull()
+
 /** Body of an authenticated provider GET without service-specific browser headers. */
 internal fun lyricsGetBearer(url: String, bearer: String): String? = runCatching {
     if (bearer.isBlank()) return null

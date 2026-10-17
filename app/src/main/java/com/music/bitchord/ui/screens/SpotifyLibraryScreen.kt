@@ -15,9 +15,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -60,6 +63,16 @@ import com.music.bitchord.data.spotify.SpotifyPlaylist
 import com.music.bitchord.sharedui.resources.Res
 import com.music.bitchord.sharedui.resources.spotify_logo
 import com.music.bitchord.ui.MainViewModel
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import com.music.bitchord.playback.dj.AiDjManager
+import com.music.bitchord.ui.dj.AiDjSheet
+import com.music.bitchord.playback.rememberMediaController
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 
@@ -85,6 +98,7 @@ fun SpotifyLibraryScreen(
     val scope = rememberCoroutineScope()
 
     var showBatchDialog by remember { mutableStateOf(false) }
+    var showDjSheet by remember { mutableStateOf(false) }
     var importPlaylists by remember { mutableStateOf(true) }
     var importArtists by remember { mutableStateOf(true) }
     var saveToYtm by remember { mutableStateOf(false) }
@@ -95,6 +109,19 @@ fun SpotifyLibraryScreen(
     var importDone by remember { mutableStateOf(false) }
     var summaryMessage by remember { mutableStateOf("") }
     var cancelRequested by remember { mutableStateOf(false) }
+
+    val controller = rememberMediaController()
+    val isDjActive by AiDjManager.isActive.collectAsStateWithLifecycle()
+    val isDjSpeaking by AiDjManager.isSpeaking.collectAsStateWithLifecycle()
+    val djVibe by AiDjManager.currentVibe.collectAsStateWithLifecycle()
+
+    if (showDjSheet) {
+        AiDjSheet(
+            controller = controller,
+            scope = scope,
+            onDismiss = { showDjSheet = false },
+        )
+    }
 
     LaunchedEffect(cookie) {
         if (cookie.isBlank()) {
@@ -392,6 +419,113 @@ fun SpotifyLibraryScreen(
                     }
                 }
             } else {
+                item {
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp, vertical = 6.dp),
+                        shape = RoundedCornerShape(18.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    Brush.horizontalGradient(
+                                        colors = if (isDjActive) listOf(
+                                            Color(0xFF1DB954).copy(alpha = 0.22f),
+                                            Color(0xFF00D2FF).copy(alpha = 0.18f),
+                                            Color(0xFF9D00FF).copy(alpha = 0.22f),
+                                        ) else listOf(
+                                            Color.Transparent,
+                                            Color.Transparent,
+                                        ),
+                                    ),
+                                )
+                                .padding(16.dp),
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                            ) {
+                                Row(
+                                    modifier = Modifier.weight(1f),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Box(
+                                        contentAlignment = Alignment.Center,
+                                        modifier = Modifier
+                                            .size(44.dp)
+                                            .clip(CircleShape)
+                                            .background(
+                                                Brush.linearGradient(
+                                                    colors = listOf(Color(0xFF1DB954), Color(0xFF00D2FF)),
+                                                ),
+                                            ),
+                                    ) {
+                                        Icon(
+                                            imageVector = if (isDjSpeaking) Icons.Default.GraphicEq else Icons.Default.MusicNote,
+                                            contentDescription = null,
+                                            tint = Color.White,
+                                            modifier = Modifier.size(24.dp),
+                                        )
+                                    }
+                                    Spacer(Modifier.width(12.dp))
+                                    Column {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text(
+                                                text = stringResource(R.string.ai_dj_card_title),
+                                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                                color = MaterialTheme.colorScheme.onSurface,
+                                            )
+                                            if (isDjActive) {
+                                                Spacer(Modifier.width(6.dp))
+                                                Surface(
+                                                    shape = RoundedCornerShape(10.dp),
+                                                    color = Color(0xFF1DB954),
+                                                ) {
+                                                    Text(
+                                                        text = stringResource(R.string.ai_dj_active_badge),
+                                                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, fontSize = 9.sp),
+                                                        color = Color.White,
+                                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                                    )
+                                                }
+                                            }
+                                        }
+                                        Spacer(Modifier.height(2.dp))
+                                        Text(
+                                            text = if (isDjActive) djVibe else stringResource(R.string.ai_dj_card_subtitle),
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    }
+                                }
+                                Spacer(Modifier.width(10.dp))
+                                Button(
+                                    onClick = {
+                                        if (isDjActive) {
+                                            showDjSheet = true
+                                        } else {
+                                            AiDjManager.start(context, controller, scope)
+                                            showDjSheet = true
+                                        }
+                                    },
+                                    shape = RoundedCornerShape(20.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color(0xFF1DB954),
+                                        contentColor = Color.White,
+                                    ),
+                                ) {
+                                    Text(
+                                        text = if (isDjActive) stringResource(R.string.ai_dj_control) else stringResource(R.string.ai_dj_start),
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
                 item {
                     Surface(
                         modifier = Modifier

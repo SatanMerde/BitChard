@@ -179,6 +179,10 @@ import com.music.bitchord.data.sources.TrackMatcher
 import com.music.bitchord.ui.screens.SpotifyCanvasAuthScreen
 import com.music.bitchord.ui.screens.SpotifyLibraryScreen
 import com.music.bitchord.data.spotify.SPOTIFY_PAGE_PREFIX
+import com.music.bitchord.playback.dj.AiDjManager
+import com.music.bitchord.ui.dj.AiDjSheet
+import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.ui.graphics.Brush
 import com.music.bitchord.playback.AudioCache
 import com.music.bitchord.playback.LinkRequest
 import com.music.bitchord.playback.MusicLink
@@ -616,6 +620,7 @@ private fun BitChordApp(
     // to cover the tab bar and mini player, which are drawn after it.
     var showDiscord by remember { mutableStateOf(false) }
     var showSpotify by remember { mutableStateOf(false) }
+    var showGlobalDjSheet by remember { mutableStateOf(false) }
     var showDiscordLogin by remember { mutableStateOf(false) }
     var showSpotifyLogin by remember { mutableStateOf(false) }
     var discordDialog by remember { mutableStateOf<DiscordDialog?>(null) }
@@ -3740,6 +3745,30 @@ private fun BitChordApp(
                             }
                         }
                         if (!showSettings && !showAccountScrobbling) {
+                            val isDjActiveTop by AiDjManager.isActive.collectAsStateWithLifecycle()
+                            IconButton(
+                                onClick = { showGlobalDjSheet = true },
+                            ) {
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier
+                                        .size(32.dp)
+                                        .clip(CircleShape)
+                                        .background(
+                                            Brush.linearGradient(
+                                                colors = if (isDjActiveTop) listOf(Color(0xFF1DB954), Color(0xFF00D2FF))
+                                                else listOf(Color(0xFF1DB954).copy(alpha = 0.35f), Color(0xFF00D2FF).copy(alpha = 0.35f)),
+                                            ),
+                                        ),
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.GraphicEq,
+                                        contentDescription = stringResource(R.string.ai_dj_title),
+                                        tint = if (isDjActiveTop) Color.White else MaterialTheme.colorScheme.onSurface,
+                                        modifier = Modifier.size(18.dp),
+                                    )
+                                }
+                            }
                             // Left of the account photo, and only on Library itself:
                             // a history is a record of what was played, which reads
                             // as that tab's business rather than every tab's.
@@ -4561,6 +4590,14 @@ private fun BitChordApp(
             ) {
                 DownloadManagerSheet(onDismiss = closeDownloadManager)
             }
+        }
+
+        if (showGlobalDjSheet) {
+            AiDjSheet(
+                controller = controller,
+                scope = scope,
+                onDismiss = { showGlobalDjSheet = false },
+            )
         }
 
         // ---- Add to playlist / new playlist ----

@@ -55,6 +55,16 @@ enum class LyricsSource(
         detail = "Apple Music timings, word by word",
         wordSynced = true,
     ),
+    BETTER_LYRICS_TTML(
+        label = "BetterLyrics Syllable",
+        detail = "Apple Music syllable-level timing directly from TTML",
+        wordSynced = true,
+    ),
+    NETEASE(
+        label = "NetEase (YRC)",
+        detail = "Hyper-precise syllable & word-by-word timing via NetEase YRC",
+        wordSynced = true,
+    ),
     BETTER_LYRICS_PORTATO(
         label = "BetterLyrics Portato",
         detail = "QQ Music karaoke timings through BetterLyrics",
@@ -73,6 +83,11 @@ enum class LyricsSource(
     PAXSENIX_MUSIXMATCH(
         label = "PaxSenix: Musixmatch",
         detail = "Musixmatch timings with PaxSenix fallback; API key required",
+        wordSynced = true,
+    ),
+    MUSIXMATCH(
+        label = "Musixmatch",
+        detail = "RichSync word-by-word and line timings from Musixmatch",
         wordSynced = true,
     ),
     LYRICS_PLUS(
@@ -115,11 +130,6 @@ enum class LyricsSource(
     LRCLIB(
         label = "LRCLIB",
         detail = "Whole lines only, and always up",
-        wordSynced = false,
-    ),
-    MUSIXMATCH(
-        label = "Musixmatch",
-        detail = "Whole lines, from the biggest lyrics database there is",
         wordSynced = false,
     ),
     GENIUS(

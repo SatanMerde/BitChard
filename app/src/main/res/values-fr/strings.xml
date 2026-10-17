@@ -1364,6 +1364,13 @@
     <string name="spotify_batch_import_save_ytm">Créer sur le compte YouTube Music</string>
     <string name="spotify_batch_import_start">Lancer l\'importation</string>
     <string name="spotify_batch_import_done">Importation terminée !</string>
-    <string name="spotify_batch_import_summary">%1$d playlists et %2$d artistes importés</string>
     <string name="signed_by">Signé par %1$s</string>
+    <string name="ai_dj_title">IA DJ BitChard</string>
+    <string name="ai_dj_card_title">IA DJ — BitChard</string>
+    <string name="ai_dj_card_subtitle">Équivalent Spotify DJ avec commentaires vocaux et mix en direct</string>
+    <string name="ai_dj_start">Lancer l\'IA DJ</string>
+    <string name="ai_dj_control">Contrôler le DJ</string>
+    <string name="ai_dj_switch_vibe">Changer d\'ambiance</string>
+    <string name="ai_dj_stop">Arrêter la session DJ</string>
+    <string name="ai_dj_active_badge">DJ EN COURS</string>
 </resources>

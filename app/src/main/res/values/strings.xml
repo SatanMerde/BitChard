@@ -1215,4 +1215,12 @@
     <string name="wear_os_code_hint">Pairing code</string>
     <string name="wear_os_done">Done</string>
     <string name="signed_by">Signed by %1$s</string>
+    <string name="ai_dj_title">BitChard AI DJ</string>
+    <string name="ai_dj_card_title">AI DJ — BitChard</string>
+    <string name="ai_dj_card_subtitle">Spotify-like DJ with live spoken commentary &amp; dynamic mix</string>
+    <string name="ai_dj_start">Launch AI DJ</string>
+    <string name="ai_dj_control">Open DJ Controls</string>
+    <string name="ai_dj_switch_vibe">Switch Vibe</string>
+    <string name="ai_dj_stop">Stop DJ Session</string>
+    <string name="ai_dj_active_badge">DJ ACTIVE</string>
 </resources>

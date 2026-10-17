@@ -194,6 +194,8 @@ object LyricsRepository {
         val found = when (source) {
             LyricsSource.LRC_RED -> LrcRed.lyrics(title, artist, durationMs, isrc, get)
             LyricsSource.BETTER_LYRICS -> BetterLyrics.lyrics(title, artist, durationMs, album)
+            LyricsSource.BETTER_LYRICS_TTML -> BetterLyrics.ttml(title, artist, durationMs, album)
+            LyricsSource.NETEASE -> NeteaseLyrics.lyrics(title, artist, durationMs, album)
             LyricsSource.BETTER_LYRICS_PORTATO -> BetterLyrics.portato(title, artist, durationMs, album)
             LyricsSource.LYRICS_PLUS -> LyricsPlus.lyrics(title, artist, durationMs, album, isrc)
             LyricsSource.BINI_LYRICS ->

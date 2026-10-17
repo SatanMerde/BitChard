@@ -19,6 +19,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 object BetterLyrics {
 
     private const val BASE = "https://lyrics-api.boidu.dev/getLyrics"
+    private const val TTML = "https://lyrics-api.boidu.dev/ttml/getLyrics"
     private const val PORTATO = "https://lyrics-api.boidu.dev/qq/getLyrics"
 
     suspend fun lyrics(
@@ -27,6 +28,14 @@ object BetterLyrics {
         durationMs: Long,
         album: String? = null,
     ): List<LyricLine>? = fetch(BASE, title, artist, durationMs, album)
+
+    /** Dedicated Apple Music syllable-level timing (TTML). */
+    suspend fun ttml(
+        title: String,
+        artist: String,
+        durationMs: Long,
+        album: String? = null,
+    ): List<LyricLine>? = fetch(TTML, title, artist, durationMs, album)
 
     /** QQ Music's karaoke timings through BetterLyrics' Portato endpoint. */
     suspend fun portato(

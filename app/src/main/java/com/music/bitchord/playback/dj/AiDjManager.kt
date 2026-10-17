@@ -1,0 +1,330 @@
+package com.music.bitchord.playback.dj
+
+import android.content.Context
+import android.media.AudioAttributes
+import android.os.Bundle
+import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
+import androidx.media3.session.MediaController
+import com.music.bitchord.data.LocalMediaRepository
+import com.music.bitchord.data.YtMusicRepository
+import com.music.bitchord.data.model.Song
+import com.music.bitchord.download.Downloads
+import com.music.bitchord.playback.playSongs
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.Locale
+import java.util.UUID
+
+/**
+ * Spotify-style AI DJ for BitChard.
+ *
+ * Provides real-time spoken introductions and vibe commentary using Android's
+ * high-fidelity native TextToSpeech engine, with automatic audio ducking and
+ * thematic music batch generation (Favorites, Artist Spotlight, Discoveries, Energy, Chill).
+ */
+object AiDjManager {
+
+    enum class DjVibe(val labelFr: String, val labelEn: String) {
+        FAVORITES("Vos Incontournables", "Your Favorites"),
+        ARTIST_SPOTLIGHT("Focus Artiste", "Artist Spotlight"),
+        DISCOVERIES("Pépites & Découvertes", "Fresh Discoveries"),
+        ENERGY("Vibe Énergie", "High Energy"),
+        CHILL("Détente & Chill", "Chill & Relax"),
+    }
+
+    private var tts: TextToSpeech? = null
+    private var isTtsInitialized = false
+    private var currentVibeIndex = 0
+
+    private val _isActive = MutableStateFlow(false)
+    val isActive: StateFlow<Boolean> = _isActive.asStateFlow()
+
+    private val _isSpeaking = MutableStateFlow(false)
+    val isSpeaking: StateFlow<Boolean> = _isSpeaking.asStateFlow()
+
+    private val _currentVibe = MutableStateFlow(DjVibe.FAVORITES.labelFr)
+    val currentVibe: StateFlow<String> = _currentVibe.asStateFlow()
+
+    private val _currentSpeech = MutableStateFlow("")
+    val currentSpeech: StateFlow<String> = _currentSpeech.asStateFlow()
+
+    fun init(context: Context) {
+        if (tts != null && isTtsInitialized) return
+
+        tts = TextToSpeech(context.applicationContext) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                isTtsInitialized = true
+                val systemLocale = Locale.getDefault()
+                val langResult = tts?.setLanguage(systemLocale)
+                if (langResult == TextToSpeech.LANG_MISSING_DATA || langResult == TextToSpeech.LANG_NOT_SUPPORTED) {
+                    if (systemLocale.language == "fr") {
+                        tts?.setLanguage(Locale.FRENCH)
+                    } else {
+                        tts?.setLanguage(Locale.US)
+                    }
+                }
+                tts?.setPitch(1.0f)
+                tts?.setSpeechRate(1.03f)
+
+                runCatching {
+                    val attrs = AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                        .build()
+                    tts?.setAudioAttributes(attrs)
+                }
+
+                tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+                    override fun onStart(utteranceId: String?) {
+                        _isSpeaking.value = true
+                    }
+
+                    override fun onDone(utteranceId: String?) {
+                        _isSpeaking.value = false
+                    }
+
+                    override fun onError(utteranceId: String?) {
+                        _isSpeaking.value = false
+                    }
+                })
+            }
+        }
+    }
+
+    /**
+     * Starts the AI DJ session: announces the session, picks a themed batch,
+     * speaks the voice intro with audio ducking, and queues playback.
+     */
+    fun start(
+        context: Context,
+        controller: MediaController?,
+        scope: CoroutineScope,
+    ) {
+        init(context)
+        _isActive.value = true
+        currentVibeIndex = 0
+        val vibe = DjVibe.entries[currentVibeIndex]
+        updateVibeLabel(vibe)
+
+        scope.launch {
+            val songs = loadTracksForVibe(context, vibe)
+            val isFrench = Locale.getDefault().language == "fr"
+            val leadSong = songs.firstOrNull()
+
+            val text = if (isFrench) {
+                if (leadSong != null) {
+                    "Salut ! C'est ton IA DJ BitChard. Installe-toi bien, on commence avec ${leadSong.title} de ${leadSong.artist}, suivi d'une sélection sur mesure pour toi."
+                } else {
+                    "Salut ! C'est ton IA DJ BitChard. Installe-toi bien, c'est parti pour une session exclusive rien que pour toi."
+                }
+            } else {
+                if (leadSong != null) {
+                    "Hey! It's your BitChard AI DJ. Kicking things off with ${leadSong.title} by ${leadSong.artist}, followed by a custom mix just for you."
+                } else {
+                    "Hey! It's your BitChard AI DJ. Sit back and enjoy, let's get into your personalized mix."
+                }
+            }
+
+            speak(text) {
+                if (songs.isNotEmpty() && controller != null) {
+                    scope.launch {
+                        controller.playSongs(songs, 0)
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Interactive vibe switch: immediately introduces a new mood/batch with speech commentary.
+     */
+    fun switchVibe(
+        context: Context,
+        controller: MediaController?,
+        scope: CoroutineScope,
+    ) {
+        init(context)
+        _isActive.value = true
+        currentVibeIndex = (currentVibeIndex + 1) % DjVibe.entries.size
+        val vibe = DjVibe.entries[currentVibeIndex]
+        updateVibeLabel(vibe)
+
+        scope.launch {
+            val songs = loadTracksForVibe(context, vibe)
+            val isFrench = Locale.getDefault().language == "fr"
+            val leadSong = songs.firstOrNull()
+
+            val text = when (vibe) {
+                DjVibe.FAVORITES -> if (isFrench) {
+                    "On revient à tes classiques incontournables. Des morceaux qui ne déçoivent jamais !"
+                } else {
+                    "Heading back to your all-time favorites. Tracks that never miss!"
+                }
+                DjVibe.ARTIST_SPOTLIGHT -> if (isFrench) {
+                    if (leadSong != null) {
+                        "Coup de projecteur spécial sur ${leadSong.artist} ! Découvre quelques pépites de son univers."
+                    } else {
+                        "Place à un focus artiste spécial. Écoute ça !"
+                    }
+                } else {
+                    if (leadSong != null) {
+                        "Artist spotlight time with ${leadSong.artist}! Here are some essential cuts."
+                    } else {
+                        "Time for an artist spotlight session. Check this out!"
+                    }
+                }
+                DjVibe.DISCOVERIES -> if (isFrench) {
+                    "Envie de nouveautés ? Voici quelques pépites fraîchement dénichées pour toi."
+                } else {
+                    "Ready for something new? Here are a few fresh recommendations lined up."
+                }
+                DjVibe.ENERGY -> if (isFrench) {
+                    "Allez, on monte le volume et le tempo ! Place à une bonne dose d'énergie."
+                } else {
+                    "Turning up the tempo! Let's bring in some high energy beats."
+                }
+                DjVibe.CHILL -> if (isFrench) {
+                    "On ralentit le rythme pour une ambiance détendue et posée. Respire et profite."
+                } else {
+                    "Dialing things back for a smooth, relaxed vibe. Sit back and unwind."
+                }
+            }
+
+            speak(text) {
+                if (songs.isNotEmpty() && controller != null) {
+                    scope.launch {
+                        controller.playSongs(songs, 0)
+                    }
+                }
+            }
+        }
+    }
+
+    fun stop() {
+        _isActive.value = false
+        _isSpeaking.value = false
+        _currentSpeech.value = ""
+        tts?.stop()
+    }
+
+    fun speak(text: String, onDone: (() -> Unit)? = null) {
+        _currentSpeech.value = text
+        val ttsEngine = tts
+        if (ttsEngine == null || !isTtsInitialized) {
+            _isSpeaking.value = false
+            onDone?.invoke()
+            return
+        }
+
+        val utteranceId = UUID.randomUUID().toString()
+        val params = Bundle().apply {
+            putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1.0f)
+            putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId)
+        }
+
+        ttsEngine.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+            override fun onStart(id: String?) {
+                _isSpeaking.value = true
+            }
+
+            override fun onDone(id: String?) {
+                if (id == utteranceId) {
+                    _isSpeaking.value = false
+                    onDone?.invoke()
+                }
+            }
+
+            override fun onError(id: String?) {
+                if (id == utteranceId) {
+                    _isSpeaking.value = false
+                    onDone?.invoke()
+                }
+            }
+        })
+
+        _isSpeaking.value = true
+        ttsEngine.speak(text, TextToSpeech.QUEUE_FLUSH, params, utteranceId)
+    }
+
+    private fun updateVibeLabel(vibe: DjVibe) {
+        val isFrench = Locale.getDefault().language == "fr"
+        _currentVibe.value = if (isFrench) vibe.labelFr else vibe.labelEn
+    }
+
+    private fun com.music.bitchord.data.model.ShelfItem.toSong(): Song? {
+        val id = videoId ?: return null
+        return Song(videoId = id, title = title, artist = subtitle, thumbnailUrl = thumbnailUrl)
+    }
+
+    private suspend fun loadTracksForVibe(context: Context, vibe: DjVibe): List<Song> = withContext(Dispatchers.IO) {
+        val downloaded: List<Song> = runCatching { Downloads.getDownloadedSongs(context) }.getOrDefault(emptyList())
+        val local: List<Song> = runCatching { LocalMediaRepository.getLocalMusic(context) }.getOrDefault(emptyList())
+        val recents: List<Song> = runCatching {
+            YtMusicRepository.homeRecentlyPlayed().getOrNull()?.items?.mapNotNull { it.toSong() }
+        }.getOrNull().orEmpty()
+
+        val seedPool: List<Song> = (recents + downloaded + local).distinctBy { it.videoId }
+
+        when (vibe) {
+            DjVibe.FAVORITES -> {
+                if (seedPool.isNotEmpty()) {
+                    seedPool.shuffled().take(6)
+                } else {
+                    fetchExploreSongs()
+                }
+            }
+            DjVibe.ARTIST_SPOTLIGHT -> {
+                val artist = seedPool.mapNotNull { it.artist.takeIf { a -> a.isNotBlank() } }
+                    .groupingBy { it }
+                    .eachCount()
+                    .maxByOrNull { it.value }
+                    ?.key
+                if (artist != null) {
+                    val artistTracks = seedPool.filter { it.artist.equals(artist, ignoreCase = true) }
+                    if (artistTracks.size >= 3) {
+                        artistTracks.take(6)
+                    } else {
+                        val seed = artistTracks.firstOrNull() ?: seedPool.firstOrNull()
+                        if (seed != null) {
+                            val radio = YtMusicRepository.radio(seed.videoId).getOrNull().orEmpty()
+                            if (radio.isNotEmpty()) radio.take(6) else seedPool.take(6)
+                        } else {
+                            fetchExploreSongs()
+                        }
+                    }
+                } else {
+                    seedPool.shuffled().take(6)
+                }
+            }
+            DjVibe.DISCOVERIES -> {
+                val seed = seedPool.shuffled().firstOrNull()
+                if (seed != null) {
+                    val radio = YtMusicRepository.radio(seed.videoId).getOrNull().orEmpty()
+                    if (radio.isNotEmpty()) radio.shuffled().take(6) else fetchExploreSongs()
+                } else {
+                    fetchExploreSongs()
+                }
+            }
+            DjVibe.ENERGY -> {
+                val pool = if (seedPool.isNotEmpty()) seedPool.shuffled() else fetchExploreSongs()
+                pool.take(6)
+            }
+            DjVibe.CHILL -> {
+                val pool = if (seedPool.isNotEmpty()) seedPool.reversed() else fetchExploreSongs()
+                pool.take(6)
+            }
+        }
+    }
+
+    private suspend fun fetchExploreSongs(): List<Song> = withContext(Dispatchers.IO) {
+        val home = YtMusicRepository.home().getOrNull()
+        val songs: List<Song> = home?.shelves?.flatMap { shelf -> shelf.items.mapNotNull { it.toSong() } }.orEmpty()
+        if (songs.isNotEmpty()) songs.shuffled().take(6) else emptyList()
+    }
+}
