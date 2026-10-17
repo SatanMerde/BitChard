@@ -92,8 +92,8 @@ internal object DesktopDiscordSettings {
     fun activityVerb(id: String) = activities.firstOrNull { it.id == id }?.detail ?: "Listening to"
 
     const val DEFAULT_BUTTON_1 = "Listen on YouTube Music"
-    const val DEFAULT_BUTTON_2 = "Visit BitChord"
-    const val APP_NAME = "BitChord"
+    const val DEFAULT_BUTTON_2 = "Visit BitChard"
+    const val APP_NAME = "BitChard"
 
     private const val KEY_USE_DETAILS = "discord_use_details"
     private const val KEY_ADVANCED = "discord_advanced_mode"

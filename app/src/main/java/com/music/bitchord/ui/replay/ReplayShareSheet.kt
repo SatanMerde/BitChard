@@ -317,7 +317,7 @@ internal suspend fun saveToGallery(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 put(
                     MediaStore.Images.Media.RELATIVE_PATH,
-                    "${Environment.DIRECTORY_PICTURES}/BitChord",
+                    "${Environment.DIRECTORY_PICTURES}/BitChard",
                 )
             }
         }

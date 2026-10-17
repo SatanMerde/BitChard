@@ -103,6 +103,12 @@ fun BitChordTheme(
     )
 }
 
+@Composable
+fun BitChardTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit,
+) = BitChordTheme(darkTheme = darkTheme, content = content)
+
 /**
  * Draws the status and navigation bar glyphs dark or light.
  *

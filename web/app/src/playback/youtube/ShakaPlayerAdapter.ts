@@ -1,11 +1,11 @@
 // Ported from Kira (src/streaming/ShakaPlayerAdapter.ts),
 // https://github.com/LuanRT/kira, MIT License, Copyright (c) LuanRT.
-// Kira targets the published googlevideo 4.x API, which is what BitChord
+// Kira targets the published googlevideo 4.x API, which is what BitChard
 // installs; googlevideo's own example already follows its unreleased head.
 //
 // Kept as close to the original as possible (build prompt §0: port first,
-// simplify on evidence). Changes: Shaka's compiled build, BitChord's
-// helpers, no ytc-bridge proxy for DRM license requests (BitChord never plays
+// simplify on evidence). Changes: Shaka's compiled build, BitChard's
+// helpers, no ytc-bridge proxy for DRM license requests (BitChard never plays
 // DRM content), and the non-null assertions strict TypeScript needs.
 
 import shaka from 'shaka-player/dist/shaka-player.compiled';

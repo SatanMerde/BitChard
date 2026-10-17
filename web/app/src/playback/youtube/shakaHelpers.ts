@@ -1,6 +1,6 @@
 // Ported from googlevideo's sabr-shaka-example (src/helpers.ts),
 // https://github.com/LuanRT/googlevideo, MIT License, Copyright (c) LuanRT.
-// The ytc-bridge proxy helpers are dropped: BitChord's extension supplies
+// The ytc-bridge proxy helpers are dropped: BitChard's extension supplies
 // headers through declarativeNetRequest rules instead.
 
 import shaka from 'shaka-player/dist/shaka-player.compiled';

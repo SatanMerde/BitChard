@@ -16,6 +16,8 @@ import androidx.compose.ui.unit.dp
  *
  * [Home] is the exception and says why it is one.
  */
+typealias BitChardIcons = BitChordIcons
+
 object BitChordIcons {
 
     private const val STROKE = 2.2f

@@ -408,7 +408,7 @@ class EqualizerProcessor : BaseAudioProcessor() {
     }
 
     companion object {
-        private const val TAG = "BitChordEqualizer"
+        private const val TAG = "BitChardEqualizer"
 
         private const val BYTES_PER_SAMPLE = 2
 

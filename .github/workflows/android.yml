@@ -99,7 +99,7 @@ jobs:
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: bitchord-prod-release-signed
+        name: bitchard-prod-release-signed
         path: release-apks/*.apk
 
     - name: Create or Update GitHub Release

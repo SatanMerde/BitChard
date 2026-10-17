@@ -361,7 +361,7 @@ internal object DesktopDiscordRpc {
 
     /** How long a scan that found no local Discord holds off the next one. */
     private const val PROBE_BACKOFF_MS = 10_000L
-    private const val PROJECT_URL = "https://github.com/kushagrasinghx/BitChord"
+    private const val PROJECT_URL = "https://github.com/SatanMerde/BitChard"
     private const val ART_PX = 480
     private const val CLIENT_VERSION = "0.0.83"
     private const val CLIENT_BUILD = "352675"

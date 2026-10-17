@@ -139,7 +139,7 @@ function StartOrJoin({ signedIn }: { signedIn: boolean }) {
           />
         </label>
       </section>
-      <p className={styles.footer}>Leave the server empty to use BitChord’s. Anyone joining your party uses the server it’s on.</p>
+      <p className={styles.footer}>Leave the server empty to use BitChard’s. Anyone joining your party uses the server it’s on.</p>
     </>
   );
 }

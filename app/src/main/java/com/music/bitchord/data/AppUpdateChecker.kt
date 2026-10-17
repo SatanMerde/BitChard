@@ -53,6 +53,17 @@ object AppUpdateChecker {
 
     private val json = Json { ignoreUnknownKeys = true }
 
+    private val updateHttpClient: okhttp3.OkHttpClient by lazy {
+        okhttp3.OkHttpClient.Builder()
+            .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+            .readTimeout(15, java.util.concurrent.TimeUnit.MINUTES)
+            .writeTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
+            .followRedirects(true)
+            .followSslRedirects(true)
+            .retryOnConnectionFailure(true)
+            .build()
+    }
+
     private val _available = MutableStateFlow<UpdateInfo?>(null)
     val available = _available.asStateFlow()
 
@@ -67,12 +78,7 @@ object AppUpdateChecker {
     private val _download = MutableStateFlow<DownloadState>(DownloadState.Idle)
     val download = _download.asStateFlow()
 
-    private val appBuildTime: Long by lazy {
-        runCatching {
-            val field = BuildConfig::class.java.getField("BUILD_TIME")
-            field.getLong(null)
-        }.getOrDefault(0L)
-    }
+    private val appBuildTime: Long = BuildConfig.BUILD_TIME
 
     /** Set from the UI thread when the user cancels; polled between network reads. */
     @Volatile
@@ -110,8 +116,9 @@ object AppUpdateChecker {
 
         val isSemanticNewer = versionCandidate != "latest" && isNewer(versionCandidate, BuildConfig.VERSION_NAME)
         val publishedMillis = parseIsoMillis(publishedAt)
-        // If release tag is 'latest' or versions compare equal, verify if GitHub release was published after current APK build
-        val isTimestampNewer = publishedMillis > 0L && appBuildTime > 0L &&
+        // If release tag is 'latest', verify if GitHub release was published after current APK build
+        val isTimestampNewer = versionCandidate == "latest" &&
+            publishedMillis > 0L && appBuildTime > 0L &&
             publishedMillis > (appBuildTime + 60_000L)
 
         val isUpdateAvailable = isSemanticNewer || isTimestampNewer
@@ -133,23 +140,43 @@ object AppUpdateChecker {
     }.getOrNull()
 
     private fun fetchLatestRelease(): JsonObject? = runCatching {
+        val userAgent = "BitChard/${BuildConfig.VERSION_NAME} (Android)"
+
         // Try latest release endpoint first
-        val request = Request.Builder().url(LATEST_RELEASE_URL).build()
-        val body = Http.client.newCall(request).execute().use { response ->
+        val request = Request.Builder()
+            .url(LATEST_RELEASE_URL)
+            .header("User-Agent", userAgent)
+            .header("Accept", "application/vnd.github+json")
+            .build()
+        val body = updateHttpClient.newCall(request).execute().use { response ->
             if (response.isSuccessful) response.body.string() else null
         }
         if (body != null) {
-            return (json.parseToJsonElement(body) as? JsonObject)
+            val element = json.parseToJsonElement(body) as? JsonObject
+            if (element != null && apkAssetUrl(element) != null) {
+                return element
+            }
         }
 
-        // Fallback to releases list
-        val listRequest = Request.Builder().url(RELEASES_URL).build()
-        val listBody = Http.client.newCall(listRequest).execute().use { response ->
+        // Fallback to releases list: find first release with uploaded APK
+        val listRequest = Request.Builder()
+            .url(RELEASES_URL)
+            .header("User-Agent", userAgent)
+            .header("Accept", "application/vnd.github+json")
+            .build()
+        val listBody = updateHttpClient.newCall(listRequest).execute().use { response ->
             if (response.isSuccessful) response.body.string() else null
         } ?: return null
 
         val list = json.parseToJsonElement(listBody).jsonArray
-        list.firstOrNull() as? JsonObject
+        for (item in list) {
+            val obj = item as? JsonObject ?: continue
+            val isDraft = obj["draft"]?.jsonPrimitive?.contentOrNull == "true"
+            if (!isDraft && apkAssetUrl(obj) != null) {
+                return obj
+            }
+        }
+        null
     }.getOrNull()
 
     private fun extractVersionFromText(text: String): String? {
@@ -173,8 +200,8 @@ object AppUpdateChecker {
 
     /**
      * Scans the release assets for the appropriate phone APK.
-     * Supports both BitChard-*.apk and app-prod-*.apk naming, preferring universal
-     * builds and falling back to matching ABI splits.
+     * Supports both BitChard-*.apk and app-prod-*.apk naming, preferring matching ABI
+     * splits (e.g. arm64-v8a at ~67MB) and falling back to universal builds.
      */
     private fun apkAssetUrl(release: JsonObject): String? = runCatching {
         val apks = release["assets"]?.jsonArray
@@ -203,19 +230,19 @@ object AppUpdateChecker {
 
         if (apks.isEmpty()) return@runCatching null
 
-        // 1. Universal build (has "universal" in name or has no ABI suffix and no underscore)
+        // 1. Device's matching ABI first (arm64-v8a is ~67MB, much faster and reliable than 171MB universal)
+        for (abi in Build.SUPPORTED_ABIS) {
+            val matchingAbi = apks.firstOrNull { (name, _) -> name.contains(abi, ignoreCase = true) }?.second
+            if (matchingAbi != null) return@runCatching matchingAbi
+        }
+
+        // 2. Universal build fallback (~171MB)
         val universal = apks.firstOrNull { (name, _) ->
             name.contains("universal", ignoreCase = true) ||
                 ('_' !in name && !Build.SUPPORTED_ABIS.any { abi -> name.contains(abi, ignoreCase = true) })
         }?.second
 
         if (universal != null) return@runCatching universal
-
-        // 2. Best ABI matching for this device
-        for (abi in Build.SUPPORTED_ABIS) {
-            val matchingAbi = apks.firstOrNull { (name, _) -> name.contains(abi, ignoreCase = true) }?.second
-            if (matchingAbi != null) return@runCatching matchingAbi
-        }
 
         // 3. Fallback to first available phone APK
         apks.firstOrNull()?.second
@@ -239,8 +266,12 @@ object AppUpdateChecker {
             val cleanVersion = info.version.replace(Regex("[^a-zA-Z0-9.-]"), "_")
             val target = File(dir, "bitchard-$cleanVersion.apk")
 
-            val request = Request.Builder().url(url).build()
-            Http.client.newCall(request).execute().use { response ->
+            val request = Request.Builder()
+                .url(url)
+                .header("User-Agent", "BitChard/${BuildConfig.VERSION_NAME} (Android)")
+                .header("Accept", "*/*")
+                .build()
+            updateHttpClient.newCall(request).execute().use { response ->
                 check(response.isSuccessful) { "Download failed: HTTP ${response.code}" }
                 val body = response.body
                 val total = body.contentLength().takeIf { it > 0 }
@@ -318,7 +349,12 @@ object AppUpdateChecker {
                 return
             }
         }
-        val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+        val uri = runCatching {
+            FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+        }.getOrElse { error ->
+            Toast.makeText(context, "Provider error: ${error.message}", Toast.LENGTH_SHORT).show()
+            return
+        }
         val intent = Intent(Intent.ACTION_VIEW).apply {
             setDataAndType(uri, "application/vnd.android.package-archive")
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -338,6 +374,8 @@ object AppUpdateChecker {
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
                 context.startActivity(fallbackIntent)
+            }.onFailure { e ->
+                Toast.makeText(context, "Install failed: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }

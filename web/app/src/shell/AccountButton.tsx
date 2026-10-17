@@ -20,7 +20,7 @@ function Avatar({ src, name, size }: { src: string | null; name: string; size: n
  * The sidebar's account control (report §1: avatar and name at the bottom,
  * opening the account menu; a red "Sign In" pill when signed out).
  *
- * There is no sign-in form (prompt §5.3): BitChord uses the YouTube session
+ * There is no sign-in form (prompt §5.3): BitChard uses the YouTube session
  * this browser already has, through the extension. "Sign In" opens Google's
  * own sign-in; the extension notices the new session and this updates itself.
  */
@@ -115,7 +115,7 @@ export function AccountButton() {
               connect.mutate(false);
             }}
           >
-            Disconnect from BitChord
+            Disconnect from BitChard
           </MenuItem>
         </Menu>
       )}

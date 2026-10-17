@@ -1,6 +1,6 @@
-# Build BitChord Web: a React + Vite web player with a companion browser extension
+# Build BitChard Web: a React + Vite web player with a companion browser extension
 
-You are building the web version of BitChord, an existing Android/desktop music player whose code is in this repository. The web app streams from YouTube Music and from user-added HTTP addons, has Listen Together and Replay, and has YouTube Music, Spotify and Discord integrations. A companion browser extension does the networking and sign-in work that a web page isn't allowed to do. The UI replicates the Apple Music web player (music.apple.com).
+You are building the web version of BitChard, an existing Android/desktop music player whose code is in this repository. The web app streams from YouTube Music and from user-added HTTP addons, has Listen Together and Replay, and has YouTube Music, Spotify and Discord integrations. A companion browser extension does the networking and sign-in work that a web page isn't allowed to do. The UI replicates the Apple Music web player (music.apple.com).
 
 This document records decisions that were already made. Don't reopen them; where something is genuinely undecided, it says so.
 
@@ -108,7 +108,7 @@ Build the design tokens in `web/app/src/styles/tokens.css` from this document.
 - Apple's logos, wordmark, app icon and editorial artwork.
 - The SF Pro font files. **Use DM Sans from Google Fonts on every platform** (decided 2026-10-15; replaces the earlier SF/Inter stack). Keep Apple's type scale; only the family changes.
 - SF Symbols, which are licensed for Apple platforms only. Use an open icon set that's visually close (Lucide or Phosphor at matching stroke weights). Redraw any glyph that doesn't match well enough.
-- Layout, spacing, motion and interaction patterns should match exactly. Branding is BitChord's own.
+- Layout, spacing, motion and interaction patterns should match exactly. Branding is BitChard's own.
 
 ---
 
@@ -133,7 +133,7 @@ The extension is the networking layer and the identity layer:
 1. **Network bridge.** It sets headers YouTube requires and adds CORS headers to responses, so the page can talk to YouTube directly. It also lets the page reach addons and lyric providers that don't allow cross-site requests.
 2. **Integration 1, YouTube Music:** signed-in requests using the user's own browser session.
 3. **Integration 2, Spotify:** library and playlist import plus Canvas, using the user's own open.spotify.com session.
-4. **Integration 3, Discord:** "Listening to BitChord" rich presence.
+4. **Integration 3, Discord:** "Listening to BitChard" rich presence.
 
 All credentials stay inside the extension. The web page never receives cookies or tokens; it only gets results.
 
@@ -192,7 +192,7 @@ Use Manifest V3 and build with WXT (or a Vite-based MV3 setup) to get Chrome and
   - It also runs desktop users through an extension. Read how its extension and page cooperate, and reuse the approach.
   - The old YouTube.js browser example (dash.js + `toDash`) is marked outdated. Don't start from it.
 - **BgUtils** (https://github.com/LuanRT/BgUtils, npm `bgutils-js`): generates bot-check tokens (PO tokens) by running Google's BotGuard script. Generate tokens in the page or extension context: the user's real browser is where BotGuard expects to run.
-- **BitChord's own Kotlin implementation.** It's the behavioural reference for which client to use, what to retry, and when to fall back:
+- **BitChard's own Kotlin implementation.** It's the behavioural reference for which client to use, what to retry, and when to fall back:
   - `shared/src/jvmSharedMain/kotlin/com/music/bitchord/data/innertube/StreamResolver.kt`
   - `…/innertube/InnerTubeXResolver.kt`: client catalog and cipher tiers, from the InnerTubeX library that the vivi app also uses.
   - `…/innertube/PlayerClient.kt`
@@ -205,7 +205,7 @@ Use Manifest V3 and build with WXT (or a Vite-based MV3 setup) to get Chrome and
 ### 5.2 Playback pipeline
 
 1. Resolve the track's video id. A YouTube Music `videoId` maps directly.
-2. Get a PO token (BgUtils), cached per session and visitor data as BitChord does.
+2. Get a PO token (BgUtils), cached per session and visitor data as BitChard does.
 3. Call `player` through YouTube.js, with requests passing the extension's header rules.
 4. Start a SABR session (googlevideo) and play **audio only** through Shaka. Prefer Opus (itag 251) and fall back to AAC (itag 140). Use AAC on Safari, which isn't a supported target but must not crash.
 5. On a 403, a bot-check failure or a missing format, follow the fallback order in `StreamResolver.kt`/`InnerTubeXResolver.kt`. Retry with another client or refresh the PO token. Log each step to a debug panel (the web equivalent of `TrackLog`).
@@ -273,7 +273,7 @@ Port the request and response shapes, caching (shared calls with manifest and st
   - Desktop: `desktopApp/.../DesktopSpotifyCanvas.kt` and `DesktopIntegrationsUi.kt`.
 - The extension reads `sp_dc` from the user's own open.spotify.com session and mints the tokens in the background worker. The page never sees `sp_dc` or the tokens.
 - Features:
-  - Import liked songs and playlists into BitChord, matched to YouTube Music tracks with the importer's matching.
+  - Import liked songs and playlists into BitChard, matched to YouTube Music tracks with the importer's matching.
   - Spotify Canvas (looping video) behind the now-playing artwork, as on the phone. Load it lazily, never autoplay it on metered connections, and respect reduced motion.
 - If the TOTP secret scheme changes upstream, copy the current Kotlin implementation. Don't invent a fix.
 

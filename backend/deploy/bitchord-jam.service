@@ -1,5 +1,5 @@
 [Unit]
-Description=BitChord Listen Together server
+Description=BitChard Listen Together server
 After=network-online.target
 Wants=network-online.target
 

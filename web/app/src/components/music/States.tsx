@@ -5,7 +5,7 @@ import styles from './States.module.css';
 export function NeedsExtension({ what = 'YouTube Music' }: { what?: string }) {
   return (
     <div className={styles.state}>
-      <p className={styles.title}>Browse {what} with the BitChord extension</p>
+      <p className={styles.title}>Browse {what} with the BitChard extension</p>
       <p className={styles.detail}>
         The extension lets this page reach YouTube Music from your own browser. Addons and lyrics work without it.
       </p>

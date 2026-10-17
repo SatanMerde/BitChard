@@ -99,7 +99,7 @@ export function LyricsSettings({ onClose }: { onClose: () => void }) {
 
           <h3 className={styles.section}>Extension access</h3>
           {granted === null ? (
-            <p className={styles.note}>KuGou, Musixmatch, Genius and PaxSenix need the BitChord extension.</p>
+            <p className={styles.note}>KuGou, Musixmatch, Genius and PaxSenix need the BitChard extension.</p>
           ) : missing.length ? (
             <div className={styles.access}>
               <p className={styles.note}>

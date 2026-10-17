@@ -25,7 +25,7 @@ function focusSearch(navigate: ReturnType<typeof useNavigate>) {
 }
 
 /**
- * The web player's shortcuts, which BitChord matches (report §8): Space
+ * The web player's shortcuts, which BitChard matches (report §8): Space
  * play/pause; ⌘/Ctrl+→ / ← next/previous; ⌘/Ctrl+↑ / ↓ volume; ⌘/Ctrl+F or
  * "/" focuses search; Esc closes the side panel.
  */

@@ -1,6 +1,6 @@
-# BitChord Desktop
+# BitChard Desktop
 
-BitChord has a Kotlin Multiplatform shared module and a Compose Multiplatform
+BitChard has a Kotlin Multiplatform shared module and a Compose Multiplatform
 desktop application for macOS, Linux, and Windows. Desktop uses the JVM target, which is
 the supported Compose Multiplatform desktop model.
 
@@ -27,28 +27,28 @@ running `gradlew.bat :desktopApp:run`.
 
 ## Installing a release
 
-Every download on the [releases page](https://github.com/kushagrasinghx/BitChord/releases) carries its own Java
+Every download on the [releases page](https://github.com/SatanMerde/BitChard/releases) carries its own Java
 runtime, the FFmpeg and ONNX natives, the Automix analyser and its models.
 Nothing else has to be installed first — no JDK, no codec pack.
 
 | Platform | Download | Notes |
 |---|---|---|
-| macOS | `BitChord-<version>-macos-arm64.dmg` | For Apple Silicon Macs (M1/M2/M3/M4/later). Drag to Applications. |
-| macOS | `BitChord-<version>-macos-x64.dmg` | For Intel Macs. Drag to Applications. |
-| macOS | `BitChord-<version>-macos-*.pkg` | Standard macOS installer package for automated or managed installations. |
-| Linux | `BitChord-<version>-linux-x86_64.AppImage` | `chmod +x` it and run. No install, works on any distribution. |
-| Linux | `BitChord-<version>-linux-amd64.deb` | `sudo apt install ./BitChord-*.deb` on Debian, Ubuntu and derivatives. |
-| Linux | `BitChord-<version>-linux-x86_64.rpm` | `sudo dnf install ./BitChord-*.rpm` on Fedora, RHEL and openSUSE. |
-| Windows | `BitChord-<version>-windows-x64-setup.exe` | The ordinary installer. Installs for the current user, so it never asks for an administrator. |
-| Windows | `BitChord-<version>-windows-x64.msi` | The same thing for anyone who deploys by MSI. |
-| Windows | `BitChord-<version>-windows-x64-portable.zip` | Unzip anywhere and run `BitChord.exe`. Writes nothing outside the folder. |
+| macOS | `BitChard-<version>-macos-arm64.dmg` | For Apple Silicon Macs (M1/M2/M3/M4/later). Drag to Applications. |
+| macOS | `BitChard-<version>-macos-x64.dmg` | For Intel Macs. Drag to Applications. |
+| macOS | `BitChard-<version>-macos-*.pkg` | Standard macOS installer package for automated or managed installations. |
+| Linux | `BitChard-<version>-linux-x86_64.AppImage` | `chmod +x` it and run. No install, works on any distribution. |
+| Linux | `BitChard-<version>-linux-amd64.deb` | `sudo apt install ./BitChard-*.deb` on Debian, Ubuntu and derivatives. |
+| Linux | `BitChard-<version>-linux-x86_64.rpm` | `sudo dnf install ./BitChard-*.rpm` on Fedora, RHEL and openSUSE. |
+| Windows | `BitChard-<version>-windows-x64-setup.exe` | The ordinary installer. Installs for the current user, so it never asks for an administrator. |
+| Windows | `BitChard-<version>-windows-x64.msi` | The same thing for anyone who deploys by MSI. |
+| Windows | `BitChard-<version>-windows-x64-portable.zip` | Unzip anywhere and run `BitChard.exe`. Writes nothing outside the folder. |
 
 **macOS Gatekeeper.** Unsigned binaries built locally or downloaded outside the Mac App Store
-may trigger a macOS security prompt ("BitChord is damaged and can't be opened" or "unidentified developer").
+may trigger a macOS security prompt ("BitChard is damaged and can't be opened" or "unidentified developer").
 To clear the quarantine flag, run:
 
 ```bash
-xattr -cr /Applications/BitChord.app
+xattr -cr /Applications/BitChard.app
 ```
 
 The Linux packages are built on Ubuntu 22.04 against its glibc, so they install
@@ -63,7 +63,7 @@ time.
 
 **Windows and the Visual C++ runtime.** The Automix analyser is linked against a
 static C runtime, so on almost every machine there is nothing to install. If
-BitChord starts but Automix never analyses anything, install the
+BitChard starts but Automix never analyses anything, install the
 [Microsoft Visual C++ 2015–2022 Redistributable (x64)](https://aka.ms/vs/17/release/vc_redist.x64.exe)
 and restart it — that is the one dependency the bundled runtime cannot carry
 itself, because Windows expects it to be a system component.
@@ -83,9 +83,9 @@ On macOS:
 # Builds the .pkg installer
 ./gradlew :desktopApp:packagePkg
 
-# Standalone BitChord.app bundle
+# Standalone BitChard.app bundle
 ./gradlew :desktopApp:createDistributable
-# Output is at: desktopApp/build/compose/binaries/main/app/BitChord.app
+# Output is at: desktopApp/build/compose/binaries/main/app/BitChard.app
 ```
 
 On Linux — `rpm`, `fakeroot` and `binutils` must be installed for the packages,
@@ -98,8 +98,8 @@ bash ./gradlew :desktopApp:packageRpm
 # The AppImage is wrapped around the app image jpackage produces.
 bash ./gradlew :desktopApp:createDistributable
 desktopApp/packaging/appimage.sh \
-  desktopApp/build/compose/binaries/main/app/BitChord \
-  dist/BitChord-linux-x86_64.AppImage
+  desktopApp/build/compose/binaries/main/app/BitChard \
+  dist/BitChard-linux-x86_64.AppImage
 ```
 
 On Windows — [WiX Toolset 3](https://github.com/wixtoolset/wix3/releases) must

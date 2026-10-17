@@ -154,7 +154,7 @@ object TvAuthServer {
                 when {
                     // 1. API: Get Current Status
                     path == "/api/status" -> {
-                        val status = statusProvider?.invoke() ?: TvRemoteStatus(false, "No Song Playing", "BitChord TV", null, 0, 0)
+                        val status = statusProvider?.invoke() ?: TvRemoteStatus(false, "No Song Playing", "BitChard TV", null, 0, 0)
                         val json = JSONObject().apply {
                             put("isPlaying", status.isPlaying)
                             put("title", status.title)
@@ -328,7 +328,7 @@ object TvAuthServer {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>BitChord TV • Mobile Remote</title>
+<title>BitChard TV • Mobile Remote</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 body { background: #08080B; color: #FFF; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif; min-height: 100vh; padding: 18px; display: flex; flex-direction: column; align-items: center; }
@@ -365,7 +365,7 @@ body { background: #08080B; color: #FFF; font-family: -apple-system, BlinkMacSys
 <body>
 <div class="header">
   <div class="logo-badge">♪</div>
-  <h1>BitChord TV Remote</h1>
+  <h1>BitChard TV Remote</h1>
 </div>
 
 <div class="card">
@@ -373,7 +373,7 @@ body { background: #08080B; color: #FFF; font-family: -apple-system, BlinkMacSys
     <img id="trackArt" class="art" src="" style="display:none;" />
     <div class="info">
       <div id="trackTitle" class="title">Loading TV...</div>
-      <div id="trackArtist" class="artist">Connecting to BitChord TV</div>
+      <div id="trackArtist" class="artist">Connecting to BitChard TV</div>
     </div>
   </div>
   <div class="progress-bar" id="pBar" onclick="handleSeek(event)">
@@ -418,7 +418,7 @@ function fmtTime(ms) {
 function updateStatus() {
   fetch('/api/status').then(r => r.json()).then(data => {
     document.getElementById('trackTitle').innerText = data.title || "No Song Playing";
-    document.getElementById('trackArtist').innerText = data.artist || "BitChord TV";
+    document.getElementById('trackArtist').innerText = data.artist || "BitChard TV";
     let art = document.getElementById('trackArt');
     if (data.artworkUrl) { art.src = data.artworkUrl; art.style.display = 'block'; } else { art.style.display = 'none'; }
     document.getElementById('playBtn').innerText = data.isPlaying ? '❚❚' : '▶';
@@ -471,7 +471,7 @@ updateStatus();
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BitChord TV • 1-Tap Sign In</title>
+<title>BitChard TV • 1-Tap Sign In</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: #08080B; color: #FFF; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif; padding: 24px 16px; display: flex; flex-direction: column; align-items: center; }
@@ -486,7 +486,7 @@ textarea { width: 100%; height: 90px; background: rgba(0,0,0,0.5); border: 1px s
 <body>
 <div class="card" style="text-align: center;">
   <div style="width: 52px; height: 52px; border-radius: 50%; background: #FA2D48; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">♪</div>
-  <h1 style="font-size: 22px; font-weight: 800; margin-bottom: 6px;">Sign In to BitChord TV</h1>
+  <h1 style="font-size: 22px; font-weight: 800; margin-bottom: 6px;">Sign In to BitChard TV</h1>
   <p style="font-size: 14px; color: #A0A0AB;">Fast & easy login from your mobile phone</p>
 
   <div class="step-box" style="text-align: left; margin-top: 18px;">
@@ -523,7 +523,7 @@ textarea { width: 100%; height: 90px; background: rgba(0,0,0,0.5); border: 1px s
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BitChord TV • Connected</title>
+<title>BitChard TV • Connected</title>
 <style>
 body { background: #08080B; color: #FFF; font-family: -apple-system, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; text-align: center; }
 .card { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 24px; padding: 32px; max-width: 380px; }
@@ -534,7 +534,7 @@ body { background: #08080B; color: #FFF; font-family: -apple-system, sans-serif;
 <div class="card">
   <div style="font-size: 48px; margin-bottom: 12px;">✅</div>
   <h1 style="font-size: 22px; font-weight: bold; margin-bottom: 8px;">Paired Successfully!</h1>
-  <p style="font-size: 14px; color: #AAA;">Your BitChord TV is now connected. You can now use the mobile remote to control playback.</p>
+  <p style="font-size: 14px; color: #AAA;">Your BitChard TV is now connected. You can now use the mobile remote to control playback.</p>
   <a href="/remote" class="btn">📱 Open TV Remote</a>
 </div>
 </body>

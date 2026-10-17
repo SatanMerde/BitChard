@@ -14,6 +14,6 @@ for (const origin of origins) {
 const status = document.getElementById('status')!;
 document.getElementById('allow')!.addEventListener('click', async () => {
   const granted = await browser.permissions.request({ origins: origins.map((o) => `${o}/*`) }).catch(() => false);
-  status.textContent = granted ? 'Done. You can close this tab and go back to BitChord.' : 'Not allowed. Those sources stay off.';
+  status.textContent = granted ? 'Done. You can close this tab and go back to BitChard.' : 'Not allowed. Those sources stay off.';
   if (granted) setTimeout(() => window.close(), 1200);
 });

@@ -32,7 +32,7 @@ Kira's `fetchFunction` (handed to `Innertube.create({ fetch })`):
 - Without the extension, it rewrites the URL to a user-configured proxy (`__host`, `__headers` query parameters). **We drop this path**: no proxy (prompt §1).
 - It adds `$fields=playerConfig,storyboards,captions,playabilityStatus,streamingData,…` to `/v1/player` to shrink the response.
 
-### What BitChord changes
+### What BitChard changes
 
 - **Permissions.** ytc-bridge asks for `<all_urls>` host permission and injects into every site. We scope rules with `initiatorDomains: [<site origin>, localhost]`, run the content script only on our origins, and use `externally_connectable` on Chromium (prompt §4.2).
 - **InnerTube calls.**
@@ -61,7 +61,7 @@ Kira's `fetchFunction` (handed to `Innertube.create({ fetch })`):
 5. Per video: `mintColdStartToken(videoId)` right away (an immediate placeholder), then `minter.mintAsWebsafeString(videoId)` in the background. **The content binding is the videoId** for the GVS (streaming) token.
 6. SABR's `onMintPoToken` returns the minted token, or the cold-start one. For VOD it never blocks; for live it waits.
 
-BitChord's Android version binds the token to the session's visitor data for the player request, and caches the tokens per session and visitor data (`innertube/potoken/`). Port that caching on top of this flow.
+BitChard's Android version binds the token to the session's visitor data for the player request, and caches the tokens per session and visitor data (`innertube/potoken/`). Port that caching on top of this flow.
 
 ## SABR through Shaka
 
@@ -76,7 +76,7 @@ BitChord's Android version binds the token to the session's visitor data for the
   - Requests whose response is `application/vnd.yt-ump` are read by `SabrUmpProcessor`.
   - The processor extracts the segment Shaka asked for, then **aborts** the rest of the response to save bandwidth.
   - It has a request timeout and abort handling, and `makeResponse` maps 401/403 to CRITICAL errors and the rest to RECOVERABLE.
-- **Audio only for BitChord:** load the same SABR manifest but restrict Shaka to audio (`player.configure({ ... })` with video disabled, or filter the video adaptation sets out of the generated MPD). Prefer itag 251 (Opus), fall back to 140 (AAC).
+- **Audio only for BitChard:** load the same SABR manifest but restrict Shaka to audio (`player.configure({ ... })` with video disabled, or filter the video adaptation sets out of the generated MPD). Prefer itag 251 (Opus), fall back to 140 (AAC).
   - The minimal example `googlevideo/examples/sabr-shaka-example` is the smallest starting point.
   - We render into an `<audio>` element.
 
@@ -89,7 +89,7 @@ BitChord's Android version binds the token to the session's visitor data for the
   startTimeSecs?, playbackContext.reloadPlaybackContext? }
 ```
 
-**Don't copy `adPlaybackContext: { pyv: true }`.** With it, googlevideo cuts every stream off at ~70 s (measured in phase 3; see `youtube-playback.md`). BitChord's player request leaves it out.
+**Don't copy `adPlaybackContext: { pyv: true }`.** With it, googlevideo cuts every stream off at ~70 s (measured in phase 3; see `youtube-playback.md`). BitChard's player request leaves it out.
 
 Kira first tries **Onesie** (an encrypted player request through a googlevideo edge, `services/onesie.ts`), and falls back to `innertube.actions.execute('/player', { ...params, parse: false })`. For phase 3 we start with the plain `/player` call. Onesie is an optimisation; consider it once plain playback works.
 

@@ -71,7 +71,7 @@ object BrowserSession {
     fun installGoogleCookies(cookieHeader: String) {
         clearGoogleCookies()
         val manager = runCatching { CookieManager.getInstance() }.getOrElse {
-            Log.w("BitChord", "no cookie manager to restore: ${it.message}")
+            Log.w("BitChard", "no cookie manager to restore: ${it.message}")
             return
         }
         val entries = cookieHeader.split(';').mapNotNull { entry ->
@@ -83,7 +83,7 @@ object BrowserSession {
             entries.forEach { cookie -> manager.setCookie(origin, cookie) }
         }
         runCatching { manager.flush() }
-        Log.d("BitChord", "restored ${entries.size} browser cookies for the selected account")
+        Log.d("BitChard", "restored ${entries.size} browser cookies for the selected account")
     }
 
     /**
@@ -101,7 +101,7 @@ object BrowserSession {
         // a reason for the next sign-in to be less convenient, not a reason for
         // signing out to crash.
         val manager = runCatching { CookieManager.getInstance() }.getOrElse {
-            Log.w("BitChord", "no cookie manager to clear: ${it.message}")
+            Log.w("BitChard", "no cookie manager to clear: ${it.message}")
             return
         }
         var cleared = 0
@@ -128,7 +128,7 @@ object BrowserSession {
             GOOGLE_ORIGINS.forEach { origin -> storage.deleteOrigin(origin) }
             manager.flush()
         }
-        Log.d("BitChord", "cleared $cleared browser cookies for Google")
+        Log.d("BitChard", "cleared $cleared browser cookies for Google")
     }
 
     private val GOOGLE_ORIGINS = listOf(

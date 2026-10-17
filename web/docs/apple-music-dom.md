@@ -11,7 +11,7 @@ Apple's CSS is not copied into this repo. This file records measurements, which 
 
 We replicate the live site.
 
-**Font.** Decided for BitChord: **DM Sans from Google Fonts** (weights 400/500/600/700/800 plus italics, `display=swap`) is used everywhere, in place of the SF Pro / Inter stack from §2.2. Apple's type *scale* (sizes, weights, line heights) is kept. DM Sans is a little wider than SF Pro Text, so single-line labels that are truncated (lockup titles, LCD title) keep `text-overflow: ellipsis`.
+**Font.** Decided for BitChard: **DM Sans from Google Fonts** (weights 400/500/600/700/800 plus italics, `display=swap`) is used everywhere, in place of the SF Pro / Inter stack from §2.2. Apple's type *scale* (sizes, weights, line heights) is kept. DM Sans is a little wider than SF Pro Text, so single-line labels that are truncated (lockup titles, LCD title) keep `text-overflow: ellipsis`.
 
 ---
 
@@ -60,7 +60,7 @@ div.body-container                               0,0   1440×900
 | Inner stroke | `::after`: four inset 0.5px white box-shadows (one per corner direction) at `opacity: .25`. The same "has-borders" stroke is used on artwork |
 | Playback controls | shuffle · previous · play/pause · next · repeat, all 24×24 glyphs; play is disabled at 40% opacity when nothing is loaded |
 | LCD | artwork 34×34 radius 6px (hover overlay `rgba(51,51,51,.3)` with an "expand" glyph that opens full screen); title 13px/16px **600** (marquee scroll when it overflows); subtitle 12px/15px **500** `--systemSecondary` ("Artist — Album", each a link); progress bar 2px track along the bottom (padding 4px 0), with times appearing on hover |
-| Empty LCD | centred app glyph, 20×24 (BitChord uses its own mark) |
+| Empty LCD | centred app glyph, 20×24 (BitChard uses its own mark) |
 | Actions | Lyrics (shown only when the track has lyrics) · Up Next (24×28, radius 4px) · volume (24×28; slider on hover) |
 
 ### Main column
@@ -73,7 +73,7 @@ div.body-container                               0,0   1440×900
 
 ### Sign-in / upsell banner (signed out)
 
-A full-width red band (`--keyColor` background) is pinned at the bottom, above the player: a 2-line message, with a white "Try It Now" pill on the right. **BitChord uses this exact pattern for the "Install the extension" prompt** (decided in prompt §1).
+A full-width red band (`--keyColor` background) is pinned at the bottom, above the player: a 2-line message, with a white "Try It Now" pill on the right. **BitChard uses this exact pattern for the "Install the extension" prompt** (decided in prompt §1).
 
 ---
 
@@ -164,7 +164,7 @@ section.section--alternate  "More By <Artist>", "Featured On", "You Might Also L
                             --opaqueShelfBG blended with joe-color (rgb(16,26,38) for this album)
 ```
 
-- **Theme override from the artwork.** Album and playlist pages set `--joe-color` (the artwork's background colour) on `.app-container.has-theme-override`, plus derived `--systemSecondary-vibrantOnDark-blended-plusL` (secondary text), `--systemTertiary-…` and `--opaqueShelfBG-blended-plusD` (alternate section background). It's dark or light layout (`container-detail-header--dark-layout`) depending on the artwork's luminance. BitChord takes the dominant colour from the thumbnail on the client to do the same.
+- **Theme override from the artwork.** Album and playlist pages set `--joe-color` (the artwork's background colour) on `.app-container.has-theme-override`, plus derived `--systemSecondary-vibrantOnDark-blended-plusL` (secondary text), `--systemTertiary-…` and `--opaqueShelfBG-blended-plusD` (alternate section background). It's dark or light layout (`container-detail-header--dark-layout`) depending on the artwork's luminance. BitChard takes the dominant colour from the thumbnail on the client to do the same.
 - **Row states.**
   - Dividers: 0.5px `--labelDivider` top border on each cell (plus a bottom border on the last row); they hide on hover.
   - Hover: `--tracklistHoverColor` (`#ffffff0f` dark / `#0000000f` light) with `--songs-list-row-border-radius: 6px` on the outer cells.
@@ -211,7 +211,7 @@ The same template as the album page: `container-detail-header`, a description, `
 - **Lyrics panel** (`.lyrics__sidebar` hosting `<amp-lyrics offset-ratio="0.15">`):
   - The current line sits at 15% of the panel height.
   - A 28×28 translation button (radius 8px, `#ffffff1a` + blur 60px) shows at the top-right on hover.
-  - The empty state is centred: "No lyrics available" 12px 600 secondary, then a 12px explanation. BitChord hosts **am-lyrics** here instead (prompt §10.2).
+  - The empty state is centred: "No lyrics available" 12px 600 secondary, then a 12px explanation. BitChard hosts **am-lyrics** here instead (prompt §10.2).
 - **Full-screen player and lyrics** (`article.lyrics__container`, a modal over a `#00000073` backdrop):
   - Grid areas `"controls lyrics"`; at 1440px the columns are `461px 576px` with padding 0 144px (31vw/38vw with 12vw padding at medium, 30vw/38vw with 13vw padding at large).
   - Left: artwork 461×461, radius 10px, `0 4px 10px #0000001a`, with a radiosity glow (blur 20px saturate 2 at 40%). Under it: metadata (title, artist), the progress bar, transport (315×52), and volume.
@@ -232,13 +232,13 @@ The same template as the album page: `container-detail-header`, a description, `
 - **Focus ring**: `outline: 4px solid rgba(var(--keyColor-rgb), .6)` (`--keyColor-focus-color`), offset 1–2px; ⋯ triggers use `box-shadow: 0 0 0 4px` instead. Only on `:focus-visible`.
 - **z-index scale**: default 1 · bubbles 50 · gpu 1001 · web chrome 9901 · context menus 9951 · modal 10001.
 - **Global transition**: `opacity .1s ease-in` (`--global-transition`). Panel and player motion: `.3s cubic-bezier(.215,.61,.355,1)`. Shelf arrows: `.25s linear`.
-- **Keyboard** (the web player's shortcuts, which BitChord matches): Space play/pause; ⌘/Ctrl+→ / ← next/previous; ⌘/Ctrl+↑ / ↓ volume; ⌘/Ctrl+F or `/` focuses search; Esc closes full screen or a modal.
+- **Keyboard** (the web player's shortcuts, which BitChard matches): Space play/pause; ⌘/Ctrl+→ / ← next/previous; ⌘/Ctrl+↑ / ↓ volume; ⌘/Ctrl+F or `/` focuses search; Esc closes full screen or a modal.
 
 ## 9. Colour tokens
 
 Apple defines every colour as a CSS variable with `-onLight`, `-onDark`, `-vibrant` and `_IC` (increased contrast) variants. Dark values apply under `@media (prefers-color-scheme: dark)`; increased-contrast values under `(prefers-contrast: more)`.
 
-Apple also ships a set of overrides for browsers **without** `font: -apple-system-body` (everything except Apple devices). Because BitChord uses DM Sans on every platform, **we always use those overrides**: higher-contrast text alphas and a deeper key colour on light.
+Apple also ships a set of overrides for browsers **without** `font: -apple-system-body` (everything except Apple devices). Because BitChard uses DM Sans on every platform, **we always use those overrides**: higher-contrast text alphas and a deeper key colour on light.
 
 | Token | Light | Dark | Notes |
 |---|---|---|---|

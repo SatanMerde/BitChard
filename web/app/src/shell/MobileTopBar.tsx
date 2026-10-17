@@ -12,9 +12,9 @@ export function MobileTopBar() {
       <button className={styles.menu} aria-label="Open menu" onClick={() => setDrawerOpen(true)}>
         <Menu size={22} strokeWidth={2} />
       </button>
-      <PrefetchLink to="/home" className={styles.logo} aria-label="BitChord, Home">
+      <PrefetchLink to="/home" className={styles.logo} aria-label="BitChard, Home">
         <LogoMark size={20} className={styles.mark} />
-        <span>BitChord</span>
+        <span>BitChard</span>
       </PrefetchLink>
       <span className={styles.spacer} />
     </header>

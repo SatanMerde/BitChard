@@ -76,7 +76,7 @@ All go through Pathfinder (`api-partner.spotify.com/pathfinder/v2/query`). Hashe
   - a track change, a resume, a seek, or an options change publishes;
   - a pause clears the card;
   - buffering and the gap between tracks are ignored.
-- **When it stops.** When the last BitChord page has been gone for 30 s, the card is cleared and the socket closed. A cleared card with nothing new for 5 minutes closes the socket too.
+- **When it stops.** When the last BitChard page has been gone for 30 s, the card is cleared and the socket closed. A cleared card with nothing new for 5 minutes closes the socket too.
 - **Options** are kept in the app (Extension page → Discord): activity type, name, status, lead with the song, and the two buttons with their text. A one-line warning says the token use is against Discord's terms.
 
 ## Verified

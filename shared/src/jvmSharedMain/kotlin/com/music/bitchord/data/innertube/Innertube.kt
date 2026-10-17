@@ -94,7 +94,7 @@ object Innertube {
     private const val WEB_REMIX_VERSION = "1.20250101.01.00"
     private const val WEB_REMIX_CLIENT_ID = "67"
 
-    private const val TAG = "BitChord"
+    private const val TAG = "BitChard"
 
     /** Session cookie captured by the login WebView; null = browse as guest. */
     var cookie: String? = null

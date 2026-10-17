@@ -2689,7 +2689,7 @@ class CrossfadeController(
     // equal-power is right everywhere.
 
     private companion object {
-        const val TAG = "BitChordCrossfade"
+        const val TAG = "BitChardCrossfade"
 
         /**
          * Used only before a pair has been analysed, or when the evidence is

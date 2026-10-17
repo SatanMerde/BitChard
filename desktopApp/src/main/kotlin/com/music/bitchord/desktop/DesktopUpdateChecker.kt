@@ -33,9 +33,11 @@ internal object DesktopUpdateChecker {
     )
 
     private const val LATEST_RELEASE_URL =
-        "https://api.github.com/repos/kushagrasinghx/BitChord/releases/latest"
+        "https://api.github.com/repos/SatanMerde/BitChard/releases/latest"
+    private const val RELEASES_URL =
+        "https://api.github.com/repos/SatanMerde/BitChard/releases"
 
-    val currentVersion: String = System.getProperty("bitchord.version") ?: "1.8-beta1"
+    val currentVersion: String = System.getProperty("bitchard.version") ?: System.getProperty("bitchord.version") ?: "1.8.3"
 
     private val json = Json { ignoreUnknownKeys = true }
 
@@ -47,12 +49,7 @@ internal object DesktopUpdateChecker {
     }
 
     suspend fun check(): UpdateInfo? = runCatching {
-        val response = http.get(LATEST_RELEASE_URL) {
-            header("Accept", "application/vnd.github+json")
-        }
-        if (!response.status.isSuccess()) return@runCatching null
-        val release = json.parseToJsonElement(response.bodyAsText()) as? JsonObject
-            ?: return@runCatching null
+        val release = fetchRelease() ?: return@runCatching null
         val tag = release["tag_name"]?.jsonPrimitive?.contentOrNull ?: return@runCatching null
         val url = release["html_url"]?.jsonPrimitive?.contentOrNull ?: return@runCatching null
         val latest = tag.removePrefix("v")
@@ -65,15 +62,42 @@ internal object DesktopUpdateChecker {
         )
     }.getOrNull()
 
+    private suspend fun fetchRelease(): JsonObject? = runCatching {
+        val userAgent = "BitChard/$currentVersion (Desktop)"
+
+        // Try latest release first
+        val latestResp = http.get(LATEST_RELEASE_URL) {
+            header("Accept", "application/vnd.github+json")
+            header("User-Agent", userAgent)
+        }
+        if (latestResp.status.isSuccess()) {
+            val obj = json.parseToJsonElement(latestResp.bodyAsText()) as? JsonObject
+            if (obj != null && installerUrl(obj) != null) return obj
+        }
+
+        // Fallback to releases list
+        val listResp = http.get(RELEASES_URL) {
+            header("Accept", "application/vnd.github+json")
+            header("User-Agent", userAgent)
+        }
+        if (!listResp.status.isSuccess()) return null
+        val list = json.parseToJsonElement(listResp.bodyAsText()).jsonArray
+        for (item in list) {
+            val obj = item as? JsonObject ?: continue
+            val isDraft = obj["draft"]?.jsonPrimitive?.contentOrNull == "true"
+            if (!isDraft && installerUrl(obj) != null) return obj
+        }
+        null
+    }.getOrNull()
+
     /**
-     * The release names its files `BitChord-<version>-windows-x64-setup.exe` and
-     * `BitChord-<version>-linux-x86_64.AppImage` (see .github/workflows/release.yml); match on the
-     * platform part so a version change does not matter.
+     * Matches desktop installer assets for the current platform.
      */
     private fun installerUrl(release: JsonObject): String? {
         val suffixes = when {
-            DesktopPlatform.isWindows -> listOf("-windows-x64-setup.exe")
-            DesktopPlatform.isLinux -> listOf(".AppImage", "-linux-amd64.deb")
+            DesktopPlatform.isWindows -> listOf("-windows-x64-setup.exe", ".exe", ".msi", "-windows-portable.zip")
+            DesktopPlatform.isLinux -> listOf(".AppImage", "-linux-amd64.deb", ".deb", ".tar.gz")
+            DesktopPlatform.isMac -> listOf(".dmg", ".pkg")
             else -> return null
         }
         val assets = release["assets"]?.jsonArray?.mapNotNull { it as? JsonObject }.orEmpty()

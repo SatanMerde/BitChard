@@ -19,7 +19,7 @@ import java.util.concurrent.Executors
 private const val MPRIS_ROOT_INTERFACE = "org.mpris.MediaPlayer2"
 private const val MPRIS_PLAYER_INTERFACE = "org.mpris.MediaPlayer2.Player"
 private const val MPRIS_OBJECT_PATH = "/org/mpris/MediaPlayer2"
-private const val MPRIS_BUS_NAME = "org.mpris.MediaPlayer2.bitchord"
+private const val MPRIS_BUS_NAME = "org.mpris.MediaPlayer2.bitchard"
 
 internal data class MprisCapabilities(
     val canGoNext: Boolean,
@@ -128,7 +128,7 @@ internal class DesktopMprisController(
 ) {
     private val lock = Any()
     private val worker: ExecutorService = Executors.newSingleThreadExecutor { runnable ->
-        Thread(runnable, "BitChord-MPRIS").apply { isDaemon = true }
+        Thread(runnable, "BitChard-MPRIS").apply { isDaemon = true }
     }
     private var connection: DBusConnection? = null
     private var started = false
@@ -161,7 +161,7 @@ internal class DesktopMprisController(
                     connection = null
                     started = false
                 }
-                System.err.println("BitChord MPRIS unavailable: ${failure.message}")
+                System.err.println("BitChard MPRIS unavailable: ${failure.message}")
             }
         }
     }
@@ -247,8 +247,8 @@ internal class DesktopMprisController(
             "CanQuit" to variant(false),
             "CanRaise" to variant(false),
             "HasTrackList" to variant(false),
-            "Identity" to variant("BitChord"),
-            "DesktopEntry" to variant("bitchord"),
+            "Identity" to variant("BitChard"),
+            "DesktopEntry" to variant("bitchard"),
             "SupportedUriSchemes" to variant(listOf("file", "http", "https"), "as"),
             "SupportedMimeTypes" to variant(
                 listOf("audio/mpeg", "audio/mp4", "audio/aac", "audio/flac", "audio/ogg"),

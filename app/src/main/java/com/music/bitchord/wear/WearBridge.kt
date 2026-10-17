@@ -94,7 +94,7 @@ import com.music.bitchord.wear.WearProtocol as P
  */
 object WearBridge {
 
-    private const val TAG = "BitChordWear"
+    private const val TAG = "BitChardWear"
 
     /** Coalesces the bursts the player reports in — play is two or three callbacks in a row. */
     private const val COALESCE_MS = 120L
@@ -650,7 +650,7 @@ class WearCommandService : WearableListenerService() {
         val done = CountDownLatch(1)
         Controllers.use(applicationContext, onMissing = { done.countDown() }) { controller ->
             runCatching { execute(controller, command, arg) }
-                .onFailure { Log.w("BitChordWear", "command $command failed", it) }
+                .onFailure { Log.w("BitChardWear", "command $command failed", it) }
             done.countDown()
         }
         done.await(8, TimeUnit.SECONDS)

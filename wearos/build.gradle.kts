@@ -54,11 +54,11 @@ android {
         create("dev") {
             dimension = "env"
             applicationId = "com.dev.bitchord"
-            resValue("string", "app_name", "BitChord Dev")
+            resValue("string", "app_name", "BitChard Dev")
         }
         create("prod") {
             dimension = "env"
-            resValue("string", "app_name", "BitChord")
+            resValue("string", "app_name", "BitChard")
         }
     }
 
@@ -139,7 +139,7 @@ kotlin {
 // Named after the phone APKs (BitChord-v1.8.apk) but with their own prefix, so
 // the phone's updater — which only takes assets starting "BitChord-" — can never
 // pick a watch APK by mistake.
-base.archivesName.set("BitChordWear")
+base.archivesName.set("BitChardWear")
 
 dependencies {
     implementation("androidx.wear.compose:compose-material3:1.6.2")

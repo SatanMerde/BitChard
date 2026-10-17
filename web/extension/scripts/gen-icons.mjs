@@ -1,5 +1,5 @@
 // Renders the extension's toolbar and store icons from the site's app icon
-// (web/app/public/favicon.svg), so both carry the same BitChord logo. WXT
+// (web/app/public/favicon.svg), so both carry the same BitChard logo. WXT
 // picks up public/icon/<size>.png on its own. The PNGs are committed; run this
 // again only when the logo changes:
 //

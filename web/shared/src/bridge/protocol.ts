@@ -68,7 +68,7 @@ export interface YtAccount {
 export interface YtAuthState {
   /** The browser holds a YouTube session (a SAPISID cookie). */
   browserSignedIn: boolean;
-  /** The user lets BitChord use it; "Disconnect" turns this off without signing out of Google. */
+  /** The user lets BitChard use it; "Disconnect" turns this off without signing out of Google. */
   connected: boolean;
   /** True when signed-in requests will be made: signed in, connected, and a channel chosen. */
   signedIn: boolean;
@@ -79,7 +79,7 @@ export interface YtAuthState {
   problem: string | null;
 }
 
-/** The browser's open.spotify.com session, as BitChord may use it (prompt §7.1). Names only, never tokens. */
+/** The browser's open.spotify.com session, as BitChard may use it (prompt §7.1). Names only, never tokens. */
 export interface SpotifyAuthState {
   /** The browser holds a Spotify session (an `sp_dc` cookie). */
   browserSignedIn: boolean;
@@ -138,7 +138,7 @@ export interface DiscordPresenceOptions {
   status: 'online' | 'idle' | 'dnd' | 'invisible';
   /** Lead with the song title rather than the artist in member lists. */
   useDetails: boolean;
-  /** Replaces "BitChord" after "Listening to"; empty keeps it. */
+  /** Replaces "BitChard" after "Listening to"; empty keeps it. */
   activityName: string;
   button1Text: string;
   button1Visible: boolean;

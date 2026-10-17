@@ -82,7 +82,7 @@ function ImportButton({ title, videoIds, ready }: { title: string; videoIds: str
   const navigate = useNavigate();
   const [confirming, setConfirming] = useState(false);
   const create = useMutation({
-    mutationFn: () => createPlaylist(title, videoIds, 'Imported from Spotify with BitChord'),
+    mutationFn: () => createPlaylist(title, videoIds, 'Imported from Spotify with BitChard'),
     onSuccess: (playlistId) => navigate(`/playlist/${encodeURIComponent(`VL${playlistId}`)}`),
   });
   if (!ytSignedIn) return null;

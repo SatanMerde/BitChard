@@ -91,7 +91,7 @@ export default function SettingsPage() {
           <LinkRow
             to="/extension"
             icon={<Glyph Icon={MdOutlineExtension} color="#636366" />}
-            title="BitChord Extension"
+            title="BitChard Extension"
             value={present ? `v${extension.extension.info.version}` : 'Not installed'}
           />
         </section>

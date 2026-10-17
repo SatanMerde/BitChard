@@ -1,6 +1,6 @@
 import type { SVGProps } from 'react';
 
-// Filled transport glyphs, drawn for BitChord. Lucide's outline versions read
+// Filled transport glyphs, drawn for BitChard. Lucide's outline versions read
 // as too light next to the rest of the player chrome, and SF Symbols are
 // licensed for Apple platforms only (prompt §2.2). 24×24 grid, currentColor.
 

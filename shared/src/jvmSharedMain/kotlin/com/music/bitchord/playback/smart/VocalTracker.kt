@@ -267,7 +267,7 @@ class VocalTracker(
     }
 
     companion object {
-        private const val TAG = "BitChordVocalTracker"
+        private const val TAG = "BitChardVocalTracker"
         /** The weights this tracker needs, named once for every build that ships them. */
         const val MODEL_ASSET = "vocals_umxhq_int8.onnx"
         /** The model's fixed input width, ~22.8 s, chosen upstream to cover a transition overlap. */

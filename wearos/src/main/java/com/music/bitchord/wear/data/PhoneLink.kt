@@ -396,7 +396,7 @@ class PhoneLink(context: Context, private val scope: CoroutineScope) :
     }
 
     companion object {
-        private const val TAG = "BitChordWear"
+        private const val TAG = "BitChardWear"
         private const val HOLD_MS = 2_500L
         private const val VOLUME_HOLD_MS = 1_500L
         private const val VOLUME_BATCH_MS = 90L

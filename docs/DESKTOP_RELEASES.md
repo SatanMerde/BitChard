@@ -30,7 +30,7 @@ builds a separate numeric one: `major.minor.desktopVersionCode`, for example `1.
 - deb and rpm take the same `nativePackageVersion`, so `apt`/`dnf` upgrade ordering works the same
   way. Do not hand-edit package versions anywhere else.
 - Never change the Windows `upgradeUuid`. For Linux, never rename the package (`packageName =
-  "BitChord"`) or the upgrade path breaks.
+  "BitChard"`) or the upgrade path breaks.
 
 ## 3. File names on the releases page
 
@@ -39,14 +39,14 @@ patterns, where `<v>` is the version from section 1:
 
 | Platform | File |
 |---|---|
-| Windows | `BitChord-<v>-windows-x64-setup.exe` (what the update check downloads) |
-| Windows | `BitChord-<v>-windows-x64.msi` |
-| Windows | `BitChord-<v>-windows-x64-portable.zip` |
-| Linux | `BitChord-<v>-linux-x86_64.AppImage` (preferred by the update check) |
-| Linux | `BitChord-<v>-linux-amd64.deb` (used if there is no AppImage) |
-| Linux | `BitChord-<v>-linux-x86_64.rpm` |
-| macOS | `BitChord-<v>-macos-arm64.dmg` (Apple Silicon; also `.pkg` and `.zip`) |
-| macOS | `BitChord-<v>-macos-x64.dmg` (Intel; also `.pkg` and `.zip`) |
+| Windows | `BitChard-<v>-windows-x64-setup.exe` (what the update check downloads) |
+| Windows | `BitChard-<v>-windows-x64.msi` |
+| Windows | `BitChard-<v>-windows-x64-portable.zip` |
+| Linux | `BitChard-<v>-linux-x86_64.AppImage` (preferred by the update check) |
+| Linux | `BitChard-<v>-linux-amd64.deb` (used if there is no AppImage) |
+| Linux | `BitChard-<v>-linux-x86_64.rpm` |
+| macOS | `BitChard-<v>-macos-arm64.dmg` (Apple Silicon; also `.pkg` and `.zip`) |
+| macOS | `BitChard-<v>-macos-x64.dmg` (Intel; also `.pkg` and `.zip`) |
 
 Rules:
 
@@ -58,7 +58,7 @@ Rules:
   x86_64.
 - Upload files to the release, do not rely on the generated source archives.
 
-macOS builds are unsigned. Clear the quarantine flag with `xattr -cr /Applications/BitChord.app`.
+macOS builds are unsigned. Clear the quarantine flag with `xattr -cr /Applications/BitChard.app`.
 If the app will not start, a missing library may need installing first with Homebrew
 (`brew install <library>`; the exact library still has to be confirmed). The update check does not
 look for macOS files yet, so Mac users get the release page.
@@ -66,9 +66,9 @@ look for macOS files yet, so Mac users get the release page.
 ## 4. How the app finds an update
 
 `desktopApp/src/main/kotlin/com/music/bitchord/desktop/DesktopUpdateChecker.kt`, shown as a dialog
-from `BitChordDesktopApp` in `DesktopApp.kt`:
+from `BitChardDesktopApp` in `DesktopApp.kt`:
 
-1. At launch it calls `GET https://api.github.com/repos/kushagrasinghx/BitChord/releases/latest`.
+1. At launch it calls `GET https://api.github.com/repos/SatanMerde/BitChard/releases/latest`.
 2. It strips the `v` from `tag_name` and compares it with `bitchord.version` (numeric, dot by dot;
    a `-beta` current version is older than the same release).
 3. If newer, it picks the asset for the running OS and shows "Update available" with Download and
@@ -98,7 +98,7 @@ Before publishing, confirm each of these on the built files, not just in the sou
 - [ ] They are attached to the same release as the Windows files.
 - [ ] The release is not a draft or pre-release (for a real release).
 - [ ] Install the previous release, then the new one over it: deb with `sudo apt install
-      ./BitChord-*.deb`, rpm with `sudo dnf upgrade ./BitChord-*.rpm`. It must upgrade, not
+      ./BitChard-*.deb`, rpm with `sudo dnf upgrade ./BitChard-*.rpm`. It must upgrade, not
       reinstall or conflict.
 - [ ] With the previous release installed, the "Update available" dialog appears and Download
       opens the correct file for that platform.

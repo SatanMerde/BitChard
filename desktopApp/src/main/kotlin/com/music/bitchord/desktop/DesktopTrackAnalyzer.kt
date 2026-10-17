@@ -38,7 +38,7 @@ internal class DesktopTrackAnalyzer(
 ) {
     /** One analysis at a time, on a thread of this class's own making. */
     private val worker: ExecutorService = Executors.newSingleThreadExecutor { runnable ->
-        Thread(null, runnable, "BitChord-Analysis", ANALYSIS_STACK_BYTES).apply {
+        Thread(null, runnable, "BitChard-Analysis", ANALYSIS_STACK_BYTES).apply {
             isDaemon = true
         }
     }

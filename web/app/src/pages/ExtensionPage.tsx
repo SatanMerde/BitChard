@@ -39,7 +39,7 @@ const DOWNLOADS: Download[] = [
     ],
     updateSteps: [
       'Extract the new zip over the old one, replacing the bitchord-extension-chrome folder.',
-      'In chrome://extensions, press the reload arrow on BitChord’s card.',
+      'In chrome://extensions, press the reload arrow on BitChard’s card.',
       'Come back to this page: the version above updates on its own.',
     ],
   },
@@ -57,7 +57,7 @@ const DOWNLOADS: Download[] = [
     ],
     updateSteps: [
       'Extract the new zip over the old one, replacing the bitchord-extension-firefox folder.',
-      'In about:debugging, press Reload on BitChord’s entry.',
+      'In about:debugging, press Reload on BitChard’s entry.',
       'Come back to this page: the version above updates on its own.',
     ],
   },
@@ -112,7 +112,7 @@ export default function ExtensionPage() {
 
   return (
     <div className={styles.centered}>
-      <PageHeader title="BitChord Extension" />
+      <PageHeader title="BitChard Extension" />
       <div className={styles.body}>
         <section className={styles.group} aria-live="polite">
           <div className={styles.row}>

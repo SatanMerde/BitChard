@@ -80,5 +80,5 @@ internal object DesktopAwtTray {
     /** A placeholder while the logo is still being rasterised. */
     private fun blank(size: Int) = BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB)
 
-    private const val APP_NAME = "BitChord"
+    private const val APP_NAME = "BitChard"
 }

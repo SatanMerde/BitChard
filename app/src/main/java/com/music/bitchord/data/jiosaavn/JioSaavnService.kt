@@ -116,7 +116,7 @@ internal fun prioritizeExplicit(songs: List<RawSongItem>): List<RawSongItem> =
     songs.sortedByDescending { it.isExplicit }
 
 object JioSaavnService {
-    private const val TAG = "BitChord"
+    private const val TAG = "BitChard"
     
     // https://www.jiosaavn.com/api.php
     private val BASE_URL = String(Base64.decode("aHR0cHM6Ly93d3cuamlvc2Fhdm4uY29tL2FwaS5waHA=", Base64.DEFAULT), Charsets.UTF_8)

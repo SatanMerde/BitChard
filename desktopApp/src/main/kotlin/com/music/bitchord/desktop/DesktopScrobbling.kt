@@ -280,7 +280,7 @@ object DesktopScrobbling {
                                     put("track_name", song.title)
                                     song.albumName?.let { put("release_name", it) }
                                     putJsonObject("additional_info") {
-                                        put("submission_client", "BitChord")
+                                        put("submission_client", "BitChard")
                                         if (isPlayingNow) {
                                             put("position_ms", 0L)
                                             if (durationMs > 0) put("duration_ms", durationMs)

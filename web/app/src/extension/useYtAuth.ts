@@ -129,7 +129,7 @@ export function useRefreshYtAuth() {
   return useMutation({ mutationFn: () => readAuth(true) });
 }
 
-/** Connect or disconnect BitChord from the browser's YouTube session (it stays signed in to Google). */
+/** Connect or disconnect BitChard from the browser's YouTube session (it stays signed in to Google). */
 export function useSetConnected() {
   return useMutation({
     mutationFn: async (connected: boolean) => {

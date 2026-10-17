@@ -139,9 +139,9 @@ export function Sidebar() {
     <>
       <nav className={styles.nav} data-open={drawerOpen} aria-label="Main">
         <div className={styles.header}>
-          <PrefetchLink to="/home" className={styles.logo} aria-label="BitChord, Home" onClick={close}>
+          <PrefetchLink to="/home" className={styles.logo} aria-label="BitChard, Home" onClick={close}>
             <LogoMark size={22} className={styles.mark} />
-            <span className={styles.wordmark}>BitChord</span>
+            <span className={styles.wordmark}>BitChard</span>
           </PrefetchLink>
         </div>
         <div className={styles.scroll}>
@@ -155,7 +155,7 @@ export function Sidebar() {
             <span className={styles.icon}>
               <MdOutlineExtension size={18} />
             </span>
-            <span className={styles.label}>BitChord Extension</span>
+            <span className={styles.label}>BitChard Extension</span>
             {update.state === 'available' && (
               <span className={styles.badge} title={`Version ${update.latest.version} is available`}>
                 Update

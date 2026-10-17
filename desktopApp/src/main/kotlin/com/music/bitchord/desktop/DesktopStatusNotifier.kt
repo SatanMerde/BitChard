@@ -56,7 +56,7 @@ internal class DesktopStatusNotifierController(
 
     private fun worker(): ExecutorService = synchronized(lock) {
         worker?.takeIf { !it.isShutdown } ?: Executors.newSingleThreadExecutor { runnable ->
-            Thread(runnable, "BitChord-Tray").apply { isDaemon = true }
+            Thread(runnable, "BitChard-Tray").apply { isDaemon = true }
         }.also { worker = it }
     }
 
@@ -206,19 +206,19 @@ internal class DesktopStatusNotifierController(
 
     private fun icons(): List<TrayPixmap> = synchronized(lock) { iconPixmaps }
 
-    private fun tooltipTitle(): String = synchronized(lock) { nowPlaying } ?: "BitChord"
+    private fun tooltipTitle(): String = synchronized(lock) { nowPlaying } ?: "BitChard"
 
     private fun itemProperties(): Map<String, Variant<*>> = mapOf(
         "Category" to Variant("ApplicationStatus"),
-        "Id" to Variant("bitchord"),
-        "Title" to Variant("BitChord"),
+        "Id" to Variant("bitchard"),
+        "Title" to Variant("BitChard"),
         "Status" to Variant("Active"),
         // The logo itself when it has been rendered, and a themed name as the fallback for a host
         // that ignores pixmaps.
         "IconName" to Variant(if (icons().isEmpty()) "multimedia-player" else ""),
         "IconPixmap" to Variant(icons(), "a(iiay)"),
         "ToolTip" to Variant(
-            ToolTip("", icons(), "BitChord", tooltipTitle()),
+            ToolTip("", icons(), "BitChard", tooltipTitle()),
         ),
         // Where the host reads the menu from.
         "Menu" to Variant(DBusPath(DesktopTrayMenu.OBJECT_PATH), "o"),

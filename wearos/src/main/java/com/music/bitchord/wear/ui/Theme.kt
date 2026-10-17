@@ -59,3 +59,6 @@ fun BitChordWearTheme(content: @Composable () -> Unit) {
         content = content,
     )
 }
+
+@Composable
+fun BitChardWearTheme(content: @Composable () -> Unit) = BitChordWearTheme(content)

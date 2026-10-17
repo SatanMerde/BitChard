@@ -42,7 +42,7 @@ class NowPlayingListener : WearableListenerService() {
         }
     }
 
-    /** A newer build of this app, sent by the phone's "BitChord for Wear OS" settings. */
+    /** A newer build of this app, sent by the phone's "BitChard for Wear OS" settings. */
     override fun onChannelOpened(channel: ChannelClient.Channel) {
         if (channel.path == P.PATH_APK) SelfUpdate.receive(this, channel)
     }

@@ -93,7 +93,7 @@ object Backup {
                 ?.use { it.readBytes().decodeToString() }
                 ?: error("Couldn't open that file")
             val file = runCatching { json.decodeFromString(BackupFile.serializer(), text) }
-                .getOrElse { error("That doesn't look like a valid BitChard/BitChord backup") }
+                .getOrElse { error("That doesn't look like a valid BitChard backup") }
             require(file.app.equals(APP_TAG, ignoreCase = true) || file.app.equals("bitchord", ignoreCase = true) || file.app.contains("bitch", ignoreCase = true)) {
                 "That backup is from another app"
             }

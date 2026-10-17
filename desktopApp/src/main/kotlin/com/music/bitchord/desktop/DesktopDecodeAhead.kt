@@ -35,7 +35,7 @@ internal class DesktopDecodeAhead(
     val measuredFormat: DesktopStreamFormat?,
     /** How far ahead to decode, in samples across all channels. */
     private val aheadSamples: Int = outputFormat.sampleRate * outputFormat.channels * AHEAD_SECONDS,
-    name: String = "BitChord-Decode",
+    name: String = "BitChard-Decode",
 ) {
 
     private val lock = ReentrantLock()

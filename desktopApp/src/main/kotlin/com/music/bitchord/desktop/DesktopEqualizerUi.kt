@@ -91,7 +91,7 @@ internal fun DesktopEqualizerDialog(onDismiss: () -> Unit) {
                     color = Color.White,
                 )
                 Text(
-                    DesktopStrings["equalizer_footer", "Shapes the sound inside BitChord, before it reaches the system."],
+                    DesktopStrings["equalizer_footer", "Shapes the sound inside BitChard, before it reaches the system."],
                     style = MaterialTheme.typography.bodySmall,
                     color = DesktopSecondary,
                 )
