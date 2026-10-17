@@ -1,108 +1,98 @@
 <div align="center">
 
-<br/>
-<br/>
+<img src="Banner.png" alt="BitChard Banner" width="100%" style="border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
 
-<img src="Logo.png" alt="BitChard app icon" width="200" />
+<br/><br/>
+
+<img src="Logo.png" alt="BitChard Logo" width="140" />
 
 # BitChard
 
-### The Enhanced, Aesthetic YouTube Music Client
-*A feature-rich, standalone fork of [BitChord](https://github.com/kushagrasinghx/BitChord)*
+### *The Ultimate, Aesthetic & AI-Powered YouTube Music Client*
+**Ad-free • Lossless Audio • Word-Synced Lyrics • Smart AI DJ • Kotlin Multiplatform**
 
 <br/>
 
-[![GitHub Repository](https://img.shields.io/badge/GitHub-SatanMerde%2FBitChard-blue?style=for-the-badge&logo=github)](https://github.com/SatanMerde/BitChard)
-[![License](https://img.shields.io/github/license/SatanMerde/BitChard?style=for-the-badge&labelColor=0d1117)](https://github.com/SatanMerde/BitChard/blob/main/LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20Desktop-orange?style=for-the-badge)](https://github.com/SatanMerde/BitChard)
+[![GitHub Release](https://img.shields.io/github/v/release/SatanMerde/BitChard?style=for-the-badge&color=00D2FF&logo=github&logoColor=white)](https://github.com/SatanMerde/BitChard/releases)
+[![License](https://img.shields.io/badge/License-GPL%20v3.0-8A2BE2?style=for-the-badge&logo=gnu&logoColor=white)](https://github.com/SatanMerde/BitChard/blob/main/LICENSE)
+[![Platforms](https://img.shields.io/badge/Platforms-Android%20%7C%20Windows%20%7C%20Linux%20%7C%20macOS-FF007A?style=for-the-badge&logo=android&logoColor=white)](https://github.com/SatanMerde/BitChard/releases)
+[![Kotlin](https://img.shields.io/badge/Kotlin-Multiplatform-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white)](https://kotlinlang.org/)
+[![AI Powered](https://img.shields.io/badge/AI%20DJ-Gemini%20%7C%20Claude-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://deepmind.google/technologies/gemini/)
 
 <br/>
 
-[**Ce qui change / What's New**](#ce-qui-change--whats-new) · [**Features**](#features) · [**Download**](#download) · [**AI DJ**](#ia-dj--ai-dj) · [**Paroles / Lyrics**](#paroles-synchronis%C3%A9es--lyrics) · [**Contributing**](#contributing) · [**Disclaimer**](#disclaimer)
+[**✨ Ce qui change**](#-ce-qui-change--whats-new) • [**🤖 DJ BitG**](#-bitg--le-dj-ia-interactif) • [**🎤 Paroles Synchronisées**](#-paroles-synchronis%C3%A9es-style-apple-music) • [**🎛️ Moteur Audio**](#%EF%B8%8F-moteur-audio-audiophile--lossless) • [**📦 Playlists & Spotify**](#-playlists-modifiables--import-spotify-en-1-clic) • [**💻 Desktop & TV**](#-desktop--multiplateforme) • [**⚡ Téléchargement**](#-t%C3%A9l%C3%A9chargement--downloads) • [**🛠️ Compilation**](#%EF%B8%8F-compilation-depuis-les-sources)
 
 </div>
 
-> [!IMPORTANT]
-> **BitChard** is an independent fork created by [SatanMerde](https://github.com/SatanMerde/BitChard). It is designed to run independently from the original BitChord with major UX enhancements, smarter playlist management, AI DJ and advanced syllable-level lyrics. BitChard is not affiliated with Google LLC, YouTube Music, or Spotify.
+<br/>
+
+> [!NOTE]
+> **BitChard** est un fork indépendant, moderne et enrichi de BitChord, développé et maintenu par [SatanMerde](https://github.com/SatanMerde). Conçu pour offrir une expérience musicale sans compromis : zéro publicité, aucun pistage, qualité sonore audiophile, paroles animées mot à mot et intégration d'un DJ IA interactif propulsé par les derniers modèles de langage.
 
 ---
+
+## 🌟 Aperçu des Fonctionnalités Clés / Core Features
 
 <div align="center">
-
-<img src="Banner.png" alt="BitChard banner" width="100%" />
-
-<h1><a id="ce-qui-change--whats-new"></a>✨ Ce qui change dans BitChard / What makes BitChard different</h1>
-
-</div>
-
-### 🇫🇷 En français
-
-| Fonctionnalité | Description dans BitChard |
-|---|---|
-| **Coexistence BitChord / BitChard** | Identifiant de package unique (`com.music.bitchard`) et nom dédié. Vous pouvez installer et utiliser **BitChord et BitChard côte à côte** sur le même téléphone sans écrasement ni conflit. |
-| **Gestion de la barre de volume** | Nouveau commutateur dans *Paramètres → Apparence*. Lorsqu'elle est désactivée, la barre de volume disparaît proprement et l'interface s'ajuste dynamiquement sans laisser de trou vide. |
-| **Playlists importées 100% modifiables** | Modifiez librement vos playlists importées (locales ou Spotify) : **renommer**, **réordonner les titres**, **ajouter des chansons** ou **retirer des morceaux**. Elles sont également intégrées au sélecteur *Ajouter à une playlist*. |
-| **Résolution & Correspondance Spotify de haute précision** | Finies les erreurs de morceaux (covers, remix non désirés) et les « pistes introuvables ». Le nouveau moteur de recherche nettoie les titres et bascule automatiquement sur les flux vidéo/audio officiels de YouTube Music. |
-| **Compteur d'écoutes des artistes** | Le nombre d'écoutes réelles (*ex: 2.4M écoutes*) s'affiche directement sous chaque titre populaire sur les pages de profil des artistes. |
-| **Importation groupée Spotify en 1 clic** | Bouton et interface dédiée **« Tout importer »** dans l'onglet Spotify pour synchroniser en une seule fois toutes vos playlists et tous vos artistes suivis vers vos playlists locales ou votre compte YouTube Music. |
-| **IA DJ Intelligente (style Spotify DJ)** | Un DJ virtuel interactif doté de synthèse vocale, d'annonces personnalisées et de mix dynamiques basés sur vos morceaux préférés, vos artistes favoris et des découvertes inédites. |
-| **Paroles synchronisées mot à mot / syllabe par syllabe** | Intégration de nouvelles sources de paroles hyper-précises (syllabe et mot à mot, dont NetEase Cloud Music YRC et Musixmatch RichSync) pour un karaoké fluide et ultra-synchronisé. |
-
----
-
-### 🇬🇧 In English
-
-| Feature | Description in BitChard |
-|---|---|
-| **Side-by-side Coexistence** | Distinct application ID (`com.music.bitchard`) and dedicated app name. Install and run **BitChord and BitChard concurrently** on the same Android device with zero conflict. |
-| **Player Volume Bar Toggle** | Switch in *Settings → Appearance*. When turned off, the volume row collapses cleanly without leaving awkward empty gaps in the player. |
-| **Fully Editable Imported Playlists** | Rename, reorder, delete, and add or remove tracks from imported playlists (local storage or Spotify) directly from the app interface. |
-| **High-Precision Track Matching** | Eliminates wrong matches (remixes, karaokes) and false "track not found" errors. Features smart query sanitization, fallback to YouTube video streams, and scoring against official audio. |
-| **Artist Top Tracks Play Counts** | Displays stream counts (*e.g., 2.4M plays*) alongside popular tracks on artist profile pages. |
-| **1-Click Spotify Batch Import** | Batch import all your Spotify playlists and followed artists in a single action with real-time progress indicators. |
-| **Smart AI DJ (Spotify-style DJ)** | Interactive virtual DJ featuring voice commentary (TTS), thematic song blocks, smooth transitions, and on-demand mood switching. |
-| **Word & Syllable-Level Synced Lyrics** | High-precision word-by-word and syllable-by-syllable synchronized lyrics powered by extended sources including NetEase YRC and Musixmatch RichSync. |
-
----
-
-<div align="center">
-
-<h1><a id="features"></a>Gamme complète de fonctionnalités / All Features</h1>
 
 <table>
   <tr>
     <td width="50%" valign="top">
 
-#### 🎵 Lecture & Audio
-- **Streaming YouTube Music complet** sans publicité ni interruption.
-- **Audio Hi-Res Lossless** — flux FLAC/ALAC depuis des modules configurés avec repli YouTube Music.
-- **Fondu enchaîné & Automix** avec transitions au tempo et crossfade personnalisable (0 à 12s).
-- **Téléchargements hors ligne** avec métadonnées et pochettes intégrées.
-- **Égaliseur système & Traitement audio haute précision**.
-- **Statistiques audio avancées** (codecs, fréquence, débit, perte).
-
-#### 🔗 Comptes & Écosystème
-- **Connexion Google / YouTube Music** pour synchroniser votre bibliothèque personnelle.
-- **Intégration Spotify complète** : lecture des playlists, titres aimés et import en masse.
-- **Discord Rich Presence** avec affichage du titre en cours et progression.
-- **Scrobbling Last.fm & ListenBrainz**.
-- **Listen Together (Écoute partagée)** en temps réel avec vos amis.
+### 🤖 BitG — Le DJ IA Interactif
+- **Commentaires oraux en temps réel** grâce à une synthèse vocale (TTS) naturelle et dynamique.
+- **Cerveau IA Multimodèle** : Propulsé par **Google Gemini 2.0 Flash**, **Claude 3.5**, OpenAI ou modèles personnalisés locaux.
+- **Analyse de votre ADN Musical** : Prend en compte vos artistes les plus écoutés, votre historique Replay et vos coups de cœur.
+- **Demandes Vocales & Textuelles** : Demandez ce que vous voulez (*"du bon rock des années 80", "un mix mélancolique pour coder"*) et laissez BitG créer le set.
+- **Enchaînements Dynamiques** : Bouton **« Autres morceaux »** pour relancer une sélection sans interruption.
 
     </td>
     <td width="50%" valign="top">
 
-#### 🎨 Interface & Expérience
-- **Pochettes animées Canvas** (Spotify Canvas & Apple Music Motion).
-- **Paroles animées style Apple Music** avec défilement fluide et surlignage mot à mot.
-- **Thème dynamique Material You** s'adaptant automatiquement aux couleurs de la pochette.
-- **Effet verre dépoli Haze (Glassmorphism)** fluide et réactif.
-- **Navigation flottante** et gestuelle moderne.
+### 🎤 Paroles Synchronisées Mot à Mot
+- **Expérience Apple Music-Style** avec surlignage fluide et élégant mot par mot et syllabe par syllabe.
+- **Multi-sources Ultra-Précises** : Intégration de NetEase YRC, Musixmatch RichSync, LrcLib et Genius.
+- **Traduction Instantanée** : Traduisez en un clic les paroles de n'importe quelle langue étrangère.
+- **Arrière-plans Flous & Canvas** : Défilement hypnotique au rythme de la chanson sur fond d'animations vidéo.
 
-#### ⚙️ Contrôles & Personnalisation
-- **Affichage modulable du lecteur** (masquage de la barre de son, contrôles compacts).
-- **Gestionnaire de playlists locales et hybrides**.
-- **Minuteur de sommeil** (après le morceau ou durée personnalisée).
-- **Vitesse de lecture ajustable** (0.5× à 2.0×) et saut automatique des silences.
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+
+### 🎛️ Audio Audiophile & Lossless
+- **Hi-Res Lossless 24-bit / 96kHz** (FLAC / ALAC) avec bascule transparente sur les flux officiels YouTube Music.
+- **Crossfade Intelligent & Automix** : Fondu enchaîné de 0 à 12 secondes avec synchronisation harmonique.
+- **Égaliseur Paramétrique 10 Bandes** & Traitement sonore 32-bit float.
+- **Saut Automatique des Silences** & Minuteur de mise en veille personnalisable.
+
+    </td>
+    <td width="50%" valign="top">
+
+### 📦 Playlists 100% Modifiables & Spotify
+- **Édition Totale** : Renommez, réorganisez vos titres par simple glisser-déposer, ajoutez ou retirez des morceaux.
+- **Import Spotify en 1 Clic** : Synchronisez instantanément toutes vos playlists et artistes suivis vers vos listes locales ou votre compte.
+- **Algorithme Haute Précision** : Nettoie les métadonnées pour exclure les mauvaises reprises, karaokés et covers indésirables.
+
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+
+### 💻 Multiplateforme & Desktop Natif
+- **Windows** : Effet de translucidité native **Mica & Acrylic**, intégration barre des tâches Windows.
+- **Linux** : Support natif du protocole **MPRIS2**, packages AppImage, DEB et RPM.
+- **macOS** : Cadre Cocoa épuré et gestion des raccourcis multimédias natifs.
+- **Android TV & WearOS** : Interface dédiée pour téléviseurs et montres connectées.
+
+    </td>
+    <td width="50%" valign="top">
+
+### 🎨 Design Cyber & Material You
+- **Glassmorphism & Haze Blur** : Flou dynamique inspiré du verre dépoli.
+- **Palette Dynamique Material You** : Couleurs de l'application calquées en temps réel sur la pochette du morceau en cours.
+- **Barre de volume escamotable** : Possibilité de masquer la barre de volume pour un lecteur minimaliste et épuré.
 
     </td>
   </tr>
@@ -112,23 +102,81 @@
 
 ---
 
+## ✨ Ce qui change / What's New
+
+| Fonctionnalité | BitChard | BitChord Original | YouTube Music Officiel |
+|---|:---:|:---:|:---:|
+| **Zéro Publicité & Lecture en Arrière-plan** | ✅ **Oui (Gratuit)** | ✅ Oui | ❌ Payant (Abonnement) |
+| **DJ IA avec Voix & Modèles LLM (Gemini 2.0 / Claude)** | ✅ **Oui (BitG)** | ❌ Non | ❌ Non |
+| **Paroles synchronisées mot à mot (Apple Music Style)** | ✅ **Oui (Syllabe/Mot)** | ⚠️ Basique (Lignes) | ⚠️ Basique (Lignes) |
+| **Playlists importées modifiables (Reorder/Rename)** | ✅ **Oui (100% libre)** | ❌ Lecture seule | ❌ Non |
+| **Import Spotify complet en 1 clic** | ✅ **Oui** | ⚠️ Partiel | ❌ Non |
+| **Flux Audio Lossless FLAC / ALAC** | ✅ **Oui** | ⚠️ Expérimental | ❌ 256kbps AAC max |
+| **Application Desktop Windows (Mica/Acrylic) / Linux / Mac** | ✅ **Oui** | ⚠️ Web Wrapper | ❌ Web uniquement |
+| **Personnalisation (Masquage barre de son, styles)** | ✅ **Oui** | ❌ Fixe | ❌ Fixe |
+
+---
+
+## ⚡ Téléchargement / Downloads
+
+Les paquets pré-compilés et signés sont disponibles directement dans la section [**Releases**](https://github.com/SatanMerde/BitChard/releases) :
+
 <div align="center">
 
-<h1><a id="download"></a>Téléchargement / Download</h1>
-
-Les versions APK compilées sont disponibles dans les [Releases du dépôt](https://github.com/SatanMerde/BitChard/releases) :
-
-- **`BitChard-universal-debug.apk`** : Compatible avec tous les appareils Android (téléphones, tablettes, émulateurs).
-- **`BitChard-arm64-v8a-debug.apk`** : Version optimisée pour les smartphones 64-bit récents.
+| Plateforme | Fichier / Format | Description |
+|---|---|---|
+| **Android (Recommandé)** | [`BitChard-arm64-v8a-debug.apk`](https://github.com/SatanMerde/BitChard/releases) | Version optimisée pour 95% des smartphones récents (~67 MB) |
+| **Android (Universel)** | [`BitChard-universal-debug.apk`](https://github.com/SatanMerde/BitChard/releases) | Compatible avec tous les téléphones et émulateurs (~171 MB) |
+| **Windows** | [`BitChard-Setup.exe`](https://github.com/SatanMerde/BitChard/releases) / `.msi` | Installateur Windows avec support Mica / Acrylic |
+| **Linux** | [`BitChard.AppImage`](https://github.com/SatanMerde/BitChard/releases) / `.deb` / `.rpm` | Exécutable autonome tous systèmes Linux avec MPRIS |
+| **macOS** | [`BitChard.dmg`](https://github.com/SatanMerde/BitChard/releases) | Image disque pour Apple Silicon & Intel Mac |
+| **WearOS** | [`BitChardWear.apk`](https://github.com/SatanMerde/BitChard/releases) | Application montre connectée WearOS |
 
 </div>
 
 ---
 
+## 🛠️ Compilation depuis les sources / Building
+
+### Prérequis
+- **JDK 17** ou supérieur (ex: Eclipse Temurin 17 / 21)
+- **Android SDK** (API 34/35 configurée)
+- **Git**
+
+```bash
+# 1. Cloner le dépôt
+git clone https://github.com/SatanMerde/BitChard.git
+cd BitChard
+
+# 2. Compiler l'APK Android (Debug Dev)
+./gradlew :app:assembleDevDebug
+
+# 3. Compiler l'application Desktop pour votre système actuel
+./gradlew :desktopApp:packageDistributionForCurrentOS
+```
+
+Les fichiers générés se trouveront dans :
+- Android : `app/build/outputs/apk/dev/debug/`
+- Desktop : `desktopApp/build/compose/binaries/main/`
+
+---
+
+## 🔒 Confidentialité & Légalité
+
+- **Zéro pistage** : Aucune donnée de navigation, écoute ou compte n'est collectée par BitChard.
+- **Clés API privées** : Toutes les clés configurées pour l'IA (Gemini, Claude, OpenAI) restent stockées en local sur votre appareil.
+- **Licence** : Ce logiciel est distribué sous licence [GNU General Public License v3.0 (GPLv3)](LICENSE).
+- **Avertissement légal** : BitChard est un projet indépendant et n'est ni affilié, ni approuvé par Google LLC, YouTube Music ou Spotify AB.
+
+---
+
 <div align="center">
 
-<h1><a id="license"></a>Licence</h1>
+<b>Développé avec passion par <a href="https://github.com/SatanMerde">SatanMerde</a></b><br/>
+*Basé sur le travail originel de Kushagra Singh et la communauté open-source.*
 
-BitChard est distribué sous licence **GNU General Public License v3.0 (GPLv3)**. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
+<br/>
+
+<a href="#bitchard">▲ Retour en haut</a>
 
 </div>
