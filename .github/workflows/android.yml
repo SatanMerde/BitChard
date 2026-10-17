@@ -72,7 +72,7 @@ jobs:
         echo "version=${FULL_VERSION}" >> $GITHUB_OUTPUT
 
     - name: Build Signed Prod Release APK
-      run: ./gradlew assembleProdRelease
+      run: ./gradlew :app:assembleProdRelease :wearos:assembleProdRelease
 
     - name: Prepare Release APKs
       run: |
@@ -104,8 +104,9 @@ jobs:
       uses: softprops/action-gh-release@v2
       if: github.ref == 'refs/heads/main'
       with:
-        tag_name: latest
+        tag_name: "v${{ steps.get_version.outputs.version }}"
         name: "BitChard v${{ steps.get_version.outputs.version }}"
+        make_latest: true
         draft: false
         prerelease: false
         files: release-apks/*.apk

@@ -67,6 +67,13 @@ object AppUpdateChecker {
     private val _download = MutableStateFlow<DownloadState>(DownloadState.Idle)
     val download = _download.asStateFlow()
 
+    private val appBuildTime: Long by lazy {
+        runCatching {
+            val field = BuildConfig::class.java.getField("BUILD_TIME")
+            field.getLong(null)
+        }.getOrDefault(0L)
+    }
+
     /** Set from the UI thread when the user cancels; polled between network reads. */
     @Volatile
     private var downloadCancelled = false
@@ -104,8 +111,8 @@ object AppUpdateChecker {
         val isSemanticNewer = versionCandidate != "latest" && isNewer(versionCandidate, BuildConfig.VERSION_NAME)
         val publishedMillis = parseIsoMillis(publishedAt)
         // If release tag is 'latest' or versions compare equal, verify if GitHub release was published after current APK build
-        val isTimestampNewer = publishedMillis > 0L && BuildConfig.BUILD_TIME > 0L &&
-            publishedMillis > (BuildConfig.BUILD_TIME + 60_000L)
+        val isTimestampNewer = publishedMillis > 0L && appBuildTime > 0L &&
+            publishedMillis > (appBuildTime + 60_000L)
 
         val isUpdateAvailable = isSemanticNewer || isTimestampNewer
 
