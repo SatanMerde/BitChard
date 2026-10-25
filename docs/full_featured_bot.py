@@ -1,8 +1,10 @@
 """
-Bot Discord SatanMerde - Système de Sécurité Anti-Raid, Auto-Role, Cartes de Bienvenue et Tickets
+SatanMerde Discord Bot — Anti-Raid Security, Auto-Role, Bilingual Welcoming, Ticket System & Slash Commands
+Strictly for BitChard & D-MoniakPatches (Educational Open-Source Research)
 """
 
 import sys
+import os
 import asyncio
 import time
 from collections import defaultdict
@@ -18,30 +20,29 @@ except Exception:
 intents = discord.Intents.default()
 intents.guilds = True
 
-# Message content et members peuvent être indisponibles si non cochés dans Developer Portal.
-# Le bot gère les deux cas gracieusement.
-
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
 
-import os
 TOKEN = os.environ.get("DISCORD_BOT_TOKEN", "")
 
-# Anti-Raid Memory : Suivi des arrivées et messages
+# Anti-Raid In-Memory Tracking
 recent_joins = []
 user_message_times = defaultdict(list)
 RAID_WINDOW_SECONDS = 10
-RAID_JOIN_THRESHOLD = 5 # Plus de 5 personnes en 10s = Alerte raid
+RAID_JOIN_THRESHOLD = 5 # 5+ joins within 10s triggers anti-raid alert
 
-# ---------------- VUES INTERACTIVES : TICKETS ----------------
+# ---------------- INTERACTIVE VIEWS : TICKETS ----------------
 
 class TicketCloseView(View):
     def __init__(self):
         super().__init__(timeout=None)
 
-    @discord.ui.button(label="Fermer le ticket / Close", style=ButtonStyle.danger, emoji="🔒", custom_id="close_ticket_btn")
+    @discord.ui.button(label="Fermer le ticket / Close Ticket", style=ButtonStyle.danger, emoji="🔒", custom_id="close_ticket_btn")
     async def close_ticket(self, interaction: discord.Interaction, button: Button):
-        await interaction.response.send_message("🔒 Fermeture du ticket dans 5 secondes...", ephemeral=True)
+        await interaction.response.send_message(
+            "🔒 **Fermeture du ticket dans 5 secondes... / Closing ticket in 5 seconds...**",
+            ephemeral=True
+        )
         await asyncio.sleep(5)
         try:
             await interaction.channel.delete()
@@ -57,10 +58,13 @@ class TicketLauncher(View):
         guild = interaction.guild
         user = interaction.user
         
-        # Vérifier si un ticket existe déjà pour cet utilisateur
+        # Check if ticket already exists
         existing = discord.utils.get(guild.channels, name=f"ticket-{user.name.lower()}")
         if existing:
-            await interaction.response.send_message(f"⚠️ Vous avez déjà un ticket ouvert : {existing.mention}", ephemeral=True)
+            await interaction.response.send_message(
+                f"⚠️ Vous avez déjà un ticket ouvert / You already have an open ticket: {existing.mention}",
+                ephemeral=True
+            )
             return
 
         cat = interaction.channel.category
@@ -70,7 +74,6 @@ class TicketLauncher(View):
             guild.me: discord.PermissionOverwrite(read_messages=True, send_messages=True, administrator=True)
         }
 
-        # Ajouter les modérateurs s'il y a un rôle Maintainer ou Fondateur
         admin_role = discord.utils.get(guild.roles, name="👑 Fondateur")
         if admin_role:
             overwrites[admin_role] = discord.PermissionOverwrite(read_messages=True, send_messages=True)
@@ -84,135 +87,230 @@ class TicketLauncher(View):
         embed = Embed(
             title=f"🎫 Support Ticket — {user.name}",
             description=(
-                f"Bonjour {user.mention} !\n\n"
-                "Décrivez votre problème ou votre demande en détail (modèle d'appareil, logs, question sur BitChard ou D-MoniakPatches).\n"
-                "Un modérateur vous répondra dès que possible.\n\n"
-                "Cliquez sur le bouton ci-dessous pour fermer le ticket une fois résolu."
+                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"🇬🇧 **Welcome {user.mention} !**\n"
+                f"Please describe your question or issue in detail (Device model, Android version, logs or context regarding **BitChard** or **D-MoniakPatches**).\n"
+                f"A maintainer will assist you as soon as possible.\n\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"🇫🇷 **Bonjour {user.mention} !**\n"
+                f"Merci de détailler votre demande ou problème (modèle, version Android, logs pour **BitChard** ou **D-MoniakPatches**).\n"
+                f"Un modérateur vous répondra dès que possible.\n\n"
+                f"🔒 *Click below to close this ticket / Cliquez ci-dessous pour fermer ce ticket.*"
             ),
             color=Colour.from_rgb(0, 188, 212)
         )
         await ticket_ch.send(content=f"{user.mention}", embed=embed, view=TicketCloseView())
-        await interaction.response.send_message(f"✅ Votre ticket a été créé : {ticket_ch.mention}", ephemeral=True)
+        await interaction.response.send_message(
+            f"✅ Ticket créé avec succès / Ticket created successfully: {ticket_ch.mention}",
+            ephemeral=True
+        )
 
-# ---------------- SLASH COMMANDS ----------------
+# ---------------- SLASH COMMANDS (100% BILINGUAL) ----------------
 
-@tree.command(name="help", description="Affiche toutes les commandes / Display commands")
+@tree.command(name="help", description="Displays all bot commands / Affiche les commandes du bot")
 async def slash_help(interaction: discord.Interaction):
     embed = Embed(
-        title="🤖 SatanMerde Bot — Commandes",
+        title="🤖 SatanMerde Projects — Commands / Commandes",
+        description="Official commands for BitChard and D-MoniakPatches community.",
         color=Colour.from_rgb(229, 57, 53)
     )
     embed.add_field(
-        name="🎵 BitChard & 🦈 D-Moniak",
-        value="`/bitchard` : Infos complètes, nouveautés & APKs\n`/dmoniak` : Patchs Morphe / ReVanced\n`/repos` : Liens officiels GitHub\n`/legal` : Mentions légales et cadre d'utilisation",
+        name="🇬🇧 English Commands",
+        value=(
+            "`/bitchard` : App details, v1.8.7 changelog & APK download\n"
+            "`/dmoniak` : Morphe / ReVanced patch suite details\n"
+            "`/repos` : Official GitHub repositories & releases\n"
+            "`/legal` : Educational framework & terms of use\n"
+            "`/serverinfo` : Server security status and stats"
+        ),
         inline=False
     )
     embed.add_field(
-        name="🛡️ Sécurité & Modération (Staff)",
-        value="`/clear <nombre>` : Nettoie les messages\n`/setup-ticket-panel` : Publie le panneau de tickets interactif\n`/serverinfo` : Vérification et santé du serveur",
+        name="🇫🇷 Commandes en Français",
+        value=(
+            "`/bitchard` : Infos détaillées, v1.8.7 & téléchargements\n"
+            "`/dmoniak` : Patchs Morphe / ReVanced & documentation\n"
+            "`/repos` : Dépôts officiels GitHub & versions\n"
+            "`/legal` : Mentions légales et cadre d'utilisation\n"
+            "`/serverinfo` : État de sécurité et membres"
+        ),
+        inline=False
+    )
+    embed.add_field(
+        name="🛡️ Staff Moderation",
+        value="`/clear <amount>` : Purge messages\n`/setup-ticket-panel` : Deploy ticket launcher button",
         inline=False
     )
     await interaction.response.send_message(embed=embed)
 
-@tree.command(name="setup-ticket-panel", description="Publie le panneau d'ouverture de tickets dans le salon tickets (Staff)")
-@app_commands.checks.has_permissions(administrator=True)
-async def slash_setup_ticket(interaction: discord.Interaction):
-    embed = Embed(
-        title="🎫 Support Privé & Billetterie / Private Support Tickets",
-        description=(
-            "Besoin d'une aide technique privée, de signaler un problème d'APK ou de contacter le staff ?\n\n"
-            "Cliquez sur le bouton ci-dessous pour ouvrir un salon de discussion privé avec l'équipe !\n\n"
-            "Need private assistance or report a private issue? Click below to open a ticket!"
-        ),
-        color=Colour.from_rgb(0, 188, 212)
-    )
-    await interaction.channel.send(embed=embed, view=TicketLauncher())
-    await interaction.response.send_message("✅ Panneau de tickets déployé !", ephemeral=True)
-
-@tree.command(name="bitchard", description="Informations et téléchargement de BitChard (v1.8.7)")
+@tree.command(name="bitchard", description="BitChard overview, features and download links (v1.8.7)")
 async def slash_bitchard(interaction: discord.Interaction):
     embed = Embed(
-        title="🎵 BitChard — Le Client YouTube Music Ultime",
+        title="🎵 BitChard — The Ultimate YouTube Music Client",
         description=(
-            "**BitChard** transforme l'expérience audio sur Android, Wear OS, TV et PC :\n\n"
-            "• 🤖 **BitG AI DJ** : DJ personnel interactif avec voix synthétique en temps réel.\n"
-            "• 🎤 **Paroles synchronisées par syllabe** : Intégration Apple Music / Musixmatch.\n"
-            "• 🎧 **Audio Haute Définition** : Flux FLAC / ALAC 24-bit bit-perfect.\n"
-            "• 🔄 **Import de compte universel** : Dialogue automatique à la connexion (Spotify, Deezer, Apple Music, YouTube Music).\n\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "🇬🇧 **ENGLISH**\n"
+            "**BitChard** revolutionizes audio on Android, Wear OS, Android Auto, TV and PC :\n\n"
+            "• 🔄 **Universal Account Import** : Instant prompt on connecting Spotify, Deezer, Apple Music, or YouTube Music.\n"
+            "• 🤖 **BitG AI DJ** : Real-time synthesized AI DJ transitions, track announcements, and voice commentary.\n"
+            "• 🎤 **Syllable-Synced Lyrics** : Apple Music / Musixmatch integration with smooth karaoke view.\n"
+            "• 🎧 **Lossless Hi-Fi Audio** : 24-bit bit-perfect FLAC / ALAC playback.\n\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "🇫🇷 **FRANÇAIS**\n"
+            "**BitChard** réinvente l'expérience musicale sur Android, Wear OS, TV et PC :\n\n"
+            "• 🔄 **Import Universel** : Dialogue automatique à la connexion (Spotify, Deezer, Apple Music, YT Music).\n"
+            "• 🤖 **BitG AI DJ** : DJ interactif vocal en direct et transitions personnalisées.\n"
+            "• 🎤 **Paroles par syllabe** : Rendu karaoké ultra-fluide.\n"
+            "• 🎧 **Audio Hi-Fi Lossless** : Flux 24-bit bit-perfect.\n\n"
             "🔗 **GitHub** : https://github.com/SatanMerde/BitChard\n"
-            "📦 **Releases & APKs** : https://github.com/SatanMerde/BitChard/releases"
+            "📦 **Releases** : https://github.com/SatanMerde/BitChard/releases"
         ),
         color=Colour.from_rgb(255, 23, 68)
     )
     await interaction.response.send_message(embed=embed)
 
-@tree.command(name="dmoniak", description="Informations sur D-MoniakPatches pour Morphe / ReVanced")
+@tree.command(name="dmoniak", description="D-MoniakPatches overview for Morphe & ReVanced")
 async def slash_dmoniak(interaction: discord.Interaction):
     embed = Embed(
-        title="🦈 D-MoniakPatches — Framework Morphe / ReVanced",
+        title="🦈 D-MoniakPatches — Morphe / ReVanced Framework",
         description=(
-            "Suite de patchs tiers pour le framework Morphe.\n\n"
-            "• Personnalisations avancées, intégrations et correctifs pour applications Android.\n\n"
-            "🔗 **GitHub** : https://github.com/SatanMerde/D-moniakPatches"
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "🇬🇧 **ENGLISH**\n"
+            "Modular third-party bytecode patches for Android apps built on top of Morphe :\n\n"
+            "• Smali bytecode hooks, layout enhancements, and clean integration.\n"
+            "• Optimized for high stability, fast compilation, and broad compatibility.\n\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "🇫🇷 **FRANÇAIS**\n"
+            "Suite de patchs tiers modulaires pour applications Android via le framework Morphe :\n\n"
+            "• Hooks bytecode smali, améliorations d'interface et intégration propre.\n"
+            "• Optimisé pour une stabilité maximale et une compilation rapide.\n\n"
+            "🔗 **GitHub** : https://github.com/SatanMerde/D-moniakPatches\n"
+            "📦 **Releases** : https://github.com/SatanMerde/D-moniakPatches/releases"
         ),
         color=Colour.from_rgb(41, 121, 255)
     )
     await interaction.response.send_message(embed=embed)
 
-@tree.command(name="clear", description="Supprime un nombre de messages récents (Staff)")
+@tree.command(name="repos", description="Official GitHub repositories / Dépôts GitHub officiels")
+async def slash_repos(interaction: discord.Interaction):
+    embed = Embed(
+        title="🔗 Official Repositories / Dépôts Officiels",
+        description=(
+            "• 🎵 **BitChard** : https://github.com/SatanMerde/BitChard\n"
+            "  *Client YouTube Music avec DJ IA BitG, paroles par syllabe et audio Hi-Fi*\n\n"
+            "• 🦈 **D-MoniakPatches** : https://github.com/SatanMerde/D-moniakPatches\n"
+            "  *Suite de patchs modulaires pour le framework Morphe & ReVanced*"
+        ),
+        color=Colour.from_rgb(33, 150, 243)
+    )
+    await interaction.response.send_message(embed=embed)
+
+@tree.command(name="legal", description="Legal disclaimer and educational framework / Cadre légal")
+async def slash_legal(interaction: discord.Interaction):
+    embed = Embed(
+        title="⚖️ Legal Notice & Terms of Use / Cadre Légal",
+        description=(
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "🇬🇧 **ENGLISH**\n"
+            "• **Educational Research** : BitChard and D-MoniakPatches are developed strictly for research, technical analysis, and interoperability.\n"
+            "• **Trademarks** : YouTube Music, Spotify, Deezer, Apple Music, and Google are registered trademarks of their respective owners.\n"
+            "• **No Piracy** : This community strictly prohibits copyright infringement, key generation, or illicit bypasses.\n\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "🇫🇷 **FRANÇAIS**\n"
+            "• **Finalité Éducative** : Les projets sont conçus à des fins de rétro-ingénierie éducative et d'interopérabilité.\n"
+            "• **Marques** : Toutes les marques citées appartiennent à leurs propriétaires respectifs.\n"
+            "• **Tolérance Zéro Piratage** : Aucun contournement illicite ou piratage n'est toléré sur ce serveur."
+        ),
+        color=Colour.from_rgb(255, 152, 0)
+    )
+    await interaction.response.send_message(embed=embed)
+
+@tree.command(name="serverinfo", description="Server health, anti-raid status, and statistics")
+async def slash_serverinfo(interaction: discord.Interaction):
+    guild = interaction.guild
+    embed = Embed(
+        title=f"📊 Server Status / État du Serveur : {guild.name}",
+        color=Colour.from_rgb(76, 175, 80)
+    )
+    embed.add_field(name="👑 Owner / Propriétaire", value=f"<@{guild.owner_id}>", inline=True)
+    embed.add_field(name="👥 Members / Membres", value=str(guild.member_count), inline=True)
+    embed.add_field(
+        name="🛡️ Anti-Raid Security",
+        value=f"Verification: `{guild.verification_level.name.upper()}` (Verified E-mail required)",
+        inline=False
+    )
+    embed.add_field(name="🔍 Content Filter", value="Active for all members", inline=True)
+    embed.add_field(name="🎫 Ticket Engine", value="Active & Operational", inline=True)
+    await interaction.response.send_message(embed=embed)
+
+@tree.command(name="clear", description="Purges a specified number of messages (Staff)")
 @app_commands.checks.has_permissions(manage_messages=True)
 async def slash_clear(interaction: discord.Interaction, amount: int = 5):
     amount = min(max(1, amount), 100)
     await interaction.response.defer(ephemeral=True)
     deleted = await interaction.channel.purge(limit=amount)
-    await interaction.followup.send(f"🧹 **{len(deleted)} messages supprimés.**", ephemeral=True)
-
-@tree.command(name="serverinfo", description="Vérifie la santé et la configuration du serveur")
-async def slash_serverinfo(interaction: discord.Interaction):
-    guild = interaction.guild
-    embed = Embed(
-        title=f"📊 État du Serveur : {guild.name}",
-        color=Colour.from_rgb(76, 175, 80)
+    await interaction.followup.send(
+        f"🧹 **{len(deleted)} messages deleted / supprimés.**",
+        ephemeral=True
     )
-    embed.add_field(name="👑 Propriétaire", value=f"<@{guild.owner_id}>", inline=True)
-    embed.add_field(name="👥 Membres", value=str(guild.member_count), inline=True)
-    embed.add_field(name="🛡️ Sécurité Anti-Raid", value=f"Niveau : `{guild.verification_level.name.upper()}` (E-mail vérifié)", inline=False)
-    embed.add_field(name="🔍 Filtre Contenu", value="Actif sur tous les membres", inline=True)
-    embed.add_field(name="🎫 Système Tickets", value="Actif", inline=True)
-    await interaction.response.send_message(embed=embed)
+
+@tree.command(name="setup-ticket-panel", description="Deploys the interactive ticket panel (Staff)")
+@app_commands.checks.has_permissions(administrator=True)
+async def slash_setup_ticket(interaction: discord.Interaction):
+    embed = Embed(
+        title="🎫 Private Support Tickets / Billetterie Privée",
+        description=(
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "🇬🇧 **ENGLISH**\n"
+            "Need private technical support or want to report a security issue?\n"
+            "Click below to open a private ticket channel with the team!\n\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "🇫🇷 **FRANÇAIS**\n"
+            "Besoin d'une aide technique privée ou d'un signalement de sécurité ?\n"
+            "Cliquez ci-dessous pour ouvrir un salon privé avec l'équipe !"
+        ),
+        color=Colour.from_rgb(0, 188, 212)
+    )
+    await interaction.channel.send(embed=embed, view=TicketLauncher())
+    await interaction.response.send_message("✅ Panneau de tickets déployé / Ticket panel deployed!", ephemeral=True)
 
 # ---------------- ON READY ----------------
 
 @client.event
 async def on_ready():
-    print(f"[✓] Bot connecté et opérationnel : {client.user}")
+    print(f"[✓] Bot online: {client.user}")
     
-    # Synchroniser les commandes slash
+    # Register persistent interactive views
+    client.add_view(TicketLauncher())
+    client.add_view(TicketCloseView())
+
+    # Sync slash commands
     for guild in client.guilds:
         tree.copy_global_to(guild=guild)
         await tree.sync(guild=guild)
-        print(f"  [+] Commandes slash synchronisées sur : {guild.name}")
+        print(f"  [+] Slash commands synced to: {guild.name}")
 
-        # Déployer automatiquement le panneau de tickets dans 🎫・tickets si vide
-        ticket_ch = discord.utils.get(guild.channels, name="🎫・tickets")
+        # Auto-deploy ticket panel in #🎫・open-a-ticket if needed
+        ticket_ch = discord.utils.get(guild.channels, name="🎫・open-a-ticket")
         if ticket_ch:
             history = [msg async for msg in ticket_ch.history(limit=5)]
             if not history:
                 embed = Embed(
-                    title="🎫 Support Privé & Billetterie / Private Support Tickets",
+                    title="🎫 Private Support Tickets / Billetterie Privée",
                     description=(
-                        "Besoin d'une aide technique privée, de signaler un problème d'APK ou de contacter le staff ?\n\n"
-                        "Cliquez sur le bouton ci-dessous pour ouvrir un salon de discussion privé avec l'équipe !\n\n"
-                        "--- \n"
-                        "Need private assistance or report a private issue? Click below to open a ticket!"
+                        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                        "🇬🇧 **ENGLISH**\n"
+                        "Need private technical support or want to report a security issue?\n"
+                        "Click below to open a private ticket channel with the team!\n\n"
+                        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                        "🇫🇷 **FRANÇAIS**\n"
+                        "Besoin d'une aide technique privée ou d'un signalement de sécurité ?\n"
+                        "Cliquez ci-dessous pour ouvrir un salon privé avec l'équipe !"
                     ),
                     color=Colour.from_rgb(0, 188, 212)
                 )
                 await ticket_ch.send(embed=embed, view=TicketLauncher())
-                print("  [+] Panneau de tickets automatiquement déployé dans 🎫・tickets !")
-
-    client.add_view(TicketLauncher())
-    client.add_view(TicketCloseView())
+                print("  [+] Ticket launcher deployed in #🎫・open-a-ticket!")
 
     await client.change_presence(
         activity=discord.Activity(
@@ -220,7 +318,7 @@ async def on_ready():
             name="BitChard & D-Moniak | /help"
         )
     )
-    print("[✓] Système Anti-Raid, Tickets et Commandes 100% actifs !")
+    print("[✓] Fully operational bilingual bot running!")
 
 if __name__ == "__main__":
     client.run(TOKEN)
