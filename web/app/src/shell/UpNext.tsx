@@ -6,8 +6,12 @@ import { Artwork } from '@/components/music/Artwork';
 import { formatDuration } from '@/components/music/links';
 import { autoplaySectionStart, upcomingUserQueueIndices, type QueueEntry } from '@/playback/queue/timeline';
 import { CROSSFADE_CHOICES, usePlayer } from '@/state/player';
-import styles from './UpNext.module.css';
 
+// The panel's square buttons: AutoPlay (the key colour when on) and the options menu.
+const square = 'grid size-7 place-items-center rounded-[6px] text-secondary hover:bg-quinary aria-pressed:text-key';
+const list = 'flex flex-col';
+
+/** A row: 55px, [art] 40px [title] 1fr [right] 40px, gap 12px, radius 6px; a key-colour line where a drag would drop. */
 function Row({
   entry,
   at,
@@ -29,7 +33,7 @@ function Row({
 
   return (
     <li
-      className={styles.row}
+      className="group/row relative grid h-[55px] grid-cols-[40px_minmax(0,1fr)_40px] items-center gap-x-3 rounded-row px-2.5 hover:bg-quinary data-dragging:opacity-40 data-over:before:absolute data-over:before:inset-x-2.5 data-over:before:-top-px data-over:before:border-t-2 data-over:before:border-t-key"
       data-over={over || undefined}
       data-dragging={dragging || undefined}
       draggable
@@ -49,20 +53,25 @@ function Row({
       }}
       onDoubleClick={() => jumpTo(at)}
     >
-      <div className={styles.art}>
+      <div className="relative size-10">
         <Artwork src={track.thumbnail} displayWidth={40} radius="var(--radius-artwork-small)" />
-        <button className={styles.remove} aria-label={`Remove ${track.title}`} onClick={() => removeAt(at)}>
+        {/* The ✕ over the artwork's top-left, on hover. */}
+        <button
+          className="absolute -top-1.5 -left-1.5 hidden size-[22px] place-items-center rounded-full bg-thick-material text-primary shadow-[0_1px_3px_#0004] [backdrop-filter:blur(10px)] group-hover/row:grid"
+          aria-label={`Remove ${track.title}`}
+          onClick={() => removeAt(at)}
+        >
           <X size={12} strokeWidth={3} />
         </button>
       </div>
-      <button className={styles.text} onClick={() => jumpTo(at)} aria-label={`Play ${track.title}`}>
-        <span className={styles.title}>{track.title}</span>
-        <span className={styles.subtitle}>{track.artists.map((a) => a.name).join(', ')}</span>
+      <button className="flex min-w-0 flex-col text-start" onClick={() => jumpTo(at)} aria-label={`Play ${track.title}`}>
+        <span className="truncate type-body text-primary">{track.title}</span>
+        <span className="truncate type-body text-secondary">{track.artists.map((a) => a.name).join(', ')}</span>
       </button>
-      <div className={styles.end}>
-        <span className={styles.duration}>{formatDuration(track.durationSec)}</span>
+      <div className="relative grid items-center justify-items-end">
+        <span className="type-body tabular-nums text-secondary group-hover/row:invisible group-has-[[data-open]]/row:invisible">{formatDuration(track.durationSec)}</span>
         <button
-          className={styles.more}
+          className="absolute inset-y-0 right-0 my-auto hidden size-7 place-items-center rounded-full text-key group-hover/row:grid data-open:grid"
           aria-label={`More options for ${track.title}`}
           aria-haspopup="menu"
           data-open={anchor !== null || undefined}
@@ -134,15 +143,15 @@ export function UpNext() {
 
   return (
     <>
-      <div className={styles.header}>
-        <h3 className={styles.heading}>Up Next</h3>
+      <div className="flex items-center gap-1.5 px-5 pt-[23px] pb-3">
+        <h3 className="flex-1 type-title-2-emphasized">Up Next</h3>
         {canClear && (
-          <button className={styles.clear} onClick={clearUpNext}>
+          <button className="mr-1 type-title-3 text-key" onClick={clearUpNext}>
             Clear
           </button>
         )}
         <button
-          className={styles.autoplay}
+          className={square}
           aria-label="AutoPlay"
           title="AutoPlay: keep playing similar music when the queue ends"
           aria-pressed={autoplay}
@@ -150,7 +159,7 @@ export function UpNext() {
         >
           <InfinityIcon size={16} strokeWidth={2.4} />
         </button>
-        <button className={styles.options} aria-label="Playback options" aria-haspopup="menu" onClick={(e) => setAnchor(e.currentTarget)}>
+        <button className={square} aria-label="Playback options" aria-haspopup="menu" onClick={(e) => setAnchor(e.currentTarget)}>
           <MoreHorizontal size={16} />
         </button>
         {anchor && (
@@ -164,11 +173,11 @@ export function UpNext() {
           </Menu>
         )}
       </div>
-      {playingFrom && <p className={styles.from}>Playing from {playingFrom}</p>}
+      {playingFrom && <p className="truncate px-5 pb-2 type-callout text-secondary">Playing from {playingFrom}</p>}
 
       {upcoming.length === 0 ? (
-        <div className={styles.empty}>
-          <p className={styles.emptyTitle}>Nothing in Up Next</p>
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 pb-20 text-center type-callout text-secondary">
+          <p className="type-callout-emphasized">Nothing in Up Next</p>
           <p>
             {autoplay && repeat === 'off' && index >= 0
               ? 'AutoPlay is finding similar music.'
@@ -176,15 +185,15 @@ export function UpNext() {
           </p>
         </div>
       ) : (
-        <div className={styles.scroll}>
-          <ol className={styles.list}>{rows(beforeAutoplay)}</ol>
+        <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-[120px] [scrollbar-width:thin]">
+          <ol className={list}>{rows(beforeAutoplay)}</ol>
           {afterAutoplay.length > 0 && (
             <>
-              <h4 className={styles.section}>
+              <h4 className="mx-2.5 mt-[18px] mb-0.5 flex items-center gap-1.5 type-callout-emphasized">
                 <InfinityIcon size={14} strokeWidth={2.4} /> AutoPlay
               </h4>
-              <p className={styles.sectionDetail}>Similar music, from YouTube Music’s radio.</p>
-              <ol className={styles.list}>{rows(afterAutoplay)}</ol>
+              <p className="mx-2.5 mb-2 type-callout text-secondary">Similar music, from YouTube Music’s radio.</p>
+              <ol className={list}>{rows(afterAutoplay)}</ol>
             </>
           )}
         </div>

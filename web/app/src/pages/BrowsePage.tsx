@@ -6,7 +6,7 @@ import { EmptyState, LoadError, NeedsExtension } from '@/components/music/States
 import { TrackList } from '@/components/music/TrackList';
 import { useBrowse, useYouTubeReady } from '@/data/music/queries';
 import { PlainSkeleton } from '@/skeletons/PageSkeletons';
-import styles from './BrowsePage.module.css';
+import { seeAllGrid, seeAllTracks } from './pageStyles';
 
 /** See All, moods and genres: a grid, a song list, or shelves, whichever the page is. */
 export default function BrowsePage() {
@@ -27,7 +27,7 @@ export default function BrowsePage() {
       <PageHeader title={title} />
       {empty && <EmptyState title="Nothing here yet" />}
       {page.grid.length > 0 && (
-        <ul className={styles.grid} data-wide={page.grid.every((i) => i.wide) || undefined}>
+        <ul className={seeAllGrid} data-wide={page.grid.every((i) => i.wide) || undefined}>
           {page.grid.map((item, i) => (
             <li key={`${item.id}-${i}`}>
               {item.kind === 'artist' ? (
@@ -42,7 +42,7 @@ export default function BrowsePage() {
         </ul>
       )}
       {page.tracks.length > 0 && (
-        <div className={styles.tracks}>
+        <div className={seeAllTracks}>
           <TrackList tracks={page.tracks} variant="playlist" source={{ title, type: 'other', id: browseId }} />
         </div>
       )}

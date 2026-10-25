@@ -13,16 +13,22 @@ export const extensionQueryKey = ['extension', 'detect'] as const;
 /** Re-pings after a miss: an MV3 service worker waking from sleep can miss the first one. */
 const RECHECKS = 4;
 const RECHECK_MS = 1500;
+/** After those, a still-missing extension is polled slowly, so one that wakes late (or is installed meanwhile) is picked up without a reload. */
+const SLOW_RECHECK_MS = 5000;
 
 /**
  * One ping. When the extension was already known, a miss gets a second, more
- * patient ping before it counts: a worker that fell asleep while the tab was
- * in the background shouldn't flip the whole site to "not installed".
+ * patient ping, and if that misses too the known extension is kept: a worker
+ * that fell asleep or restarted must not flip the site to "not installed" and
+ * strand everything that reads the bridge (history reporting, lyrics) until a
+ * reload. A bridge is only a function over chrome.runtime, so it recovers on
+ * its own when the worker is back; a removed extension fails each call instead.
  */
 async function detect(): Promise<DetectedExtension | null> {
+  const known = queryClient.getQueryData<DetectedExtension | null>(extensionQueryKey) ?? null;
   const found = await detectExtension({ chromiumExtensionId: config.chromiumExtensionId });
-  if (found || !queryClient.getQueryData(extensionQueryKey)) return found;
-  return detectExtension({ chromiumExtensionId: config.chromiumExtensionId, timeoutMs: 4000 });
+  if (found || !known) return found;
+  return (await detectExtension({ chromiumExtensionId: config.chromiumExtensionId, timeoutMs: 4000 })) ?? known;
 }
 
 /**
@@ -41,7 +47,8 @@ export function useExtension(): ExtensionStatus {
     // Re-pinged when the tab comes back, so an extension updated or reloaded
     // meanwhile reports its new version (useExtensionUpdate).
     refetchOnWindowFocus: true,
-    refetchInterval: (q) => (q.state.data === null && q.state.dataUpdateCount <= RECHECKS ? RECHECK_MS : false),
+    refetchInterval: (q) =>
+      q.state.data === null ? (q.state.dataUpdateCount <= RECHECKS ? RECHECK_MS : SLOW_RECHECK_MS) : false,
   });
   if (query.isPending) return { state: 'checking' };
   if (!query.data) return { state: 'missing' };

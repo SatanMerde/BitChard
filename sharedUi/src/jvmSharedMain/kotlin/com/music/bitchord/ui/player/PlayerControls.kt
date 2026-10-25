@@ -61,8 +61,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.VolumeDown
 import androidx.compose.material.icons.automirrored.rounded.VolumeUp
+import androidx.compose.material.icons.rounded.CastConnected
+import androidx.compose.material.icons.rounded.DirectionsCar
 import androidx.compose.material.icons.rounded.Headphones
 import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.Tv
+import androidx.compose.material.icons.rounded.Watch
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -90,6 +94,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.vectorResource
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -700,8 +705,8 @@ internal fun PlayerActionRow(
  *
  * [active] brightens the disc rather than only the glyph: this sits on album
  * artwork of any colour, and a white icon on a white-ish sleeve has no tint
- * change left to make. The filled heart carries the state as a shape too —
- * see [BitChordIcons.HeartFilled].
+ * change left to make. The filled star carries the state as a shape too —
+ * see [BitChordIcons.StarFilled].
  */
 @Composable
 internal fun CircleGlyph(
@@ -824,10 +829,19 @@ private const val PILL_SLIDE_MS = 320
  *
  * Headphones is a tall, narrow glyph and Person a taller, narrower one, so
  * drawn at the same nominal size the second reads as the bigger of the two.
- * These are the numbers at which they look like a matched pair.
+ * These are the numbers at which they look like a matched pair. Every other
+ * output glyph is fitted to the box Headphones fills at that size — 75% of it
+ * tall, at most 85% wide — either in its own drawable or by
+ * [PILL_OUTPUT_WIDE_SIZE] / [PILL_OUTPUT_TALL_SIZE] for the Material ones.
  */
-private val PILL_HEADPHONES_SIZE = 23.dp
+private val PILL_OUTPUT_SIZE = 23.dp
 private val PILL_PARTY_SIZE = 22.dp
+
+/** Cast and Tv run 92% of their box wide; at 23dp they read bigger than the rest. */
+private val PILL_OUTPUT_WIDE_SIZE = 21.dp
+
+/** Watch is drawn the full height of its box. */
+private val PILL_OUTPUT_TALL_SIZE = 17.dp
 
 /** What a segment's glyph is drawn at when it has no optical quirk to correct. */
 private val PILL_ICON_SIZE = 24.dp
@@ -879,8 +893,8 @@ private fun PillDivider() {
  * The two ends of "where is this playing": the output capsule.
  *
  * Both halves answer the same question and so belong to one control rather than
- * two glyphs that happen to sit side by side — headphones for which speaker the
- * sound leaves by, the party for which *people* it reaches.
+ * two glyphs that happen to sit side by side — the device the sound leaves by
+ * (see [rememberOutputGlyph]), the party for which *people* it reaches.
  *
  * Video vs audio-only used to live here as a third segment; it now lives in
  * the player's own three-dot menu, beside Revert to original and Upgrade
@@ -895,10 +909,11 @@ private fun OutputPartyPill(
     onOpenMembers: () -> Unit,
 ) {
     val badge = rememberPartyBadge()
+    val output = rememberOutputGlyph()
     Pill {
         PillSegment(
-            icon = Icons.Rounded.Headphones,
-            iconSize = PILL_HEADPHONES_SIZE,
+            icon = output.icon,
+            iconSize = output.size,
             contentDescription = stringResource(Res.string.audio_output),
             onClick = onOutput,
         )
@@ -926,6 +941,44 @@ private fun OutputPartyPill(
         )
     }
 }
+
+/**
+ * What the output segment shows: the thing the music is coming out of, the way
+ * Apple Music's AirPlay button does — the phone, buds, a speaker — rather than
+ * headphones whatever is actually playing it.
+ *
+ * Off-device first: while casting or on the watch, the phone's own route is
+ * not where anybody is listening.
+ */
+@Composable
+private fun rememberOutputGlyph(): OutputGlyph {
+    val cast by PlayerPlatform.host.castState.collectAsStateWithLifecycle()
+    val watch by PlayerPlatform.host.watchOutput.collectAsStateWithLifecycle()
+    val active = rememberAudioOutputs().firstOrNull { it.isActive }
+    return when {
+        cast.connectedName != null -> OutputGlyph(Icons.Rounded.CastConnected, PILL_OUTPUT_WIDE_SIZE)
+        watch.active -> OutputGlyph(Icons.Rounded.Watch, PILL_OUTPUT_TALL_SIZE)
+        else -> when (active?.kind) {
+            // No active row is the phone too — the caption under the pill
+            // says "This phone" in the same case.
+            null, AudioOutputKind.PHONE -> OutputGlyph(vectorResource(Res.drawable.ic_output_phone))
+            AudioOutputKind.BLUETOOTH -> when (active.form) {
+                BluetoothForm.BUDS -> OutputGlyph(vectorResource(Res.drawable.ic_output_buds))
+                BluetoothForm.SPEAKER -> OutputGlyph(vectorResource(Res.drawable.ic_output_speaker))
+                BluetoothForm.CAR -> OutputGlyph(Icons.Rounded.DirectionsCar)
+                // Headphones doubles as the neutral "some audio device" glyph:
+                // a device that won't say what it is gets that, not a guess.
+                BluetoothForm.HEADPHONES, BluetoothForm.UNKNOWN -> OutputGlyph(Icons.Rounded.Headphones)
+            }
+            AudioOutputKind.WIRED, AudioOutputKind.USB -> OutputGlyph(Icons.Rounded.Headphones)
+            AudioOutputKind.HDMI -> OutputGlyph(Icons.Rounded.Tv, PILL_OUTPUT_WIDE_SIZE)
+            AudioOutputKind.OTHER -> OutputGlyph(vectorResource(Res.drawable.ic_output_speaker))
+        }
+    }
+}
+
+/** An output glyph and the size that makes it match the others — see [PILL_OUTPUT_SIZE]. */
+private data class OutputGlyph(val icon: ImageVector, val size: Dp = PILL_OUTPUT_SIZE)
 
 /**
  * One control inside a [Pill] — [BottomGlyph]'s twin, squared off.
@@ -987,16 +1040,18 @@ private fun PillSegment(
                 )
             } else if (icon != null) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
+                    // The size travels with the icon, so the outgoing glyph
+                    // fades at its own size rather than the incoming one's.
                     Crossfade(
-                        targetState = icon,
+                        targetState = icon to iconSize,
                         animationSpec = tween(durationMillis = 200),
                         label = "pillSegmentIcon",
-                    ) { currentIcon ->
+                    ) { (currentIcon, currentSize) ->
                         Icon(
                             imageVector = currentIcon,
                             contentDescription = null,
                             tint = tint,
-                            modifier = Modifier.size(iconSize),
+                            modifier = Modifier.size(currentSize),
                         )
                     }
                     if (trailingLabel != null) {

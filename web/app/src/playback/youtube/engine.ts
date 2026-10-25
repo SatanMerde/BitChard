@@ -32,6 +32,20 @@ export interface LoadedTrack {
   loudnessDb: number | null;
 }
 
+/** A music video's picture: a video-only DASH manifest over the same response's direct URLs. */
+export interface VideoStream {
+  videoId: string;
+  manifest: string;
+  /** Width over height of the largest rendition, e.g. 16/9. */
+  aspect: number;
+}
+
+/**
+ * A square picture is YouTube's art track (a song): the album artwork as a
+ * still video. Only a wider picture is a music video worth playing.
+ */
+const MIN_VIDEO_ASPECT = 1.2;
+
 export class SupersededError extends Error {
   override readonly name = 'SupersededError';
 }
@@ -60,6 +74,8 @@ export class YouTubeEngine {
   private generation = 0;
   private loading = false;
   private current: { videoId: string; client: PlayerClientName; signed: boolean } | null = null;
+  /** The response the playing track streams from, when it has direct URLs; the video picture comes from it too. */
+  private direct: ResolvedPlayer | null = null;
   private preferredCodecs: string[];
 
   /** Raised when a track can't be played at all, after every fallback. */
@@ -195,6 +211,7 @@ export class YouTubeEngine {
     this.adapter?.dispose();
     this.adapter = null;
     this.current = { videoId, client, signed };
+    this.direct = null;
 
     const direct = hasDirectAudio(info);
     const manifest = direct ? await this.directManifest(resolved) : await this.sabrManifest(player, resolved);
@@ -206,6 +223,7 @@ export class YouTubeEngine {
     );
     this.checkCurrent(generation);
     const format = `${this.selectAudio(player)} ${mode}`;
+    if (direct) this.direct = resolved;
 
     if (autoplay) {
       await this.audio.play().catch((error: unknown) => {
@@ -261,6 +279,34 @@ export class YouTubeEngine {
       },
       manifest_options: { include_thumbnails: false },
     });
+  }
+
+  /**
+   * The playing track's picture, if it's a music video: its video-only
+   * renditions from the same response, as a DASH manifest for a second,
+   * muted player. Null for a song (YouTube's square art track), for a track
+   * that streams over SABR, and while nothing is loaded.
+   */
+  async videoStream(): Promise<VideoStream | null> {
+    const resolved = this.direct;
+    if (!resolved) return null;
+    const { videoId, client, info } = resolved;
+    const pictures = (info.streaming_data?.adaptive_formats ?? []).filter(
+      (f) => f.has_video && !f.has_audio && f.width && f.height && (f.url || f.signature_cipher || f.cipher),
+    );
+    const largest = pictures.sort((a, b) => b.width! * b.height! - a.width! * a.height!)[0];
+    if (!largest || largest.width! / largest.height! < MIN_VIDEO_ASPECT) return null;
+    const pot = usesWebPo(client) ? await botguard.mint(videoId) : undefined;
+    const manifest = await info.toDash({
+      // YouTube.js drops the formats this returns true for.
+      format_filter: (format) => !format.has_video || format.has_audio,
+      url_transformer: (url) => {
+        if (pot) url.searchParams.set('pot', pot);
+        return url;
+      },
+      manifest_options: { include_thumbnails: false },
+    });
+    return { videoId, manifest, aspect: largest.width! / largest.height! };
   }
 
   /** The SABR session: googlevideo's adapter in front of Shaka (Kira, googlevideo's example). */
@@ -386,6 +432,7 @@ export class YouTubeEngine {
   async stop(): Promise<void> {
     this.generation++;
     this.current = null;
+    this.direct = null;
     await this.player?.unload();
     this.adapter?.dispose();
     this.adapter = null;

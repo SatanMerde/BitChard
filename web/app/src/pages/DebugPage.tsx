@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 import { PageHeader } from '@/components/PageHeader';
 import { useTrackLog } from '@/playback/trackLog';
 import { usePlayer } from '@/state/player';
-import styles from './DebugPage.module.css';
 
 /**
  * The phase 3 acceptance set (build prompt §11: old, new, regional, explicit
@@ -46,6 +45,8 @@ export function parseVideoId(input: string): string | null {
   }
 }
 
+const sectionHeader = 'mt-7 mb-2 type-subhead-emphasized uppercase text-secondary';
+
 /** The web equivalent of the app's track log viewer, plus a way to play anything. */
 export default function DebugPage() {
   const [input, setInput] = useState('');
@@ -67,57 +68,64 @@ export default function DebugPage() {
   return (
     <>
       <PageHeader title="Debug" />
-      <div className={styles.body}>
+      <div className="mx-(--body-gutter) mt-5 max-w-[980px]">
         <form
-          className={styles.form}
+          className="flex gap-2.5"
           onSubmit={(e) => {
             e.preventDefault();
             if (id) void playVideo(id);
           }}
         >
           <input
-            className={styles.field}
+            className="h-9 flex-1 rounded-[10px] border-0 bg-quinary px-3.5 type-title-3"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Video id or YouTube link"
             aria-label="Video id or YouTube link"
           />
-          <button className={styles.button} type="submit" disabled={!id}>
+          <button className="h-9 rounded-pill bg-key-bg px-[18px] type-title-3-emphasized text-white disabled:opacity-40" type="submit" disabled={!id}>
             Play
           </button>
         </form>
-        {nowPlaying?.streamInfo && <p className={styles.stream}>{nowPlaying.streamInfo}</p>}
+        {nowPlaying?.streamInfo && <p className="mt-2 type-callout text-secondary">{nowPlaying.streamInfo}</p>}
 
-        <h2 className={styles.sectionHeader}>Test tracks</h2>
-        <ul className={styles.tracks}>
+        <h2 className={sectionHeader}>Test tracks</h2>
+        <ul className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-x-5 gap-y-0.5">
           {TEST_TRACKS.map((t) => (
             <li key={t.id}>
               <button
-                className={styles.track}
+                className="flex w-full justify-between gap-3 rounded-row px-2.5 py-[7px] text-left type-body hover:bg-tracklist-hover data-[current=true]:text-key"
                 data-current={nowPlaying?.videoId === t.id}
                 onClick={() => void playVideo(t.id)}
               >
                 <span>{t.label}</span>
-                <code>{t.id}</code>
+                <code className="type-callout text-tertiary">{t.id}</code>
               </button>
             </li>
           ))}
         </ul>
 
-        <div className={styles.logHeader}>
-          <h2 className={styles.sectionHeader}>Track log</h2>
-          <div className={styles.logActions}>
+        <div className="flex items-baseline justify-between">
+          <h2 className={sectionHeader}>Track log</h2>
+          <div className="flex gap-4 type-body text-key">
             <button onClick={() => setFilter(filter === 'all' ? 'current' : 'all')}>
               {filter === 'all' ? 'Show current track' : 'Show everything'}
             </button>
             <button onClick={clear}>Clear</button>
           </div>
         </div>
-        <ol className={styles.log} data-testid="track-log">
+        <ol
+          className="max-h-[420px] overflow-auto rounded-[10px] bg-quinary px-3 py-2.5 [font:400_12px/18px_ui-monospace,Menlo,Consolas,monospace]"
+          data-testid="track-log"
+        >
           {shown.map((line) => (
-            <li key={line.id} data-level={line.level}>
-              <span className={styles.time}>{(line.t / 1000).toFixed(2)}</span>
-              {line.about && <span className={styles.about}>{line.about}</span>}
+            <li
+              key={line.id}
+              className="flex gap-2.5 data-[level=debug]:text-secondary data-[level=error]:text-red data-[level=warn]:text-[#d29a00]"
+              data-level={line.level}
+            >
+              <span className="min-w-14 shrink-0 text-right text-tertiary">{(line.t / 1000).toFixed(2)}</span>
+              {line.about && <span className="shrink-0 text-tertiary">{line.about}</span>}
               <span>{line.message}</span>
             </li>
           ))}

@@ -9,7 +9,6 @@ import {
   HomeIcon,
   MadeForYouIcon,
   NewIcon,
-  RadioIcon,
   RecentlyAddedIcon,
   SearchIcon,
   SongsIcon,
@@ -24,7 +23,6 @@ import { useExtensionUpdate } from '@/extension/useExtensionUpdate';
 import { useSpotifySignedIn } from '@/extension/useSpotifyAuth';
 import { useUi } from '@/state/ui';
 import { AccountButton } from './AccountButton';
-import styles from './Sidebar.module.css';
 
 interface NavItem {
   to: string;
@@ -36,7 +34,6 @@ const PRIMARY: NavItem[] = [
   { to: '/search', label: 'Search', Icon: SearchIcon },
   { to: '/home', label: 'Home', Icon: HomeIcon },
   { to: '/new', label: 'New', Icon: NewIcon },
-  { to: '/radio', label: 'Radio', Icon: RadioIcon },
 ];
 
 const LIBRARY_ICONS: Record<Exclude<LibrarySection, 'playlists'>, NavItem['Icon']> = {
@@ -53,14 +50,24 @@ const LIBRARY: NavItem[] = (Object.keys(LIBRARY_ICONS) as (keyof typeof LIBRARY_
   Icon: LIBRARY_ICONS[section],
 }));
 
+// A sidebar row; NavLink sets aria-current on the page's own row.
+const item =
+  'group flex h-9 items-center gap-2 mb-0.5 p-1 rounded-nav type-body-reduced text-primary hover:bg-quinary aria-[current=page]:bg-nav-selected';
+// Apple's glyphs, drawn at 24px (their 24-unit box), which the user preferred to Apple's own 28px.
+const icon = 'inline-grid size-6 flex-none place-items-center text-primary group-aria-[current=page]:text-key';
+const navLabel = 'min-w-0 truncate';
+// "Library", "Playlists" (report §1: 12px/15px 600, secondary, padding 4px 8px).
+const sectionHeader = 'mt-4 px-2 py-1 type-callout-emphasized text-secondary';
+const list = 'flex flex-col';
+
 function NavList({ items, onNavigate }: { items: NavItem[]; onNavigate: () => void }) {
   return (
-    <ul className={styles.list}>
+    <ul className={list}>
       {items.map(({ to, label, Icon }) => (
         <li key={to}>
-          <PrefetchNavLink to={to} className={styles.item} onClick={onNavigate}>
-            <Icon size={24} className={styles.icon} />
-            <span className={styles.label}>{label}</span>
+          <PrefetchNavLink to={to} className={item} onClick={onNavigate}>
+            <Icon size={24} className={icon} />
+            <span className={navLabel}>{label}</span>
           </PrefetchNavLink>
         </li>
       ))}
@@ -73,23 +80,23 @@ function LibraryNav({ onNavigate }: { onNavigate: () => void }) {
   const playlists = useLibraryPlaylists();
   return (
     <>
-      <h2 className={styles.sectionHeader}>Library</h2>
+      <h2 className={sectionHeader}>Library</h2>
       <NavList items={LIBRARY} onNavigate={onNavigate} />
-      <h2 className={styles.sectionHeader}>Playlists</h2>
-      <ul className={styles.list}>
+      <h2 className={sectionHeader}>Playlists</h2>
+      <ul className={list}>
         <li>
-          <PrefetchNavLink to="/library/playlists" className={styles.item} onClick={onNavigate}>
-            <AllPlaylistsIcon size={24} className={styles.icon} />
-            <span className={styles.label}>{LIBRARY_SECTIONS.playlists.title}</span>
+          <PrefetchNavLink to="/library/playlists" className={item} onClick={onNavigate}>
+            <AllPlaylistsIcon size={24} className={icon} />
+            <span className={navLabel}>{LIBRARY_SECTIONS.playlists.title}</span>
           </PrefetchNavLink>
         </li>
         {playlists.data?.map((playlist) => (
           <li key={playlist.id}>
-            <PrefetchNavLink to={hrefFor(playlist) ?? '/library/playlists'} className={styles.item} onClick={onNavigate}>
-              <span className={styles.icon}>
+            <PrefetchNavLink to={hrefFor(playlist) ?? '/library/playlists'} className={item} onClick={onNavigate}>
+              <span className={icon}>
                 <ListMusic size={17} strokeWidth={1.8} />
               </span>
-              <span className={styles.label}>{playlist.title}</span>
+              <span className={navLabel}>{playlist.title}</span>
             </PrefetchNavLink>
           </li>
         ))}
@@ -103,21 +110,21 @@ function SpotifyNav({ onNavigate }: { onNavigate: () => void }) {
   const playlists = useSpotifyPlaylists();
   return (
     <>
-      <h2 className={styles.sectionHeader}>Spotify</h2>
-      <ul className={styles.list}>
+      <h2 className={sectionHeader}>Spotify</h2>
+      <ul className={list}>
         <li>
-          <PrefetchNavLink to="/spotify" end className={styles.item} onClick={onNavigate}>
-            <AllPlaylistsIcon size={24} className={styles.icon} />
-            <span className={styles.label}>All Spotify Playlists</span>
+          <PrefetchNavLink to="/spotify" end className={item} onClick={onNavigate}>
+            <AllPlaylistsIcon size={24} className={icon} />
+            <span className={navLabel}>All Spotify Playlists</span>
           </PrefetchNavLink>
         </li>
         {playlists.data?.map((playlist) => (
           <li key={playlist.id}>
-            <PrefetchNavLink to={`/spotify/playlist/${encodeURIComponent(playlist.id)}`} className={styles.item} onClick={onNavigate}>
-              <span className={styles.icon}>
+            <PrefetchNavLink to={`/spotify/playlist/${encodeURIComponent(playlist.id)}`} className={item} onClick={onNavigate}>
+              <span className={icon}>
                 <ListMusic size={17} strokeWidth={1.8} />
               </span>
-              <span className={styles.label}>{playlist.name}</span>
+              <span className={navLabel}>{playlist.name}</span>
             </PrefetchNavLink>
           </li>
         ))}
@@ -137,44 +144,50 @@ export function Sidebar() {
 
   return (
     <>
-      <nav className={styles.nav} data-open={drawerOpen} aria-label="Main">
-        <div className={styles.header}>
-          <PrefetchLink to="/home" className={styles.logo} aria-label="BitChard, Home" onClick={close}>
-            <LogoMark size={22} className={styles.mark} />
-            <span className={styles.wordmark}>BitChard</span>
+      {/* Below 484px the sidebar is a drawer opened from the top bar's menu button. */}
+      <nav
+        className="absolute inset-y-0 left-0 z-(--z-web-chrome) flex w-(--web-navigation-width) flex-col glass-material max-sm:w-[min(300px,82vw)] max-sm:-translate-x-full max-sm:shadow-glass max-sm:transition-transform max-sm:duration-(--duration-panel) max-sm:ease-panel max-sm:data-[open=true]:translate-none"
+        data-open={drawerOpen}
+        aria-label="Main"
+      >
+        <div className="mt-2 ml-2 flex h-18 items-center px-5">
+          <PrefetchLink to="/home" className="inline-flex items-center gap-2 rounded-[6px]" aria-label="BitChard, Home" onClick={close}>
+            {/* White on dark, as Apple's own wordmark; it follows the label colour so it stays visible in light. */}
+            <LogoMark size={22} className="text-primary" />
+            <span className="type-[700_19px/24px] tracking-[-0.01em]">BitChard</span>
           </PrefetchLink>
         </div>
-        <div className={styles.scroll}>
+        <div className="min-h-0 flex-1 overflow-y-auto pr-3 pl-5 [scrollbar-width:none]">
           <NavList items={PRIMARY} onNavigate={close} />
           {signedIn && <LibraryNav onNavigate={close} />}
           {spotifySignedIn && <SpotifyNav onNavigate={close} />}
         </div>
-        <div className={styles.footer}>
-          <PrefetchNavLink to="/extension" className={styles.item} onClick={close}>
+        <div className="flex flex-col gap-2 pt-3 pr-3 pb-5 pl-5">
+          <PrefetchNavLink to="/extension" className={item} onClick={close}>
             {/* Chrome's own toolbar glyph for extensions (Material "extension"). */}
-            <span className={styles.icon}>
+            <span className={icon}>
               <MdOutlineExtension size={18} />
             </span>
-            <span className={styles.label}>BitChard Extension</span>
+            <span className={navLabel}>BitChard Extension</span>
             {update.state === 'available' && (
-              <span className={styles.badge} title={`Version ${update.latest.version} is available`}>
+              <span className="ml-auto rounded-[10px] bg-key px-[7px] py-0.5 type-subhead-emphasized text-white" title={`Version ${update.latest.version} is available`}>
                 Update
               </span>
             )}
           </PrefetchNavLink>
           <AccountButton />
-          <div className={styles.footerRow}>
-            <a className={styles.footerLink} href={config.androidAppUrl} target="_blank" rel="noreferrer">
+          <div className="flex items-center justify-between">
+            <a className="inline-flex items-center gap-1 ps-1 type-callout text-primary hover:underline" href={config.androidAppUrl} target="_blank" rel="noreferrer">
               <span>Get the Android app</span>
               <ArrowUpRight size={14} strokeWidth={2} />
             </a>
-            <PrefetchNavLink to="/settings" className={styles.settings} aria-label="Settings" title="Settings" onClick={close}>
+            <PrefetchNavLink to="/settings" className="grid size-7 place-items-center rounded-nav text-secondary hover:bg-quinary hover:text-primary aria-[current=page]:bg-quinary aria-[current=page]:text-primary" aria-label="Settings" title="Settings" onClick={close}>
               <Settings size={17} strokeWidth={1.9} />
             </PrefetchNavLink>
           </div>
         </div>
       </nav>
-      {drawerOpen && <div className={styles.scrim} onClick={close} aria-hidden="true" />}
+      {drawerOpen && <div className="absolute inset-0 z-[calc(var(--z-web-chrome)-1)] hidden bg-scrim max-sm:block" onClick={close} aria-hidden="true" />}
     </>
   );
 }

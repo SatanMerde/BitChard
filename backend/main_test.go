@@ -20,7 +20,8 @@ import (
 )
 
 func setupTestServer() *httptest.Server {
-	createLimiter = newIPRateLimiter(time.Minute, 10000, 10000)
+	// Each test server starts with its own party-creation allowance.
+	createLimiter = newIPRateLimiter(time.Minute, config.CreateRatePerMinute, config.RateLimitMaxEntries)
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /{$}", handleRoot)
 	mux.HandleFunc("GET /healthz", handleHealthz)

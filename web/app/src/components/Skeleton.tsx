@@ -1,5 +1,4 @@
 import type { CSSProperties } from 'react';
-import styles from './Skeleton.module.css';
 
 interface BlockProps {
   width?: CSSProperties['width'];
@@ -10,12 +9,17 @@ interface BlockProps {
   style?: CSSProperties;
 }
 
+// A soft highlight sweeping left to right; still under reduced motion. The sweep animates
+// `transform` from the -100% it starts at, so it is set as a transform, not a translate.
+const block =
+  'relative shrink-0 overflow-hidden rounded-[4px] bg-skeleton after:absolute after:inset-0 after:transform-[translateX(-100%)] after:animate-shimmer after:bg-[linear-gradient(90deg,transparent_0,var(--skeleton-shimmer)_50%,transparent_100%)] motion-reduce:after:hidden motion-reduce:after:animate-none';
+
 /** A placeholder box with a shimmer. Purely decorative, so hidden from AT. */
 export function SkeletonBlock({ width, height, radius, aspectRatio, className, style }: BlockProps) {
   return (
     <div
       aria-hidden="true"
-      className={className ? `${styles.block} ${className}` : styles.block}
+      className={className ? `${block} ${className}` : block}
       style={{ width, height, borderRadius: radius, aspectRatio, ...style }}
     />
   );
@@ -33,7 +37,7 @@ interface LineProps {
 /** A single line of text in waiting. */
 export function SkeletonLine({ lineHeight, fontSize, width, style }: LineProps) {
   return (
-    <div aria-hidden="true" className={styles.line} style={{ height: lineHeight, ...style }}>
+    <div aria-hidden="true" className="flex items-center" style={{ height: lineHeight, ...style }}>
       <SkeletonBlock width={width} height={Math.round(fontSize * 0.75)} radius={3} />
     </div>
   );

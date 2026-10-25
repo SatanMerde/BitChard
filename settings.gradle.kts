@@ -18,6 +18,8 @@ dependencyResolutionManagement {
 rootProject.name = "BitChard"
 include(":shared")
 include(":sharedUi")
+// BitChard keeps the desktop app, which upstream dropped; the modules and
+// their sources are still here, so they stay in the build.
 include(":desktopUi")
 include(":desktopApp")
 

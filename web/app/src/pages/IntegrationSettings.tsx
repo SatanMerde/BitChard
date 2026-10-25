@@ -1,4 +1,8 @@
 import type { DiscordPresenceOptions } from '@bitchord/shared/bridge';
+import { APPLE_ORIGINS, useAppleAccess } from '@/data/apple/artistArt';
+import { useAppleSettings } from '@/data/apple/motionArt';
+import { useHostAccess } from '@/extension/useHostAccess';
+import { LYRIC_EXTENSION_ORIGINS } from '@/lyrics/http';
 import { useSpotifySettings } from '@/data/spotify/canvas';
 import {
   useDiscord,
@@ -15,14 +19,65 @@ import {
   useSpotifyAuth,
   type SpotifyAuthStatus,
 } from '@/extension/useSpotifyAuth';
-import styles from './ExtensionPage.module.css';
+import { settingsUi } from './settingsStyles';
+
+/** Allowed, or an Allow button that opens the extension's permission page. */
+function HostAccessValue({ access, request }: ReturnType<typeof useHostAccess>) {
+  const text = { checking: 'Checking…', unavailable: 'Needs the extension', granted: 'Allowed', needed: 'Not allowed' }[access];
+  return (
+    <span className={settingsUi.value}>
+      <span>{text}</span>
+      {access === 'needed' && (
+        <button className={settingsUi.inlineButton} onClick={request}>
+          Allow
+        </button>
+      )}
+    </span>
+  );
+}
+
+/** The Apple Music section's access row: one grant covers artist art and animated artwork. */
+export function AppleMusicIntegration() {
+  return <HostAccessValue {...useAppleAccess()} />;
+}
+
+/** The Apple Music section's switches. Neither needs an Apple Music account. */
+export function AppleMusicToggles() {
+  const { artistArt, motion, setArtistArt, setMotion } = useAppleSettings();
+  return (
+    <>
+      <Toggle
+        label="Artist Art"
+        detail="Artist pages take Apple Music’s photo, logo and colour."
+        checked={artistArt}
+        onChange={setArtistArt}
+      />
+      <Toggle
+        label="Animated Artwork"
+        detail="Apple Music’s moving covers in the full-screen player and on album pages. Not on metered connections or with reduced motion."
+        checked={motion}
+        onChange={setMotion}
+      />
+    </>
+  );
+}
+
+/**
+ * The lyric sources a page can't ask itself (KuGou, Musixmatch, Genius,
+ * PaxSenix…), as in the Lyrics dialog. Apple's hosts are granted under Apple
+ * Music, so they aren't asked for twice.
+ */
+const LYRIC_ONLY_ORIGINS = LYRIC_EXTENSION_ORIGINS.filter((o) => !APPLE_ORIGINS.includes(o));
+export function LyricSourcesAccess() {
+  return <HostAccessValue {...useHostAccess(LYRIC_ONLY_ORIGINS)} />;
+}
 
 /** The Spotify row's words and button (SpotifyLibraryScreen's states). */
 export function SpotifyIntegration() {
   const auth = useSpotifyAuth();
   const connect = useSetSpotifyConnected();
   const retry = useRefreshSpotifyAuth();
-  if (auth.state !== 'ready') return <span className={styles.value}>{spotifyText(auth)}</span>;
+  if (auth.state !== 'ready') return <span className={settingsUi.value}>{spotifyText(auth)}</span>;
   const { browserSignedIn, connected, signedIn } = auth.auth;
   const action = !browserSignedIn
     ? { label: 'Sign In', run: openSpotifySignIn }
@@ -32,9 +87,9 @@ export function SpotifyIntegration() {
         ? { label: 'Retry', run: () => retry.mutate() }
         : { label: 'Disconnect', run: () => connect.mutate(false) };
   return (
-    <span className={styles.value}>
+    <span className={settingsUi.value}>
       <span title={auth.auth.problem ?? undefined}>{spotifyText(auth)}</span>
-      <button className={styles.inlineButton} onClick={action.run} disabled={connect.isPending || retry.isPending}>
+      <button className={settingsUi.inlineButton} onClick={action.run} disabled={connect.isPending || retry.isPending}>
         {action.label}
       </button>
     </span>
@@ -55,13 +110,13 @@ export function DiscordIntegration() {
   const connect = useDiscordConnect();
   const disconnect = useDiscordDisconnect();
   const text = discordText(status);
-  if (status.state !== 'ready' || !status.discord.available) return <span className={styles.value}>{text}</span>;
+  if (status.state !== 'ready' || !status.discord.available) return <span className={settingsUi.value}>{text}</span>;
   const connected = status.discord.connected;
   return (
-    <span className={styles.value}>
+    <span className={settingsUi.value}>
       <span title={status.discord.problem ?? undefined}>{text}</span>
       <button
-        className={styles.inlineButton}
+        className={settingsUi.inlineButton}
         onClick={() => (connected ? disconnect.mutate() : connect.mutate())}
         disabled={connect.isPending || disconnect.isPending}
       >
@@ -86,12 +141,12 @@ function discordText(status: DiscordStatus): string {
 
 export function Toggle({ label, detail, checked, onChange }: { label: string; detail?: string; checked: boolean; onChange: (on: boolean) => void }) {
   return (
-    <label className={styles.row}>
-      <span className={styles.rowText}>
+    <label className={settingsUi.controlRow}>
+      <span className={settingsUi.rowText}>
         <span>{label}</span>
-        {detail && <span className={styles.rowDetail}>{detail}</span>}
+        {detail && <span className={settingsUi.rowDetail}>{detail}</span>}
       </span>
-      <input type="checkbox" className={styles.switch} checked={checked} onChange={(e) => onChange(e.currentTarget.checked)} />
+      <input type="checkbox" className={settingsUi.switch} checked={checked} onChange={(e) => onChange(e.currentTarget.checked)} />
     </label>
   );
 }
@@ -136,14 +191,14 @@ export function DiscordSettings() {
   const on = status.discord.enabled;
   return (
     <>
-      <section className={styles.group}>
+      <section className={settingsUi.group}>
         <Toggle label="Show what you’re playing" checked={on} onChange={(v) => setEnabled.mutate(v)} />
         {on && (
           <>
-            <label className={styles.row}>
+            <label className={settingsUi.controlRow}>
               <span>Activity</span>
               <select
-                className={styles.select}
+                className={settingsUi.select}
                 value={options.activityType}
                 onChange={(e) => set({ activityType: e.currentTarget.value as DiscordPresenceOptions['activityType'] })}
               >
@@ -154,19 +209,19 @@ export function DiscordSettings() {
                 ))}
               </select>
             </label>
-            <label className={styles.row}>
+            <label className={settingsUi.controlRow}>
               <span>Name</span>
               <input
-                className={styles.input}
+                className={settingsUi.input}
                 placeholder="BitChard"
                 value={options.activityName}
                 onChange={(e) => set({ activityName: e.currentTarget.value })}
               />
             </label>
-            <label className={styles.row}>
+            <label className={settingsUi.controlRow}>
               <span>Status</span>
               <select
-                className={styles.select}
+                className={settingsUi.select}
                 value={options.status}
                 onChange={(e) => set({ status: e.currentTarget.value as DiscordPresenceOptions['status'] })}
               >
@@ -185,10 +240,10 @@ export function DiscordSettings() {
             />
             <Toggle label="Listen button" checked={options.button1Visible} onChange={(v) => set({ button1Visible: v })} />
             {options.button1Visible && (
-              <label className={styles.row}>
+              <label className={settingsUi.controlRow}>
                 <span>Listen button text</span>
                 <input
-                  className={styles.input}
+                  className={settingsUi.input}
                   placeholder="Listen on YouTube Music"
                   value={options.button1Text}
                   onChange={(e) => set({ button1Text: e.currentTarget.value })}
@@ -197,10 +252,10 @@ export function DiscordSettings() {
             )}
             <Toggle label="BitChard button" checked={options.button2Visible} onChange={(v) => set({ button2Visible: v })} />
             {options.button2Visible && (
-              <label className={styles.row}>
+              <label className={settingsUi.controlRow}>
                 <span>BitChard button text</span>
                 <input
-                  className={styles.input}
+                  className={settingsUi.input}
                   placeholder="Visit BitChard"
                   value={options.button2Text}
                   onChange={(e) => set({ button2Text: e.currentTarget.value })}
@@ -210,7 +265,7 @@ export function DiscordSettings() {
           </>
         )}
       </section>
-      <p className={styles.footer}>
+      <p className={settingsUi.footer}>
         This uses your Discord account’s own token, which Discord’s terms don’t allow. Button text can use {'{song_name}'},{' '}
         {'{artist_name}'} and {'{album_name}'}.
       </p>

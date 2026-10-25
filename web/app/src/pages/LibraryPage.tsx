@@ -8,7 +8,7 @@ import { isLibrarySection, LIBRARY_SECTIONS } from '@/data/music/library';
 import { useLibrary, useSignedIn, useYouTubeReady } from '@/data/music/queries';
 import { useYtAuth } from '@/extension/useYtAuth';
 import { PlainSkeleton } from '@/skeletons/PageSkeletons';
-import styles from './BrowsePage.module.css';
+import { seeAllGrid, seeAllTracks } from './pageStyles';
 
 /** Asks for the next page when [target] scrolls into view. */
 function useLoadMore(onVisible: (() => void) | null) {
@@ -62,7 +62,7 @@ export default function LibraryPage() {
       <PageHeader title={title} />
       {!grid.length && !tracks.length && <EmptyState title="Nothing here yet" />}
       {grid.length > 0 && (
-        <ul className={styles.grid} data-wide={grid.every((i) => i.wide) || undefined}>
+        <ul className={seeAllGrid} data-wide={grid.every((i) => i.wide) || undefined}>
           {grid.map((item, i) => (
             <li key={`${item.id}-${i}`}>
               {item.kind === 'artist' ? (
@@ -77,7 +77,7 @@ export default function LibraryPage() {
         </ul>
       )}
       {tracks.length > 0 && (
-        <div className={styles.tracks}>
+        <div className={seeAllTracks}>
           <TrackList
             tracks={tracks}
             variant="playlist"

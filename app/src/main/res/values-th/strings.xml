@@ -103,10 +103,10 @@
     <string name="dolby_atmos_open_failed">เปิดการตั้งค่า Dolby Atmos ไม่ได้</string>
     <string name="update_available">มีอัปเดต: v%1$s</string>
     <string name="software_update">การอัปเดตซอฟต์แวร์</string>
-    <string name="update_available_body">bitchord %1$s พร้อมให้ดาวน์โหลดแล้ว</string>
-    <string name="update_downloading_body">กำลังดาวน์โหลด bitchord %1$s…</string>
-    <string name="update_ready_body">bitchord %1$s พร้อมติดตั้งแล้ว</string>
-    <string name="update_failed_body">ดาวน์โหลด bitchord %1$s ไม่สำเร็จ</string>
+    <string name="update_available_body">BitChard %1$s พร้อมให้ดาวน์โหลดแล้ว</string>
+    <string name="update_downloading_body">กำลังดาวน์โหลด BitChard %1$s…</string>
+    <string name="update_ready_body">BitChard %1$s พร้อมติดตั้งแล้ว</string>
+    <string name="update_failed_body">ดาวน์โหลด BitChard %1$s ไม่สำเร็จ</string>
     <string name="download_now">ดาวน์โหลดตอนนี้</string>
     <string name="install_now">ติดตั้งตอนนี้</string>
     <string name="later">ภายหลัง</string>
@@ -794,10 +794,6 @@
 
     <string name="lyrics_offset">Lyrics offset</string>
 
-
-
-
-
     <string name="auto_quick_picks">Quick picks</string>
 
     <string name="auto_recents">Recent</string>
@@ -959,8 +955,6 @@
 
     <string name="no_languages_match">No languages match</string>
 
-
-
     <string name="audio_pipeline">Audio Pipeline</string>
     <string name="cast_dialog_title">Cast</string>
     <string name="cast_dialog_subtitle">Play on a Chromecast or Google Cast speaker</string>
@@ -1017,8 +1011,6 @@
 
     <string name="pipeline_device_name">Device Name</string>
 
-
-
     <string name="shared_link">Shared link</string>
 
     <string name="song_will_play_next">Song will play next</string>
@@ -1052,27 +1044,13 @@
 
     <string name="sort_songs">Sort songs</string>
 
-
-
-
-
-
-
-
-
-
-
     <string name="vietnamese">Vietnamese</string>
-
 
     <string name="miscellaneous_footer">When enabled, closing the app from the recent apps screen will also stop music playback.</string>
 
-
     <string name="export_compatible_downloads">Export compatible downloads</string>
 
-
     <string name="output_precision">Output precision</string>
-
 
     <string name="prefer_usb_dac">Prefer USB DAC</string>
     <string name="loudness_normalization">ปรับระดับความดังให้เท่ากัน</string>
@@ -1089,146 +1067,97 @@
     <string name="loudness_gain_db">%1$s dB</string>
     <string name="loudness_lufs">%1$s LUFS</string>
 
-
     <string name="blur_unfocused_lyrics">Blur unfocused lyrics</string>
-
 
     <string name="blur_unfocused_lyrics_subtitle">Keeps the spotlight on the current line</string>
 
-
     <string name="advanced_options">Advanced options</string>
-
 
     <string name="lyrics_debug_logs">Lyrics debug logs</string>
 
-
     <string name="lyrics_debug_logs_subtitle">Show live API queries and scraper activity in the lyrics panel</string>
-
 
     <string name="shelf_trending_community_playlists">Trending community playlists</string>
 
-
     <string name="shelf_featured_playlists_for_you">Featured playlists for you</string>
-
 
     <string name="shelf_quick_picks">Quick picks</string>
 
-
     <string name="shelf_listen_again">Listen again</string>
-
 
     <string name="shelf_mixed_for_you">Mixed for you</string>
 
-
     <string name="shelf_similar_to">Similar to %1$s</string>
-
 
     <string name="shelf_forgotten_favorites">Forgotten favorites</string>
 
-
     <string name="shelf_recommended_music_videos">Recommended music videos</string>
-
 
     <string name="shelf_from_your_library">From your library</string>
 
-
     <string name="shelf_charts">Charts</string>
-
 
     <string name="shelf_new_releases">New releases</string>
 
-
     <string name="shelf_top_music_videos">Top music videos</string>
-
 
     <string name="shelf_for_you">For you</string>
 
-
     <string name="shelf_energy_boosters">Energy boosters</string>
-
 
     <string name="shelf_feel_good">Feel good</string>
 
-
     <string name="shelf_commute">Commute</string>
-
 
     <string name="shelf_workout">Workout</string>
 
-
     <string name="shelf_focus">Focus</string>
-
 
     <string name="shelf_relax">Relax</string>
 
-
     <string name="shelf_sleep">Sleep</string>
-
 
     <string name="shelf_party">Party</string>
 
-
     <string name="shelf_romance">Romance</string>
-
 
     <string name="shelf_sad">Sad</string>
 
-
     <string name="shelf_100_on_repeat">100% on repeat</string>
-
 
     <string name="shelf_new_albums_singles">New albums &amp; singles</string>
 
-
     <string name="shelf_hits_today">Hits today</string>
-
 
     <string name="shelf_artists_on_the_rise">Artists on the rise</string>
 
-
-
     <string name="shelf_top_tunes_right_now">Top tunes right now</string>
-
 
     <string name="shelf_concerts">Concerts</string>
 
-
     <string name="shelf_shorts">Shorts</string>
-
 
     <string name="shelf_single">Single</string>
 
-
     <string name="shelf_chart">Chart</string>
-
 
     <string name="shelf_song_item">Song</string>
 
-
     <string name="shelf_from_the_community">From the community</string>
-
 
     <string name="shelf_youtube_charts">YouTube Charts</string>
 
-
     <string name="shelf_trending">Trending</string>
-
 
     <string name="shelf_recents">Recents</string>
 
-
     <string name="subscriptions">Subscriptions</string>
-
-
 
     <string name="card_views_format">%1$s views</string>
 
-
     <string name="card_plays_format">%1$s plays</string>
 
-
     <string name="card_songs_format">%1$s songs</string>
-
 
     <string name="source_needs_lossless_output">ต้องใช้เอาต์พุตแบบ lossless · ใช้อุปกรณ์ที่รองรับ lossless</string>
     <string name="source_needs_lossless_bt_codec">ต้องใช้เอาต์พุตแบบ lossless · Bluetooth ใช้ %1$s อยู่ ใช้อุปกรณ์ที่รองรับ lossless</string>
@@ -1239,6 +1168,10 @@
     <string name="cached_songs">เพลงในแคช</string>
     <string name="cached_songs_subtitle">เพลงจาก YouTube และ JioSaavn ในแคชเพลง</string>
     <string name="cached_songs_empty">ยังไม่มีเพลงในแคช เพลงที่คุณเล่นจาก YouTube หรือ JioSaavn จะแสดงที่นี่</string>
+    <string name="cached_song_partial">บางส่วน</string>
+    <string name="remove_from_cache">นำออกจากแคช</string>
+    <string name="cached_song_remove">นำออก</string>
+    <string name="removed_from_cache">นำออกจากแคชเพลงแล้ว</string>
     <string name="show_cache_folder">แสดงโฟลเดอร์เพลงในแคช</string>
     <string name="show_cache_folder_subtitle">เพิ่มโฟลเดอร์ในคลังเพลงที่มีเพลงจาก YouTube และ JioSaavn ที่เก็บไว้ในแคช</string>
     <string name="song_cache_unlimited">ไม่จำกัด</string>
@@ -1294,6 +1227,10 @@
     <string name="replay_summary_end_week">สัปดาห์</string>
     <string name="replay_this_week">สัปดาห์นี้</string>
     <string name="onboarding_title">เพลงนับล้าน สตรีมบน BitChard</string>
+    <string name="replay_period_weekly">รายสัปดาห์</string>
+    <string name="replay_period_monthly">รายเดือน</string>
+    <string name="replay_period_yearly">รายปี</string>
+    <string name="replay_period_lifetime">ตลอดกาล</string>
     <string name="onboarding_name_prompt">ให้เราเรียกคุณว่าอะไรดี</string>
     <string name="onboarding_name_hint">ชื่อของคุณ</string>
     <string name="onboarding_name_footer">เพื่อน ๆ จะเห็นชื่อนี้เมื่อคุณฟังด้วยกัน คุณเปลี่ยนได้ภายหลังในการตั้งค่า</string>
@@ -1362,4 +1299,13 @@
     <string name="app_up_to_date">BitChard เป็นเวอร์ชันล่าสุดแล้ว (v%1$s)</string>
     <string name="update_check_failed">ไม่สามารถตรวจสอบการอัปเดตได้</string>
     <string name="allow_unknown_apps_to_update">โปรดอนุญาตให้ BitChard ติดตั้งแอปเพื่อดำเนินการอัปเดตต่อไป</string>
+    <string name="song_info">ข้อมูลเพลง</string>
+    <string name="song_info_album">อัลบั้ม</string>
+    <string name="song_info_release_date">วันที่เผยแพร่</string>
+    <string name="song_info_views">จำนวนการเล่น / การดู</string>
+    <string name="song_info_likes">การกดชอบ</string>
+    <string name="song_info_comments">ความคิดเห็น</string>
+    <string name="song_info_unavailable">ไม่มีข้อมูล</string>
+    <string name="song_info_error">ไม่สามารถโหลดข้อมูลบางส่วนได้</string>
+    <string name="song_info_retry">ลองอีกครั้ง</string>
 </resources>

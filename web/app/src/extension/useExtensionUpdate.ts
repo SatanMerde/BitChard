@@ -2,6 +2,11 @@ import { useQuery } from '@tanstack/react-query';
 import { config } from '@/config';
 import { useExtension } from './useExtension';
 
+/** Where a published zip is served: the site's downloads folder, its name escaped (it has spaces and brackets). */
+export function downloadUrl(name: string): string {
+  return new URL(encodeURIComponent(name), new URL(config.extensionManifestUrl, location.origin)).toString();
+}
+
 /** What `pnpm package` last published next to the zips (web/extension/scripts/publish-to-site.mjs). */
 export interface PublishedExtension {
   version: string;
@@ -39,17 +44,22 @@ async function fetchPublished(): Promise<PublishedExtension | null> {
  * re-pinged on focus too (useExtension), so the notice clears once the user
  * reloads the extension.
  */
+export function usePublishedExtension(): PublishedExtension | null {
+  return (
+    useQuery({
+      queryKey: ['extension', 'published'],
+      queryFn: fetchPublished,
+      staleTime: 60_000,
+      refetchInterval: 5 * 60_000,
+      refetchOnWindowFocus: true,
+      retry: false,
+    }).data ?? null
+  );
+}
+
 export function useExtensionUpdate(): ExtensionUpdate {
   const extension = useExtension();
-  const published = useQuery({
-    queryKey: ['extension', 'published'],
-    queryFn: fetchPublished,
-    staleTime: 60_000,
-    refetchInterval: 5 * 60_000,
-    refetchOnWindowFocus: true,
-    retry: false,
-  });
-  const latest = published.data;
+  const latest = usePublishedExtension();
   if (!latest || extension.state !== 'present') return { state: 'unknown' };
   const installed = extension.extension.info.version;
   return compareVersions(latest.version, installed) > 0

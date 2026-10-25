@@ -2,6 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      // The extension trusts https://bitchord.in only (web/extension/site.config.ts),
+      // so www goes there before anything loads, keeping its path and query.
+      if (location.hostname === 'www.bitchord.in') location.replace('https://bitchord.in' + location.pathname + location.search + location.hash);
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1f1f1f" />

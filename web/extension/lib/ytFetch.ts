@@ -6,6 +6,13 @@ import { activeIdentity, signedFetch, SignedOutError } from './ytAuth';
 const ALLOWED = [/^https:\/\/www\.youtube\.com\/api\/jnn\//];
 /** Where a signed one may go: InnerTube only, never an account or settings page. */
 const ALLOWED_SIGNED = [/^https:\/\/(music|www)\.youtube\.com\/youtubei\/v1\//];
+/**
+ * The play-reporting pings a player response nominates (playbackTracking):
+ * playback, watchtime and atr, GET only. They're what puts a play in the
+ * account's YouTube Music history (PlaybackTracker.kt on the phone).
+ */
+const STATS = /^https:\/\/(s|music|www)\.youtube\.com\/api\/stats\/(playback|watchtime|atr)(\?|$)/;
+const MUSIC_ORIGIN = 'https://music.youtube.com';
 /** Identity is the extension's to set; the page's copies of these are dropped. */
 const IDENTITY_HEADERS = ['authorization', 'cookie', 'x-goog-authuser', 'x-goog-pageid', 'x-origin', 'origin', 'referer'];
 
@@ -56,7 +63,8 @@ export async function ytFetch(request: YtFetchParams): Promise<HttpResponse> {
 }
 
 async function signedYtFetch(request: YtFetchParams): Promise<HttpResponse> {
-  if (!ALLOWED_SIGNED.some((pattern) => pattern.test(request.url))) throw forbidden(request.url);
+  const stats = STATS.test(request.url) && (request.method ?? 'GET') === 'GET';
+  if (!stats && !ALLOWED_SIGNED.some((pattern) => pattern.test(request.url))) throw forbidden(request.url);
   const identity = await activeIdentity();
   if (!identity) throw new SignedOutError('Not signed in to YouTube Music.');
   const headers: Record<string, string> = {};
@@ -69,6 +77,8 @@ async function signedYtFetch(request: YtFetchParams): Promise<HttpResponse> {
     request.url,
     { method: request.method ?? 'GET', headers, body: body as BodyInit | undefined },
     identity,
+    // A stats ping is signed for YouTube Music, whichever host it goes to, as the web client's are.
+    stats ? MUSIC_ORIGIN : undefined,
   );
   return serialise(response);
 }

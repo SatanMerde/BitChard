@@ -1,15 +1,33 @@
 import { useEffect, useRef } from 'react';
 import { PageHeader } from '@/components/PageHeader';
-import { Shelves } from '@/components/music/ShelfView';
+import { Shelves, TrackShelf } from '@/components/music/ShelfView';
 import { LoadError, LoadMoreError, NeedsExtension } from '@/components/music/States';
-import { useHome, useYouTubeReady } from '@/data/music/queries';
+import { useHome, useLibrary, useYouTubeReady } from '@/data/music/queries';
+import type { Track } from '@/data/music/types';
 import { HomeSkeleton } from '@/skeletons/PageSkeletons';
 import { ShelfSkeleton } from '@/skeletons/ShelfSkeleton';
+
+const RECENT_TITLE = 'Recently Played';
+const RECENT_LIMIT = 20;
+const RECENT_SOURCE = { title: RECENT_TITLE, type: 'home' as const };
+
+/**
+ * The account's listening history, newest first, one row per song
+ * (YtMusicRepository.recentlyPlayed): the first 20, signed in only. The same
+ * query as Library's Recently Played, so either page warms the other.
+ */
+function useRecentlyPlayed(): Track[] {
+  const history = useLibrary('recent');
+  const first = history.data?.pages[0]?.data.tracks ?? [];
+  const seen = new Set<string>();
+  return first.filter((t) => !seen.has(t.videoId) && seen.add(t.videoId)).slice(0, RECENT_LIMIT);
+}
 
 /** YouTube Music's home feed, as Apple's Home: shelf after shelf, more as you scroll. */
 export default function HomePage() {
   const { missing } = useYouTubeReady();
   const home = useHome();
+  const recent = useRecentlyPlayed();
   const sentinel = useRef<HTMLDivElement>(null);
 
   // Loads the next shelves before the bottom comes into view; after a failed
@@ -46,10 +64,14 @@ export default function HomePage() {
   }
   if (!home.data) return <HomeSkeleton />;
 
-  const shelves = home.data.pages.flatMap((page) => page.data);
+  // YouTube's feed can carry its own, older Recently Played; the history wins, as on the phone.
+  const shelves = home.data.pages
+    .flatMap((page) => page.data)
+    .filter((shelf) => !(recent.length > 0 && shelf.title.trim().toLowerCase() === RECENT_TITLE.toLowerCase()));
   return (
     <>
       <PageHeader title="Home" />
+      {recent.length > 0 && <TrackShelf title={RECENT_TITLE} to="/library/recent" tracks={recent} source={RECENT_SOURCE} />}
       <Shelves shelves={shelves} />
       <div ref={sentinel} />
       {home.isFetchingNextPage && <ShelfSkeleton kind="square" />}

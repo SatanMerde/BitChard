@@ -109,10 +109,10 @@
     <string name="dolby_atmos_open_failed">Dolby Atmos ayarları açılamadı</string>
     <string name="update_available">Güncelleme mevcut: v%1$s</string>
     <string name="software_update">Yazılım Güncellemesi</string>
-    <string name="update_available_body">bitchord %1$s indirilmeye hazır.</string>
-    <string name="update_downloading_body">bitchord %1$s indiriliyor…</string>
-    <string name="update_ready_body">bitchord %1$s yüklenmeye hazır.</string>
-    <string name="update_failed_body">bitchord %1$s indirilemedi.</string>
+    <string name="update_available_body">BitChard %1$s indirilmeye hazır.</string>
+    <string name="update_downloading_body">BitChard %1$s indiriliyor…</string>
+    <string name="update_ready_body">BitChard %1$s yüklenmeye hazır.</string>
+    <string name="update_failed_body">BitChard %1$s indirilemedi.</string>
     <string name="download_now">Şimdi İndir</string>
     <string name="install_now">Şimdi Yükle</string>
     <string name="later">Daha sonra</string>
@@ -817,7 +817,6 @@
 
     <string name="miscellaneous_footer">Etkinleştirildiğinde, uygulamayı son kullanılanlar ekranından kapatmak müzik çalmayı da durdurur.</string>
 
-
     <string name="add_addon">Eklenti ekle</string>
 
     <string name="add_addon_detail">BitChard\'u barındırdığınız veya bağlantısını aldığınız bir eklenti sunucusuna yönlendirin</string>
@@ -967,12 +966,7 @@
 
     <string name="upgrade_quality">Kaliteyi yükselt</string>
 
-
     <string name="lyrics_offset">Söz zamanlama ayarı</string>
-
-
-
-
 
     <string name="auto_quick_picks">Hızlı seçimler</string>
 
@@ -1109,10 +1103,6 @@
 
     <string name="no_languages_match">Eşleşen dil yok</string>
 
-
-
-
-
     <string name="audio_pipeline">Ses Hattı</string>
     <string name="cast_dialog_title">Cast</string>
     <string name="cast_dialog_subtitle">Play on a Chromecast or Google Cast speaker</string>
@@ -1169,8 +1159,6 @@
 
     <string name="pipeline_device_name">Cihaz Adı</string>
 
-
-
     <string name="shared_link">Paylaşılan bağlantı</string>
 
     <string name="song_will_play_next">Şarkı sonra çalacak</string>
@@ -1194,16 +1182,6 @@
 
     <string name="paxsenix_api_key_missing">PaxSenix API anahtarı — isteğe bağlı, yapılandırılmadı</string>
 
-
-
-
-
-
-
-
-
-
-
     <string name="source_needs_lossless_output">Kayıpsız çıkış gerekir · kayıpsız sesi destekleyen bir cihaz kullanın</string>
     <string name="source_needs_lossless_bt_codec">Kayıpsız çıkış gerekir · Bluetooth %1$s kullanıyor; kayıpsız sesi destekleyen bir cihaz kullanın</string>
     <string name="source_needs_lossless_bt_unknown">Kayıpsız çıkış gerekir · hangi Bluetooth kodeğinin kullanıldığı anlaşılamıyor</string>
@@ -1213,6 +1191,10 @@
     <string name="cached_songs">Önbellekteki şarkılar</string>
     <string name="cached_songs_subtitle">Şarkı önbelleğindeki YouTube ve JioSaavn şarkıları</string>
     <string name="cached_songs_empty">Henüz önbellekte şarkı yok. YouTube veya JioSaavn üzerinden çaldığın şarkılar burada görünecek.</string>
+    <string name="cached_song_partial">Kısmi</string>
+    <string name="remove_from_cache">Önbellekten kaldır</string>
+    <string name="cached_song_remove">Kaldır</string>
+    <string name="removed_from_cache">Şarkı önbelleğinden kaldırıldı</string>
     <string name="show_cache_folder">Önbellekteki şarkılar klasörünü göster</string>
     <string name="show_cache_folder_subtitle">Kitaplığa, önbellekte tutulan YouTube ve JioSaavn şarkılarını içeren bir klasör ekler</string>
     <string name="song_cache_unlimited">Sınırsız</string>
@@ -1250,6 +1232,15 @@
     <string name="spotify_sign_in">Spotify ile oturum aç</string>
     <string name="spotify_use_spdc_token">sp_dc token\'ı kullan</string>
     <string name="spotify_track_unavailable">O şarkı YouTube Music’de bulunamadı</string>
+    <string name="song_info">Şarkı Bilgisi</string>
+    <string name="song_info_album">Albüm</string>
+    <string name="song_info_release_date">Yayın tarihi</string>
+    <string name="song_info_views">Dinlenme / görüntülenme</string>
+    <string name="song_info_likes">Beğeniler</string>
+    <string name="song_info_comments">Yorumlar</string>
+    <string name="song_info_unavailable">Mevcut değil</string>
+    <string name="song_info_error">Bazı bilgiler yüklenemedi.</string>
+    <string name="song_info_retry">Tekrar dene</string>
     <string name="artist_signatures">Sanatçı imzaları</string>
     <string name="artist_signatures_subtitle">Apple Music\'te başlık logosu yokken el yazısı imza gösterir</string>
     <string name="artist_signatures_url">İmza API URL\'si</string>
@@ -1268,6 +1259,10 @@
     <string name="replay_summary_end_week">hafta</string>
     <string name="replay_this_week">Bu hafta</string>
     <string name="onboarding_title">Milyonlarca şarkı, BitChard’da akışta</string>
+    <string name="replay_period_weekly">Haftalık</string>
+    <string name="replay_period_monthly">Aylık</string>
+    <string name="replay_period_yearly">Yıllık</string>
+    <string name="replay_period_lifetime">Tüm zamanlar</string>
     <string name="onboarding_name_prompt">Size nasıl hitap edelim?</string>
     <string name="onboarding_name_hint">Adınız</string>
     <string name="onboarding_name_footer">Birlikte Dinle’yi kullandığınızda arkadaşlarınız bunu görür. Daha sonra Ayarlar’dan değiştirebilirsiniz.</string>

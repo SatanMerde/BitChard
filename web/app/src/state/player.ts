@@ -595,11 +595,21 @@ function refillAutoplay(force = false): Promise<void> {
 
 // ---- Crossfade ----------------------------------------------------------------------
 
+/**
+ * The fade is stepped by a timer, not requestAnimationFrame: Chrome stops
+ * frames altogether in a background tab, or a window covered by another,
+ * which is where music usually plays from. The new track then sat at volume
+ * 0 under the old one's end, silent until the tab was looked at again.
+ * Timers keep running there (at most a second apart), and each step works
+ * the volumes out from the clock, so a late step only lands further along.
+ */
+const FADE_STEP_MS = 40;
+
 let fade: { token: number; frame: number; pending: boolean } | null = null;
 
 function cancelCrossfade() {
   if (!fade) return;
-  cancelAnimationFrame(fade.frame);
+  clearTimeout(fade.frame);
   const wasPending = fade.pending;
   fade = null;
   if (!decks) return;
@@ -650,7 +660,7 @@ function maybeCrossfade() {
         from.gain = Math.cos((t * Math.PI) / 2);
         to.gain = Math.sin((t * Math.PI) / 2);
         applyVolumes();
-        if (t < 1 && !from.audio.ended) fade.frame = requestAnimationFrame(step);
+        if (t < 1 && !from.audio.ended) fade.frame = window.setTimeout(step, FADE_STEP_MS);
         else {
           fade = null;
           to.gain = 1;
@@ -659,7 +669,7 @@ function maybeCrossfade() {
           applyVolumes();
         }
       };
-      fade.frame = requestAnimationFrame(step);
+      step();
     })
     .catch((error: unknown) => {
       if (!fade || fade.token !== token) return;
@@ -686,6 +696,14 @@ function applyTrack(track: LoadedTrack, from?: Track) {
   };
   usePlayer.setState({ nowPlaying, error: null });
   updateMediaSession(nowPlaying);
+  followVideo();
+}
+
+/** A music video's picture follows the deck in front (playback/youtube/videoDeck.ts, loaded with the engine). */
+function followVideo() {
+  const deck = decks?.[active];
+  if (!deck) return;
+  void import('@/playback/youtube/videoDeck').then((m) => m.followVideo(deck.engine, deck.audio));
 }
 
 /** The elements' own events are the source of truth for play state; only the deck in front speaks. */
@@ -704,8 +722,11 @@ function bindElement(deck: Deck, n: number) {
   element.addEventListener('waiting', () => set('buffering'));
   element.addEventListener('ended', () => {
     if (!inFront()) return;
-    // A crossfade still loading takes over when it's ready (or advances on failure).
-    if (fade?.pending) return;
+    // The track ran out before the crossfade's next one could start: give up
+    // on the fade and play the next track here. Waiting on it was silence for
+    // as long as that load took, which on a slow or failing load (each client
+    // gets 15 s for first audio) came to half a minute.
+    if (fade?.pending) cancelCrossfade();
     // The queue moving on by itself is the user's intent, as far as a party is concerned.
     void advance(true).then(intent);
   });

@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath, URL } from 'node:url';
+import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
@@ -14,7 +15,7 @@ function devExtensionId(): string {
 }
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
   define: {
     DEV_EXTENSION_ID: JSON.stringify(devExtensionId()),
   },
@@ -26,8 +27,5 @@ export default defineConfig({
     // exactly, so the port must not drift to 5174 when 5173 is busy.
     port: 5173,
     strictPort: true,
-  },
-  css: {
-    modules: { localsConvention: 'camelCaseOnly' },
   },
 });

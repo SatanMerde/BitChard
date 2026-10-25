@@ -232,3 +232,47 @@
     --labelDivider: #ffffff4d;
   }
 }
+
+/*
+ * Artwork tint on album and playlist pages (lib/usePageTint.ts): the page's
+ * labels recoloured for the artwork's own background.
+ */
+[data-tint='dark'] {
+  --systemPrimary: #ffffffeb;
+  --systemSecondary: color-mix(in srgb, #ffffff 64%, var(--page-tint));
+  --systemTertiary: color-mix(in srgb, #ffffff 40%, var(--page-tint));
+  --labelDivider: #ffffff1f;
+  --tracklistHoverColor: #ffffff14;
+  --systemQuinary: #ffffff12;
+  --systemQuaternary: #ffffff24;
+  --button-pill-color: #000000;
+  --button-pill-background-color: #ffffff;
+  --genericJoeColor: color-mix(in srgb, #ffffff 10%, var(--page-tint));
+}
+
+[data-tint='light'] {
+  --systemPrimary: #000000e0;
+  --systemSecondary: color-mix(in srgb, #000000 60%, var(--page-tint));
+  --systemTertiary: color-mix(in srgb, #000000 40%, var(--page-tint));
+  --labelDivider: #0000001f;
+  --tracklistHoverColor: #00000012;
+  --systemQuinary: #0000000f;
+  --systemQuaternary: #00000024;
+  --button-pill-color: #ffffff;
+  --button-pill-background-color: #000000;
+  --genericJoeColor: color-mix(in srgb, #000000 8%, var(--page-tint));
+  color: var(--systemPrimary);
+}
+
+/*
+ * The full-screen player always stands on a dark mesh, so it takes the
+ * on-dark colours whatever the page's appearance.
+ */
+[data-full-screen] {
+  color-scheme: dark;
+  --systemPrimary: var(--systemPrimary-onDark);
+  --systemSecondary: var(--systemSecondary-onDark);
+  --systemTertiary: var(--systemTertiary-onDark);
+  --systemQuaternary: #ffffff2e;
+  --systemQuinary: #ffffff1a;
+}

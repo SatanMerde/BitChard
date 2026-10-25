@@ -99,10 +99,10 @@
     <string name="dolby_atmos_open_failed">無法開啟杜比全景聲設定</string>
     <string name="update_available">有可用更新：v%1$s</string>
     <string name="software_update">軟體更新</string>
-    <string name="update_available_body">bitchord %1$s 現已可供下載。</string>
-    <string name="update_downloading_body">正在下載 bitchord %1$s…</string>
-    <string name="update_ready_body">bitchord %1$s 已準備好安裝。</string>
-    <string name="update_failed_body">無法下載 bitchord %1$s。</string>
+    <string name="update_available_body">BitChard %1$s 現已可供下載。</string>
+    <string name="update_downloading_body">正在下載 BitChard %1$s…</string>
+    <string name="update_ready_body">BitChard %1$s 已準備好安裝。</string>
+    <string name="update_failed_body">無法下載 BitChard %1$s。</string>
     <string name="download_now">立即下載</string>
     <string name="install_now">立即安裝</string>
     <string name="later">以後再說</string>
@@ -750,7 +750,6 @@
 
     <string name="miscellaneous_footer">啟用後，從最近任務介面關閉應用也會停止音樂播放。</string>
 
-
     <plurals name="track_count_plural">
         <item quantity="other">%1$d 首曲目</item>
     </plurals>
@@ -780,7 +779,6 @@
     <string name="automix_mode_performance">高效能</string>
 
     <string name="automix_mode_performance_subtitle">4 個執行緒 · 分析最快 · 發熱和耗電較高</string>
-
 
     <string name="automix_performance">Automix 效能</string>
 
@@ -848,7 +846,6 @@
     <string name="output_precision">輸出精度</string>
 
     <string name="personal">個人</string>
-
 
     <string name="playlist_action">播放列表</string>
 
@@ -991,12 +988,7 @@
 
     <string name="use_this_profile">使用此資料</string>
 
-
     <string name="lyrics_offset">Lyrics offset</string>
-
-
-
-
 
     <string name="auto_quick_picks">Quick picks</string>
 
@@ -1133,8 +1125,6 @@
 
     <string name="no_languages_match">No languages match</string>
 
-
-
     <string name="audio_pipeline">Audio Pipeline</string>
     <string name="cast_dialog_title">Cast</string>
     <string name="cast_dialog_subtitle">Play on a Chromecast or Google Cast speaker</string>
@@ -1191,8 +1181,6 @@
 
     <string name="pipeline_device_name">Device Name</string>
 
-
-
     <string name="shared_link">Shared link</string>
 
     <string name="song_will_play_next">Song will play next</string>
@@ -1214,16 +1202,6 @@
 
     <string name="paxsenix_api_key_missing">PaxSenix API key — optional, not configured</string>
 
-
-
-
-
-
-
-
-
-
-
     <string name="source_needs_lossless_output">需要無損輸出 · 請使用支援無損的裝置</string>
     <string name="source_needs_lossless_bt_codec">需要無損輸出 · 藍芽當前為 %1$s；請使用支援無損的裝置</string>
     <string name="source_needs_lossless_bt_unknown">需要無損輸出 · 無法識別正在使用的藍芽編解碼器</string>
@@ -1233,6 +1211,10 @@
     <string name="cached_songs">已快取的歌曲</string>
     <string name="cached_songs_subtitle">歌曲快取中的 YouTube 和 JioSaavn 歌曲</string>
     <string name="cached_songs_empty">還沒有已快取的歌曲。你從 YouTube 或 JioSaavn 播放的歌曲會顯示在這裡。</string>
+    <string name="cached_song_partial">部分</string>
+    <string name="remove_from_cache">從快取中移除</string>
+    <string name="cached_song_remove">移除</string>
+    <string name="removed_from_cache">已從歌曲快取中移除</string>
     <string name="show_cache_folder">顯示已快取歌曲資料夾</string>
     <string name="show_cache_folder_subtitle">在資料庫中新增一個資料夾，列出歌曲快取中儲存的 YouTube 和 JioSaavn 歌曲</string>
     <string name="song_cache_unlimited">無限制</string>
@@ -1281,6 +1263,10 @@
     <string name="replay_summary_end_week">週</string>
     <string name="replay_this_week">本週</string>
     <string name="onboarding_title">數百萬首歌曲，在 BitChard 上暢聽</string>
+    <string name="replay_period_weekly">每週</string>
+    <string name="replay_period_monthly">每月</string>
+    <string name="replay_period_yearly">每年</string>
+    <string name="replay_period_lifetime">全部</string>
     <string name="onboarding_name_prompt">我們該怎麼稱呼你？</string>
     <string name="onboarding_name_hint">你的名字</string>
     <string name="onboarding_name_footer">使用「一起聽」時，好友會看到這個名字。你可以稍後在「設定」中修改。</string>
@@ -1325,12 +1311,12 @@
     <string name="wear_os_done">完成</string>
     <string name="spotify_use_spdc_token">使用 sp_dc 權杖</string>
 
-    <string name="artist_signatures">Artist signatures</string>
-    <string name="artist_signatures_subtitle">Shows a handwritten signature when Apple Music has no title logo</string>
-    <string name="artist_signatures_url">Signature API URL</string>
+    <string name="artist_signatures">演出者簽名</string>
+    <string name="artist_signatures_subtitle">當 Apple Music 沒有標題標誌時顯示手寫簽名</string>
+    <string name="artist_signatures_url">簽名 API URL</string>
     <string name="artist_signatures_url_hint">https://signatures.example.com</string>
-    <string name="artist_signatures_unconfigured">Not configured — tap to set the API URL</string>
-    <string name="artist_signatures_test_failed">Could not reach the API at that URL</string>
+    <string name="artist_signatures_unconfigured">尚未設定 — 點選設定 API URL</string>
+    <string name="artist_signatures_test_failed">無法連接該 URL 的 API</string>
     <string name="spotify_batch_import_card_title">Batch Import</string>
     <string name="spotify_batch_import_card_subtitle">Import all playlists and followed artists</string>
     <string name="spotify_batch_import_button">Import All</string>
@@ -1342,7 +1328,7 @@
     <string name="spotify_batch_import_start">Start Import</string>
     <string name="spotify_batch_import_done">Import completed!</string>
     <string name="spotify_batch_import_summary">%1$d playlists and %2$d artists imported</string>
-    <string name="signed_by">Signed by %1$s</string>
+    <string name="signed_by">由 %1$s 簽名</string>
     <string name="ai_dj_title">BitChard AI DJ</string>
     <string name="ai_dj_card_title">AI DJ — BitChard</string>
     <string name="ai_dj_card_subtitle">Spotify-like DJ with live spoken commentary &amp; dynamic mix</string>
@@ -1356,4 +1342,13 @@
     <string name="app_up_to_date">BitChard 已是最新版本 (v%1$s)</string>
     <string name="update_check_failed">無法檢查更新</string>
     <string name="allow_unknown_apps_to_update">請允許 BitChard 安裝應用程式以繼續更新</string>
+    <string name="song_info">歌曲資訊</string>
+    <string name="song_info_album">專輯</string>
+    <string name="song_info_release_date">發行日期</string>
+    <string name="song_info_views">播放 / 觀看次數</string>
+    <string name="song_info_likes">喜歡次數</string>
+    <string name="song_info_comments">留言數</string>
+    <string name="song_info_unavailable">暫無資訊</string>
+    <string name="song_info_error">部分資訊無法載入。</string>
+    <string name="song_info_retry">重試</string>
 </resources>
