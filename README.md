@@ -19,9 +19,15 @@
 [![Kotlin](https://img.shields.io/badge/Kotlin-Multiplatform-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white)](https://kotlinlang.org/)
 [![AI Powered](https://img.shields.io/badge/AI%20DJ-Gemini%20%7C%20Claude-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://deepmind.google/technologies/gemini/)
 
-<br/>
+<br/><br/>
 
-[**✨ What's Unique**](#-whats-unique-in-bitchard) • [**🤖 BitG AI DJ**](#-bitg--the-interactive-ai-dj) • [**🎤 Synced Lyrics**](#-apple-music-style-synced-lyrics) • [**🎛️ Audio Engine**](#%EF%B8%8F-audiophile--lossless-sound-engine) • [**📦 Playlists & Spotify**](#-100-editable-playlists--1-click-spotify-sync) • [**💻 Desktop & Multiplatform**](#-native-desktop--multiplatform-experience) • [**⚡ Downloads**](#-downloads--releases) • [**🛠️ Building**](#%EF%B8%8F-building-from-source)
+[![Report Bug](https://img.shields.io/badge/🐛_Report-Bug-FA233B?style=for-the-badge&logo=github&logoColor=white)](https://github.com/SatanMerde/BitChard/issues/new?template=bug_report.yml)
+[![Request Feature](https://img.shields.io/badge/✨_Request-Feature-00D2FF?style=for-the-badge&logo=github&logoColor=white)](https://github.com/SatanMerde/BitChard/issues/new?template=feature_request.yml)
+[![Community Discussions](https://img.shields.io/badge/💬_Community-Discussions-8A2BE2?style=for-the-badge&logo=github&logoColor=white)](https://github.com/SatanMerde/BitChard/discussions)
+
+<br/><br/>
+
+[**✨ What's Unique**](#-whats-unique-in-bitchard) • [**🤖 BitG AI DJ**](#-bitg--the-interactive-ai-dj) • [**🎤 Synced Lyrics**](#-apple-music-style-synced-lyrics) • [**🎛️ Audio Engine**](#%EF%B8%8F-audiophile--lossless-sound-engine) • [**📦 Playlists & Spotify**](#-100-editable-playlists--1-click-spotify-sync) • [**💻 Desktop & Multiplatform**](#-native-desktop--multiplatform-experience) • [**⚡ Downloads**](#-downloads--releases) • [**💬 Feedback & Issues**](#-community-feedback--support) • [**🛠️ Building**](#%EF%B8%8F-building-from-source)
 
 </div>
 
@@ -158,6 +164,21 @@ cd BitChard
 Compiled deliverables will be located at:
 - Android: `app/build/outputs/apk/dev/debug/`
 - Desktop: `desktopApp/build/compose/binaries/main/`
+
+---
+
+## 💬 Community, Feedback & Support
+
+We welcome your feedback, ideas, and issue reports to keep making BitChard better every day!
+
+<div align="center">
+
+| 🐛 Found a Bug? | ✨ Want a Feature? | 💬 Have a Question? |
+|:---:|:---:|:---:|
+| [**Open Bug Report**](https://github.com/SatanMerde/BitChard/issues/new?template=bug_report.yml) | [**Request Feature**](https://github.com/SatanMerde/BitChard/issues/new?template=feature_request.yml) | [**Join Discussions**](https://github.com/SatanMerde/BitChard/discussions) |
+| Detailed crash & device reproduction form | Propose improvements for BitG, UI, or Audio | Chat with the community & creator |
+
+</div>
 
 ---
 

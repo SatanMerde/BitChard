@@ -17,6 +17,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.Request
 import java.io.File
@@ -127,7 +128,8 @@ object AppUpdateChecker {
             val displayVersion = if (versionCandidate != "latest") versionCandidate else {
                 extractVersionFromText(releaseName) ?: releaseName.ifBlank { "latest" }
             }
-            val info = UpdateInfo(displayVersion, releaseUrl, apkUrl, notes)
+            val enrichedNotes = buildEnrichedNotes(notes, tag, BuildConfig.VERSION_NAME)
+            val info = UpdateInfo(displayVersion, releaseUrl, apkUrl, enrichedNotes)
             _available.value = info
             info
         } else {
@@ -138,6 +140,124 @@ object AppUpdateChecker {
             null
         }
     }.getOrNull()
+
+    private fun buildEnrichedNotes(
+        rawNotes: String?,
+        tag: String,
+        currentVersion: String,
+    ): String? {
+        val trimmed = rawNotes?.trim().orEmpty()
+        val isJustCompareLink = trimmed.isBlank() || trimmed.lines().all { line ->
+            val l = line.trim()
+            l.isBlank() ||
+            l.contains("compare/", ignoreCase = true) ||
+            l.contains("Full Changelog", ignoreCase = true) ||
+            l.startsWith("http://") ||
+            l.startsWith("https://")
+        }
+
+        // If release body already has substantial human-written notes (headers, bullets, paragraphs)
+        if (!isJustCompareLink && trimmed.length > 80 && trimmed.lines().size > 2) {
+            return rawNotes
+        }
+
+        val highlights = fetchCompareHighlights(tag, currentVersion, rawNotes)
+        if (!highlights.isNullOrBlank()) {
+            return buildString {
+                appendLine("### \uD83C\uDF1F Nouveautés & Changements clés")
+                appendLine()
+                appendLine(highlights)
+                if (trimmed.isNotBlank()) {
+                    appendLine()
+                    appendLine("---")
+                    appendLine(trimmed)
+                }
+            }.trim()
+        }
+
+        return rawNotes
+    }
+
+    private fun fetchCompareHighlights(
+        tag: String,
+        currentVersion: String,
+        rawNotes: String?,
+    ): String? = runCatching {
+        val compareUrlRegex = Regex("""https://github\.com/([^/]+)/([^/]+)/compare/([^\s\.\)]+)\.\.\.([^\s\.\)]+)""")
+        val match = rawNotes?.let { compareUrlRegex.find(it) }
+
+        val apiUrl = if (match != null) {
+            val (owner, repo, base, head) = match.destructured
+            "https://api.github.com/repos/$owner/$repo/compare/$base...$head"
+        } else {
+            val base = if (currentVersion.startsWith("v")) currentVersion else "v$currentVersion"
+            val head = if (tag.startsWith("v") || tag == "latest") tag else "v$tag"
+            "https://api.github.com/repos/SatanMerde/BitChard/compare/$base...$head"
+        }
+
+        val userAgent = "BitChard/${BuildConfig.VERSION_NAME} (Android)"
+        val request = Request.Builder()
+            .url(apiUrl)
+            .header("User-Agent", userAgent)
+            .header("Accept", "application/vnd.github+json")
+            .build()
+
+        val jsonStr = updateHttpClient.newCall(request).execute().use { response ->
+            if (response.isSuccessful) response.body.string() else null
+        } ?: return@runCatching null
+
+        val root = json.parseToJsonElement(jsonStr) as? JsonObject ?: return@runCatching null
+        val commits = root["commits"]?.jsonArray ?: return@runCatching null
+
+        val lines = commits.mapNotNull { element ->
+            val cObj = element as? JsonObject ?: return@mapNotNull null
+            val commitSub = cObj["commit"] as? JsonObject ?: return@mapNotNull null
+            val fullMsg = commitSub["message"]?.jsonPrimitive?.contentOrNull.orEmpty()
+            val firstLine = fullMsg.lineSequence().firstOrNull().orEmpty().trim()
+
+            if (firstLine.isBlank() ||
+                firstLine.startsWith("Merge ", ignoreCase = true) ||
+                firstLine.startsWith("release:", ignoreCase = true) ||
+                firstLine.startsWith("chore(release):", ignoreCase = true) ||
+                firstLine.contains("update contributors", ignoreCase = true) ||
+                firstLine.contains("[skip ci]", ignoreCase = true)
+            ) {
+                null
+            } else {
+                formatCommitHighlight(firstLine)
+            }
+        }.distinct().take(7)
+
+        if (lines.isNotEmpty()) lines.joinToString("\n") else null
+    }.getOrNull()
+
+    private fun formatCommitHighlight(rawTitle: String): String {
+        val title = rawTitle.trim()
+        val match = Regex("""^(feat|fix|perf|refactor)\(([^)]+)\):\s*(.+)$""", RegexOption.IGNORE_CASE).find(title)
+        if (match != null) {
+            val (kind, scope, descRaw) = match.destructured
+            val desc = descRaw.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+            val scopeLower = scope.lowercase()
+            return when {
+                scopeLower.contains("ai") || scopeLower.contains("bitg") -> "• \uD83E\uDD16 **IA / BitG** : $desc"
+                scopeLower.contains("playback") || scopeLower.contains("audio") -> "• \uD83C\uDFB5 **Audio** : $desc"
+                scopeLower.contains("desktop") -> "• \uD83D\uDCBB **Desktop** : $desc"
+                scopeLower.contains("ui") || scopeLower.contains("theme") -> "• \uD83C\uDFA8 **Interface** : $desc"
+                scopeLower.contains("lyrics") -> "• \uD83C\uDFA4 **Paroles** : $desc"
+                kind.equals("fix", ignoreCase = true) -> "• \uD83D\uDC1B **Correctif (${scope})** : $desc"
+                else -> "• ✨ **Nouveauté (${scope})** : $desc"
+            }
+        }
+        if (title.startsWith("feat:", ignoreCase = true)) {
+            val rest = title.substring(5).trim().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+            return "• ✨ $rest"
+        }
+        if (title.startsWith("fix:", ignoreCase = true)) {
+            val rest = title.substring(4).trim().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+            return "• \uD83D\uDC1B $rest"
+        }
+        return "• $title"
+    }
 
     private fun fetchLatestRelease(): JsonObject? = runCatching {
         val userAgent = "BitChard/${BuildConfig.VERSION_NAME} (Android)"
