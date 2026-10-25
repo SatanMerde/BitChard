@@ -21,7 +21,7 @@
 
 <br/>
 
-[**✨ What's New**](#-whats-new-in-bitchard) • [**🤖 BitG AI DJ**](#-bitg--the-interactive-ai-dj) • [**🎤 Synced Lyrics**](#-apple-music-style-synced-lyrics) • [**🎛️ Audio Engine**](#%EF%B8%8F-audiophile--lossless-sound-engine) • [**📦 Playlists & Spotify**](#-100-editable-playlists--1-click-spotify-sync) • [**💻 Desktop & Multiplatform**](#-native-desktop--multiplatform-experience) • [**⚡ Downloads**](#-downloads--releases) • [**🛠️ Building**](#%EF%B8%8F-building-from-source)
+[**✨ What's Unique**](#-whats-unique-in-bitchard) • [**🤖 BitG AI DJ**](#-bitg--the-interactive-ai-dj) • [**🎤 Synced Lyrics**](#-apple-music-style-synced-lyrics) • [**🎛️ Audio Engine**](#%EF%B8%8F-audiophile--lossless-sound-engine) • [**📦 Playlists & Spotify**](#-100-editable-playlists--1-click-spotify-sync) • [**💻 Desktop & Multiplatform**](#-native-desktop--multiplatform-experience) • [**⚡ Downloads**](#-downloads--releases) • [**🛠️ Building**](#%EF%B8%8F-building-from-source)
 
 </div>
 
@@ -102,18 +102,18 @@
 
 ---
 
-## ✨ What's New in BitChard
+## ✨ What's Unique in BitChard
 
 | Feature | BitChard | Original BitChord | Official YouTube Music |
 |---|:---:|:---:|:---:|
 | **Zero Ads & Full Background Playback** | ✅ **Yes (Free & Forever)** | ✅ Yes | ❌ Paid Subscription Required |
-| **Interactive Voice AI DJ (Gemini 2.0 / Claude)** | ✅ **Yes (BitG)** | ❌ No | ❌ No |
-| **Word & Syllable-Level Synced Lyrics (Apple Music Style)** | ✅ **Yes (Syllable-precision)** | ⚠️ Basic (Line-by-line) | ⚠️ Basic (Line-by-line) |
-| **100% Editable Imported Playlists (Reorder/Rename)** | ✅ **Yes (Full control)** | ❌ Read-only | ❌ No |
-| **1-Click Complete Spotify Batch Import** | ✅ **Yes** | ⚠️ Partial | ❌ No |
-| **24-bit Hi-Res Lossless FLAC / ALAC Streams** | ✅ **Yes** | ⚠️ Experimental | ❌ 256kbps AAC Max |
-| **Native Desktop App (Windows Mica / Linux MPRIS / Mac)** | ✅ **Yes** | ⚠️ Web Wrapper | ❌ Web Browser Only |
-| **Customization (Collapsible Volume Bar, Themes)** | ✅ **Yes** | ❌ Fixed | ❌ Fixed |
+| **Interactive Voice AI DJ (Gemini 2.0 / Claude / BitG)** | ✅ **Yes (Exclusive BitG)** | ❌ No | ❌ No |
+| **Word & Syllable-Level Synced Lyrics (Apple Music Style)** | ✅ **Yes** | ✅ Yes | ⚠️ Basic (Line-by-line) |
+| **24-bit Hi-Res Lossless FLAC / ALAC Streams** | ✅ **Yes** | ✅ Yes | ❌ 256kbps AAC Max |
+| **100% Editable Imported Playlists (Reorder / Rename)** | ✅ **Yes (Full control)** | ❌ Read-only | ❌ No |
+| **Enhanced 1-Click Spotify Batch Import** | ✅ **Yes (Custom matcher)** | ⚠️ Standard importer | ❌ No |
+| **Maintained Desktop Releases (Win Mica / Linux / Mac)** | ✅ **Yes (Continuous builds)** | ⚠️ Unmaintained in v1.8.1 | ❌ Web Browser Only |
+| **Customization (Collapsible Volume Bar, UI Tweaks)** | ✅ **Yes** | ❌ Fixed | ❌ Fixed |
 
 ---
 
