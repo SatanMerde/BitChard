@@ -1,0 +1,63 @@
+name: "✨ Feature Request"
+description: "Suggest an idea or new capability for BitChard"
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have an idea to make BitChard even better? We'd love to hear it!
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Feature Category
+      description: What part of BitChard does this request relate to?
+      options:
+        - "BitG AI DJ & Smart Assistance"
+        - "Audio Engine & Playback (Lossless, EQ, Crossfade)"
+        - "Lyrics (Synced, Apple Music style, Translations)"
+        - "Playlists & Spotify Batch Import"
+        - "Desktop UI & Window Integration (Mica, MPRIS, Cocoa)"
+        - "Mobile & WearOS / Android TV UI"
+        - "Performance & Resource Optimization"
+        - "Other"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Is your feature request related to a problem?
+      description: A clear and concise description of what problem or friction this feature solves.
+      placeholder: "e.g., I'm always frustrated when..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Describe the solution you'd like
+      description: A clear and concise description of what you want to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Describe alternatives you've considered
+      description: Any alternative solutions or workarounds you've thought about.
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context & Mockups
+      description: Add any other context, UI sketches, or screenshots about the feature request here.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have verified this feature hasn't already been requested or implemented.
+          required: true

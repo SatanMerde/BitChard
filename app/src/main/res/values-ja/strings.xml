@@ -99,10 +99,10 @@
     <string name="dolby_atmos_open_failed">Dolby Atmosの設定を開けませんでした</string>
     <string name="update_available">アップデートが利用可能です：v%1$s</string>
     <string name="software_update">ソフトウェアアップデート</string>
-    <string name="update_available_body">bitchord %1$s がダウンロード可能です。</string>
-    <string name="update_downloading_body">bitchord %1$s をダウンロード中…</string>
-    <string name="update_ready_body">bitchord %1$s のインストール準備ができました。</string>
-    <string name="update_failed_body">bitchord %1$s をダウンロードできませんでした。</string>
+    <string name="update_available_body">BitChard %1$s がダウンロード可能です。</string>
+    <string name="update_downloading_body">BitChard %1$s をダウンロード中…</string>
+    <string name="update_ready_body">BitChard %1$s のインストール準備ができました。</string>
+    <string name="update_failed_body">BitChard %1$s をダウンロードできませんでした。</string>
     <string name="download_now">今すぐダウンロード</string>
     <string name="install_now">今すぐインストール</string>
     <string name="later">後で</string>
@@ -750,7 +750,6 @@
 
     <string name="miscellaneous_footer">オンにすると、最近のアプリ画面からアプリを終了した際に音楽の再生も停止します。</string>
 
-
     <string name="switch_account">アカウントを切り替える</string>
 
     <string name="accounts">アカウント</string>
@@ -896,7 +895,6 @@
 
     <string name="card_songs_format">%1$s 曲</string>
 
-
     <plurals name="track_count_plural">
         <item quantity="other">%1$d 曲</item>
     </plurals>
@@ -918,7 +916,6 @@
     <string name="automix_mode_performance">高パフォーマンス</string>
 
     <string name="automix_mode_performance_subtitle">4 スレッド · 最速分析 · 発熱とバッテリー消費が高くなります</string>
-
 
     <string name="automix_performance">Automix パフォーマンス</string>
 
@@ -952,7 +949,6 @@
     <string name="liquid_glass_subtitle">フローティング ナビゲーション バーの屈折ガラス効果。Android 12 以降のみ。</string>
 
     <string name="liquid_glass_unavailable">Android 12 以降が必要です</string>
-
 
     <string name="playlist_action">プレイリスト</string>
 
@@ -992,12 +988,7 @@
 
     <string name="use_this_channel">このチャンネルを使用</string>
 
-
     <string name="lyrics_offset">Lyrics offset</string>
-
-
-
-
 
     <string name="auto_quick_picks">Quick picks</string>
 
@@ -1134,8 +1125,6 @@
 
     <string name="no_languages_match">No languages match</string>
 
-
-
     <string name="audio_pipeline">Audio Pipeline</string>
     <string name="cast_dialog_title">Cast</string>
     <string name="cast_dialog_subtitle">Play on a Chromecast or Google Cast speaker</string>
@@ -1192,8 +1181,6 @@
 
     <string name="pipeline_device_name">Device Name</string>
 
-
-
     <string name="shared_link">Shared link</string>
 
     <string name="song_will_play_next">Song will play next</string>
@@ -1215,16 +1202,6 @@
 
     <string name="paxsenix_api_key_missing">PaxSenix API key — optional, not configured</string>
 
-
-
-
-
-
-
-
-
-
-
     <string name="source_needs_lossless_output">ロスレス出力が必要 · ロスレス対応のデバイスを使用してください</string>
     <string name="source_needs_lossless_bt_codec">ロスレス出力が必要 · Bluetoothは%1$sです。ロスレス対応のデバイスを使用してください</string>
     <string name="source_needs_lossless_bt_unknown">ロスレス出力が必要 · 使用中のBluetoothコーデックを判別できません</string>
@@ -1234,6 +1211,10 @@
     <string name="cached_songs">キャッシュ済みの曲</string>
     <string name="cached_songs_subtitle">曲キャッシュ内のYouTubeとJioSaavnの曲</string>
     <string name="cached_songs_empty">キャッシュ済みの曲はまだありません。YouTubeやJioSaavnで再生した曲がここに表示されます。</string>
+    <string name="cached_song_partial">一部のみ</string>
+    <string name="remove_from_cache">キャッシュから削除</string>
+    <string name="cached_song_remove">削除</string>
+    <string name="removed_from_cache">曲のキャッシュから削除しました</string>
     <string name="show_cache_folder">キャッシュ済みの曲フォルダを表示</string>
     <string name="show_cache_folder_subtitle">曲キャッシュに保存されたYouTubeとJioSaavnの曲のフォルダをライブラリに追加します</string>
     <string name="song_cache_unlimited">無制限</string>
@@ -1289,6 +1270,10 @@
     <string name="replay_summary_end_week">週</string>
     <string name="replay_this_week">今週</string>
     <string name="onboarding_title">数百万曲を BitChard でストリーミング</string>
+    <string name="replay_period_weekly">週間</string>
+    <string name="replay_period_monthly">月間</string>
+    <string name="replay_period_yearly">年間</string>
+    <string name="replay_period_lifetime">全期間</string>
     <string name="onboarding_name_prompt">どうお呼びしましょうか?</string>
     <string name="onboarding_name_hint">あなたの名前</string>
     <string name="onboarding_name_footer">いっしょに聴くを使うと、友だちにこの名前が表示されます。あとから設定で変更できます。</string>
@@ -1357,4 +1342,13 @@
     <string name="app_up_to_date">BitChardは最新です (v%1$s)</string>
     <string name="update_check_failed">アップデートを確認できませんでした</string>
     <string name="allow_unknown_apps_to_update">アップデートを続行するには、BitChardにアプリのインストールを許可してください</string>
+    <string name="song_info">曲の情報</string>
+    <string name="song_info_album">アルバム</string>
+    <string name="song_info_release_date">リリース日</string>
+    <string name="song_info_views">再生回数 / 視聴回数</string>
+    <string name="song_info_likes">高評価</string>
+    <string name="song_info_comments">コメント</string>
+    <string name="song_info_unavailable">情報なし</string>
+    <string name="song_info_error">一部の情報を読み込めませんでした。</string>
+    <string name="song_info_retry">再試行</string>
 </resources>

@@ -82,7 +82,8 @@ export class SignedOutError extends Error {
 let ruleReady: Promise<void> | null = null;
 
 /**
- * A request made as [identity]. The browser attaches the cookies; the
+ * A request made as [identity], signed for [signAs] when that isn't the URL's
+ * own origin. The browser attaches the cookies; the
  * extension's session rule gives it the YouTube Origin the signature was
  * computed for (rules.ts, installExtensionFetchRule).
  */
@@ -90,6 +91,7 @@ export async function signedFetch(
   url: string,
   init: { method?: string; headers?: Record<string, string>; body?: BodyInit | null },
   identity: Identity,
+  signAs?: string,
 ): Promise<Response> {
   const secret = await signingSecret();
   if (!secret) throw new SignedOutError('The browser is not signed in to YouTube.');
@@ -99,7 +101,7 @@ export async function signedFetch(
   });
   await ruleReady;
 
-  const origin = new URL(url).origin;
+  const origin = signAs ?? new URL(url).origin;
   const headers = new Headers(init.headers);
   headers.set('Authorization', await sapisidHash(secret, origin));
   headers.set('X-Goog-AuthUser', identity.authUser);

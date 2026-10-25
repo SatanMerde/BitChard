@@ -105,5 +105,5 @@ All go through Pathfinder (`api-partner.spotify.com/pathfinder/v2/query`). Hashe
 - **The real Spotify account through the extension** (playlists, matching, Canvas) waits for the user to reload the extension at 0.4.0.
 - **Import to YouTube Music** writes to the account and wasn't run.
 - **Discord against the real gateway:** connecting needs the user's own click and account.
-- **Canvas** only shows in the Lyrics panel until the full-screen player exists.
+- **Canvas** only shows in the Lyrics side panel; the full-screen player stands on the artwork's mesh instead.
 - **Importing a public playlist by link** (`SpotifyImporter.extractPlaylistId` and the embed page) isn't built; the library covers the signed-in case.

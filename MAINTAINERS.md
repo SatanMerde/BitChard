@@ -55,6 +55,7 @@ This list is automatically generated from GitHub repository contributor data.
 - [@impin2rex](https://github.com/impin2rex)
 - [@nimalanrao](https://github.com/nimalanrao)
 - [@Nishad-Amit](https://github.com/Nishad-Amit)
+- [@Mickael81](https://github.com/Mickael81)
 - [@MaximeLeBesnerais](https://github.com/MaximeLeBesnerais)
 - [@InfantAjith96](https://github.com/InfantAjith96)
 - [@Elitenotavailable](https://github.com/Elitenotavailable)

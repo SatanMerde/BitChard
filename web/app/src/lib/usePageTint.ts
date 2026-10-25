@@ -5,7 +5,7 @@ import type { ArtworkColor } from './artworkColor';
  * Tints the whole scrolling page with the artwork's colour while a detail
  * page is open, as Apple's album and playlist pages do (report §3,
  * `has-theme-override`). The text colours that sit on it are switched in
- * AppShell.module.css by `data-tint`.
+ * tokens.css by `data-tint`.
  */
 export function usePageTint(color: ArtworkColor | null) {
   useEffect(() => {

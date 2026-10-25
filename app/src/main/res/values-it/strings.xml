@@ -127,10 +127,10 @@
     <string name="dolby_atmos_open_failed">Impossibile aprire le impostazioni Dolby Atmos</string>
     <string name="update_available">Aggiornamento disponibile: v%1$s</string>
     <string name="software_update">Aggiornamento software</string>
-    <string name="update_available_body">bitchord %1$s è disponibile per il download.</string>
-    <string name="update_downloading_body">Download di bitchord %1$s in corso…</string>
-    <string name="update_ready_body">bitchord %1$s è pronto da installare.</string>
-    <string name="update_failed_body">Impossibile scaricare bitchord %1$s.</string>
+    <string name="update_available_body">BitChard %1$s è disponibile per il download.</string>
+    <string name="update_downloading_body">Download di BitChard %1$s in corso…</string>
+    <string name="update_ready_body">BitChard %1$s è pronto da installare.</string>
+    <string name="update_failed_body">Impossibile scaricare BitChard %1$s.</string>
     <string name="download_now">Scarica ora</string>
     <string name="install_now">Installa ora</string>
     <string name="later">Più tardi</string>
@@ -835,7 +835,6 @@
 
     <string name="miscellaneous_footer">Quando attivo, chiudere l\'app dalla schermata delle app recenti interrompe anche la riproduzione musicale.</string>
 
-
     <string name="add_addon">Aggiungi un componente aggiuntivo</string>
 
     <string name="add_addon_detail">Collega BitChard a un server di componenti aggiuntivi che gestisci o di cui hai un link</string>
@@ -985,12 +984,7 @@
 
     <string name="upgrade_quality">Migliora qualità</string>
 
-
     <string name="lyrics_offset">Lyrics offset</string>
-
-
-
-
 
     <string name="settings_search_hint">Search settings</string>
 
@@ -1093,8 +1087,6 @@
 
     <string name="no_languages_match">No languages match</string>
 
-
-
     <string name="audio_pipeline">Audio Pipeline</string>
     <string name="cast_dialog_title">Cast</string>
     <string name="cast_dialog_subtitle">Play on a Chromecast or Google Cast speaker</string>
@@ -1151,8 +1143,6 @@
 
     <string name="pipeline_device_name">Device Name</string>
 
-
-
     <string name="shared_link">Shared link</string>
 
     <string name="song_will_play_next">Song will play next</string>
@@ -1176,16 +1166,6 @@
 
     <string name="paxsenix_api_key_missing">PaxSenix API key — optional, not configured</string>
 
-
-
-
-
-
-
-
-
-
-
     <string name="source_needs_lossless_output">Richiede un’uscita lossless · usa un dispositivo compatibile con il lossless</string>
     <string name="source_needs_lossless_bt_codec">Richiede un’uscita lossless · il Bluetooth usa %1$s; usa un dispositivo compatibile con il lossless</string>
     <string name="source_needs_lossless_bt_unknown">Richiede un’uscita lossless · impossibile sapere quale codec Bluetooth è in uso</string>
@@ -1195,6 +1175,10 @@
     <string name="cached_songs">Brani in cache</string>
     <string name="cached_songs_subtitle">Brani di YouTube e JioSaavn nella cache dei brani</string>
     <string name="cached_songs_empty">Ancora nessun brano in cache. I brani che riproduci da YouTube o JioSaavn appariranno qui.</string>
+    <string name="cached_song_partial">Parziale</string>
+    <string name="remove_from_cache">Rimuovi dalla cache</string>
+    <string name="cached_song_remove">Rimuovi</string>
+    <string name="removed_from_cache">Rimosso dalla cache dei brani</string>
     <string name="show_cache_folder">Mostra cartella dei brani in cache</string>
     <string name="show_cache_folder_subtitle">Aggiunge alla Libreria una cartella con i brani di YouTube e JioSaavn conservati nella cache</string>
     <string name="song_cache_unlimited">Illimitata</string>
@@ -1250,6 +1234,10 @@
     <string name="replay_summary_end_week">settimana</string>
     <string name="replay_this_week">Questa settimana</string>
     <string name="onboarding_title">Milioni di brani, in streaming su BitChard</string>
+    <string name="replay_period_weekly">Settimanale</string>
+    <string name="replay_period_monthly">Mensile</string>
+    <string name="replay_period_yearly">Annuale</string>
+    <string name="replay_period_lifetime">Di sempre</string>
     <string name="onboarding_name_prompt">Come vuoi che ti chiamiamo?</string>
     <string name="onboarding_name_hint">Il tuo nome</string>
     <string name="onboarding_name_footer">Gli amici lo vedono quando usi Ascolto condiviso. Potrai cambiarlo più tardi in Impostazioni.</string>
@@ -1318,4 +1306,13 @@
     <string name="app_up_to_date">BitChard è aggiornato (v%1$s)</string>
     <string name="update_check_failed">Impossibile controllare gli aggiornamenti</string>
     <string name="allow_unknown_apps_to_update">Consenti a BitChard di installare app per procedere con l\'aggiornamento</string>
+    <string name="song_info">Informazioni sul brano</string>
+    <string name="song_info_album">Album</string>
+    <string name="song_info_release_date">Data di uscita</string>
+    <string name="song_info_views">Riproduzioni / visualizzazioni</string>
+    <string name="song_info_likes">Mi piace</string>
+    <string name="song_info_comments">Commenti</string>
+    <string name="song_info_unavailable">Non disponibile</string>
+    <string name="song_info_error">Impossibile caricare alcune informazioni.</string>
+    <string name="song_info_retry">Riprova</string>
 </resources>

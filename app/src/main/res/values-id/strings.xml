@@ -99,10 +99,10 @@
     <string name="dolby_atmos_open_failed">Tidak dapat membuka pengaturan Dolby Atmos</string>
     <string name="update_available">Pembaruan tersedia: v%1$s</string>
     <string name="software_update">Pembaruan Perangkat Lunak</string>
-    <string name="update_available_body">bitchord %1$s tersedia untuk diunduh.</string>
-    <string name="update_downloading_body">Mengunduh bitchord %1$s…</string>
-    <string name="update_ready_body">bitchord %1$s siap dipasang.</string>
-    <string name="update_failed_body">Gagal mengunduh bitchord %1$s.</string>
+    <string name="update_available_body">BitChard %1$s tersedia untuk diunduh.</string>
+    <string name="update_downloading_body">Mengunduh BitChard %1$s…</string>
+    <string name="update_ready_body">BitChard %1$s siap dipasang.</string>
+    <string name="update_failed_body">Gagal mengunduh BitChard %1$s.</string>
     <string name="download_now">Unduh Sekarang</string>
     <string name="install_now">Pasang Sekarang</string>
     <string name="later">Nanti</string>
@@ -750,7 +750,6 @@
 
     <string name="miscellaneous_footer">Jika diaktifkan, menutup aplikasi dari layar aplikasi terbaru juga akan menghentikan pemutaran musik.</string>
 
-
     <plurals name="track_count_plural">
         <item quantity="other">%1$d lagu</item>
     </plurals>
@@ -780,7 +779,6 @@
     <string name="automix_mode_performance">Performa</string>
 
     <string name="automix_mode_performance_subtitle">4 thread · analisis tercepat · penggunaan baterai lebih tinggi</string>
-
 
     <string name="automix_performance">Performa Automix</string>
 
@@ -848,7 +846,6 @@
     <string name="output_precision">Presisi output</string>
 
     <string name="personal">Pribadi</string>
-
 
     <string name="playlist_action">Playlist</string>
 
@@ -991,12 +988,7 @@
 
     <string name="use_this_profile">Gunakan profil ini</string>
 
-
     <string name="lyrics_offset">Lyrics offset</string>
-
-
-
-
 
     <string name="auto_quick_picks">Quick picks</string>
 
@@ -1133,8 +1125,6 @@
 
     <string name="no_languages_match">No languages match</string>
 
-
-
     <string name="audio_pipeline">Audio Pipeline</string>
     <string name="cast_dialog_title">Cast</string>
     <string name="cast_dialog_subtitle">Play on a Chromecast or Google Cast speaker</string>
@@ -1191,8 +1181,6 @@
 
     <string name="pipeline_device_name">Device Name</string>
 
-
-
     <string name="shared_link">Shared link</string>
 
     <string name="song_will_play_next">Song will play next</string>
@@ -1214,16 +1202,6 @@
 
     <string name="paxsenix_api_key_missing">PaxSenix API key — optional, not configured</string>
 
-
-
-
-
-
-
-
-
-
-
     <string name="source_needs_lossless_output">Perlu output lossless · gunakan perangkat yang mendukung lossless</string>
     <string name="source_needs_lossless_bt_codec">Perlu output lossless · Bluetooth memakai %1$s; gunakan perangkat yang mendukung lossless</string>
     <string name="source_needs_lossless_bt_unknown">Perlu output lossless · codec Bluetooth yang dipakai tidak bisa diketahui</string>
@@ -1233,6 +1211,10 @@
     <string name="cached_songs">Lagu dalam cache</string>
     <string name="cached_songs_subtitle">Lagu dari YouTube dan JioSaavn di cache lagu</string>
     <string name="cached_songs_empty">Belum ada lagu dalam cache. Lagu yang kamu putar dari YouTube atau JioSaavn akan muncul di sini.</string>
+    <string name="cached_song_partial">Sebagian</string>
+    <string name="remove_from_cache">Hapus dari cache</string>
+    <string name="cached_song_remove">Hapus</string>
+    <string name="removed_from_cache">Dihapus dari cache lagu</string>
     <string name="show_cache_folder">Tampilkan folder lagu dalam cache</string>
     <string name="show_cache_folder_subtitle">Menambahkan folder di Pustaka berisi lagu YouTube dan JioSaavn yang disimpan di cache lagu</string>
     <string name="song_cache_unlimited">Tanpa batas</string>
@@ -1288,6 +1270,10 @@
     <string name="replay_summary_end_week">minggu</string>
     <string name="replay_this_week">Minggu ini</string>
     <string name="onboarding_title">Jutaan lagu, streaming di BitChard</string>
+    <string name="replay_period_weekly">Mingguan</string>
+    <string name="replay_period_monthly">Bulanan</string>
+    <string name="replay_period_yearly">Tahunan</string>
+    <string name="replay_period_lifetime">Sepanjang masa</string>
     <string name="onboarding_name_prompt">Anda ingin dipanggil apa?</string>
     <string name="onboarding_name_hint">Nama Anda</string>
     <string name="onboarding_name_footer">Teman akan melihatnya saat Anda memakai Dengarkan Bersama. Anda bisa mengubahnya nanti di Pengaturan.</string>
@@ -1356,4 +1342,13 @@
     <string name="app_up_to_date">BitChard sudah yang terbaru (v%1$s)</string>
     <string name="update_check_failed">Tidak dapat memeriksa pembaruan</string>
     <string name="allow_unknown_apps_to_update">Izinkan BitChard memasang aplikasi untuk melanjutkan pembaruan</string>
+    <string name="song_info">Info lagu</string>
+    <string name="song_info_album">Album</string>
+    <string name="song_info_release_date">Tanggal rilis</string>
+    <string name="song_info_views">Pemutaran / penayangan</string>
+    <string name="song_info_likes">Suka</string>
+    <string name="song_info_comments">Komentar</string>
+    <string name="song_info_unavailable">Tidak tersedia</string>
+    <string name="song_info_error">Sebagian informasi tidak dapat dimuat.</string>
+    <string name="song_info_retry">Coba lagi</string>
 </resources>

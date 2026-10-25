@@ -1,0 +1,95 @@
+name: "🐛 Bug Report"
+description: "Report a bug or unexpected behavior in BitChard"
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting an issue! Please check existing issues before submitting to avoid duplicates.
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      description: On which platform did the problem occur?
+      options:
+        - "Android (Phone/Tablet)"
+        - "Windows Desktop"
+        - "Linux Desktop"
+        - "macOS Desktop"
+        - "Android TV"
+        - "WearOS"
+        - "Web / Extension"
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: BitChard Version
+      description: Which version or commit of BitChard are you running? (e.g., v1.8.5, latest release)
+      placeholder: "e.g. v1.8.5"
+    validations:
+      required: true
+
+  - type: input
+    id: os_version
+    attributes:
+      label: Device & OS Version
+      description: Details about your device and operating system
+      placeholder: "e.g., Google Pixel 8 running Android 15 / Windows 11 24H2"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1. Open BitChard
+        2. Go to '...'
+        3. Click on '....'
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: A clear and concise description of what you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Stack Traces
+      description: Please paste any relevant logs, crash stack traces, or terminal outputs (if applicable).
+      render: shell
+
+  - type: textarea
+    id: media
+    attributes:
+      label: Screenshots / Screen Recordings
+      description: Drag and drop screenshots or screen recordings to help explain your problem.
+
+  - type: checkboxes
+    id: checklists
+    attributes:
+      label: Checklist
+      options:
+        - label: I have searched open and closed issues and confirmed this is not a duplicate.
+          required: true
+        - label: I am using the latest available version of BitChard.
+          required: true

@@ -1,7 +1,6 @@
 import { Check } from 'lucide-react';
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import styles from './Menu.module.css';
 
 export type MenuPlacement = 'above-start' | 'below-end';
 
@@ -67,8 +66,15 @@ export function Menu({ anchor, placement = 'below-end', onClose, label, children
 
   return createPortal(
     <>
-      <div className={styles.scrim} onPointerDown={onClose} aria-hidden="true" />
-      <div ref={panel} className={styles.menu} style={position} role="menu" aria-label={label}>
+      <div className="fixed inset-0 z-[calc(var(--z-contextual-menus)-1)]" onPointerDown={onClose} aria-hidden="true" />
+      <div
+        ref={panel}
+        // Apple's amp-contextual-menu (report §8).
+        className="fixed z-(--z-contextual-menus) max-w-[300px] min-w-[185px] animate-menu-in overflow-y-auto rounded-[10px] bg-thick-material p-[5px] shadow-[0_0_0_0.5px_var(--vibrantDivider),0_10px_40px_var(--glassMaterialShadowColor)] [backdrop-filter:saturate(2.2)_blur(32px)]"
+        style={position}
+        role="menu"
+        aria-label={label}
+      >
         {children}
       </div>
     </>,
@@ -91,26 +97,26 @@ interface MenuItemProps {
 export function MenuItem({ onSelect, icon, checked, destructive, disabled, trailing, children }: MenuItemProps) {
   return (
     <button
-      className={styles.item}
+      className="flex min-h-7 w-full items-center gap-2 rounded-[5px] px-2 py-1 text-start type-body text-primary enabled:hover:bg-quinary focus-visible:bg-quinary disabled:text-tertiary data-destructive:text-destructive"
       role={checked === undefined ? 'menuitem' : 'menuitemradio'}
       aria-checked={checked === undefined ? undefined : !!checked}
       data-destructive={destructive || undefined}
       disabled={disabled}
       onClick={onSelect}
     >
-      {checked !== undefined && <span className={styles.check}>{checked && <Check size={14} strokeWidth={2.6} />}</span>}
-      {icon && <span className={styles.icon}>{icon}</span>}
-      <span className={styles.label}>{children}</span>
-      {trailing && <span className={styles.trailing}>{trailing}</span>}
+      {checked !== undefined && <span className="inline-grid w-3.5 flex-none place-items-center text-key">{checked && <Check size={14} strokeWidth={2.6} />}</span>}
+      {icon && <span className="inline-grid w-5 flex-none place-items-center text-secondary">{icon}</span>}
+      <span className="min-w-0 flex-1 truncate">{children}</span>
+      {trailing && <span className="flex-none text-secondary">{trailing}</span>}
     </button>
   );
 }
 
 export function MenuSeparator() {
-  return <div className={styles.separator} role="separator" />;
+  return <div className="mx-2 my-[5px] border-t-[0.5px] border-t-vibrant-divider" role="separator" />;
 }
 
 /** A non-interactive heading inside a menu. */
 export function MenuHeader({ children }: { children: ReactNode }) {
-  return <div className={styles.header}>{children}</div>;
+  return <div className="px-2 pt-1.5 pb-1 type-subhead-emphasized text-secondary">{children}</div>;
 }

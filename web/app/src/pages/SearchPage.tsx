@@ -11,7 +11,6 @@ import { useCategories, useSearch, useYouTubeReady } from '@/data/music/queries'
 import type { MusicItem, SearchResults, Shelf } from '@/data/music/types';
 import { SkeletonBlock, SkeletonLine } from '@/components/Skeleton';
 import { ShelfSkeleton } from '@/skeletons/ShelfSkeleton';
-import styles from './SearchPage.module.css';
 
 const KIND_LABEL: Record<MusicItem['kind'], string> = {
   song: 'Song',
@@ -38,27 +37,35 @@ function shelvesFor(results: SearchResults): Shelf[] {
   ].filter((s): s is Shelf => !!s);
 }
 
+const sectionTitle = 'mx-(--body-gutter) mt-3 type-title-2-emphasized';
+// Top Results: 3 columns, gap 20px; 118px cards with 90px artwork.
+const topGrid =
+  'mx-(--body-gutter) mt-3 mb-8 grid grid-cols-3 gap-5 max-lg:grid-cols-2 max-[607px]:grid-cols-[minmax(0,1fr)] max-[607px]:gap-1';
+const top =
+  'grid min-h-[118px] grid-cols-[90px_minmax(0,1fr)] items-center gap-x-3.5 rounded-[8px] bg-quinary px-3 py-3.5 text-left hover:bg-quaternary';
+const topText = 'flex min-w-0 flex-col gap-0.5';
+
 function TopResult({ item }: { item: MusicItem }) {
   const href = hrefFor(item);
   const body = (
     <>
-      <div className={styles.topArtwork}>
+      <div className="w-[90px]">
         <Artwork src={item.thumbnail} displayWidth={90} radius={item.kind === 'artist' ? '50%' : 'var(--radius-artwork-small)'} />
       </div>
-      <div className={styles.topText}>
-        <span className={styles.topTitle}>{item.title}</span>
-        <span className={styles.topKind}>
+      <div className={topText}>
+        <span className="line-clamp-2 type-title-3">{item.title}</span>
+        <span className="truncate type-callout text-secondary">
           {[KIND_LABEL[item.kind], item.kind === 'artist' ? null : item.artists.map((a) => a.name).join(', ')].filter(Boolean).join(' · ')}
         </span>
       </div>
     </>
   );
   return href ? (
-    <PrefetchLink to={href} className={styles.top}>
+    <PrefetchLink to={href} className={top}>
       {body}
     </PrefetchLink>
   ) : (
-    <button className={styles.top} onClick={() => playTrack(item)}>
+    <button className={top} onClick={() => playTrack(item)}>
       {body}
     </button>
   );
@@ -67,14 +74,14 @@ function TopResult({ item }: { item: MusicItem }) {
 function ResultsSkeleton() {
   return (
     <div aria-busy="true">
-      <div className={styles.sectionTitle}>
+      <div className={sectionTitle}>
         <SkeletonLine lineHeight={22} fontSize={17} width={130} />
       </div>
-      <div className={styles.topGrid} aria-hidden="true">
+      <div className={topGrid} aria-hidden="true">
         {Array.from({ length: 6 }, (_, i) => (
-          <div key={i} className={styles.top}>
+          <div key={i} className={top}>
             <SkeletonBlock width={90} height={90} radius="var(--radius-artwork-small)" />
-            <div className={styles.topText}>
+            <div className={topText}>
               <SkeletonLine lineHeight={20} fontSize={15} width="70%" />
               <SkeletonLine lineHeight={15} fontSize={12} width="40%" />
             </div>
@@ -100,8 +107,8 @@ function Results({ query }: { query: string }) {
     <>
       {results.top.length > 0 && (
         <section aria-label="Top Results">
-          <h2 className={styles.sectionTitle}>Top Results</h2>
-          <div className={styles.topGrid}>
+          <h2 className={sectionTitle}>Top Results</h2>
+          <div className={topGrid}>
             {results.top.map((item) => (
               <TopResult key={item.id} item={item} />
             ))}
@@ -118,7 +125,7 @@ function Landing() {
   if (categories.isError) return <LoadError error={categories.error} onRetry={() => void categories.refetch()} />;
   if (!categories.data) {
     return (
-      <div className={styles.landingSkeleton} aria-busy="true">
+      <div className="mx-(--body-gutter) mt-[46px] mb-8 grid grid-cols-4 gap-5" aria-busy="true">
         {Array.from({ length: 12 }, (_, i) => (
           <SkeletonBlock key={i} aspectRatio="16 / 9" radius="var(--radius-artwork-large)" />
         ))}
@@ -136,7 +143,12 @@ export default function SearchPage() {
 
   return (
     <>
-      <div className={styles.scopeBar}>
+      {/*
+        The sticky scope bar holding the field (report §6: 62px, padding 12px 0). Its glass sits on
+        a layer behind it, not on the bar: an element with a backdrop-filter is a backdrop root, so
+        the suggestions inside it could only blur the bar itself and showed the page underneath unblurred.
+      */}
+      <div className="sticky top-0 z-[calc(var(--z-default)+5)] flex justify-center px-(--body-gutter) py-3 before:absolute before:inset-0 before:-z-1 before:bg-header-material before:[backdrop-filter:saturate(180%)_blur(20px)]">
         <SearchField initial={query} onSearch={(q) => setParams(q ? { q } : {})} />
       </div>
       {missing ? <NeedsExtension what="and search YouTube Music" /> : query ? <Results query={query} /> : <Landing />}

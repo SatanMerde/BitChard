@@ -7,8 +7,6 @@ export const LYRICS_SOURCES = [
   { id: 'lrc-red', label: 'lrc.red', detail: 'Apple timings by recording, syllable by syllable', wordSynced: true },
   { id: 'bini', label: 'BiniLyrics', detail: 'The same Apple timings, matched on the recording itself', wordSynced: true },
   { id: 'better-lyrics', label: 'BetterLyrics', detail: 'Apple Music timings, word by word', wordSynced: true },
-  { id: 'better-lyrics-ttml', label: 'BetterLyrics Syllable', detail: 'Apple Music syllable-level timing directly from TTML', wordSynced: true },
-  { id: 'netease', label: 'NetEase (YRC)', detail: 'Hyper-precise syllable & word-by-word timing via NetEase YRC', wordSynced: true },
   { id: 'better-lyrics-portato', label: 'BetterLyrics Portato', detail: 'QQ Music karaoke timings through BetterLyrics', wordSynced: true },
   { id: 'paxsenix', label: 'PaxSenix', detail: 'Apple Music timings through the original keyless provider', wordSynced: true },
   { id: 'paxsenix-spotify', label: 'PaxSenix: Spotify', detail: 'Spotify lyrics with PaxSenix fallback; API key required', wordSynced: false },

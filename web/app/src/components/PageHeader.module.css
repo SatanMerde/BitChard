@@ -1,8 +1,0 @@
-.header {
-  margin: 0 var(--body-gutter);
-  padding-top: 32px;
-}
-
-.title {
-  font: var(--header-emphasized);
-}

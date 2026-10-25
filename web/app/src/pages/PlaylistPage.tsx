@@ -8,7 +8,7 @@ import { usePlaylist, useYouTubeReady } from '@/data/music/queries';
 import { useArtworkColor } from '@/lib/artworkColor';
 import { usePageTint } from '@/lib/usePageTint';
 import { PlaylistSkeleton } from '@/skeletons/PageSkeletons';
-import styles from './DetailPage.module.css';
+import { detailFooter } from './pageStyles';
 
 /** A playlist (report §14): header, then the artwork track list, loading on as you scroll. */
 export default function PlaylistPage() {
@@ -38,9 +38,9 @@ export default function PlaylistPage() {
         onShuffle={() => shuffleList(tracks, context)}
       />
       <TrackList tracks={tracks} variant="playlist" onNearEnd={onNearEnd} source={context.source} />
-      {isFetchingNextPage && <div className={styles.loadingMore}>Loading more songs…</div>}
+      {isFetchingNextPage && <div className="flex justify-center py-5 type-callout text-secondary">Loading more songs…</div>}
       {playlist.isFetchNextPageError && <LoadMoreError onRetry={() => void fetchNextPage()} />}
-      <footer className={styles.footer}>
+      <footer className={detailFooter}>
         <p>{header.meta}</p>
       </footer>
     </>

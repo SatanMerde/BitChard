@@ -104,10 +104,10 @@
     <string name="dolby_atmos_open_failed">Dolby Atmos सेटिंग्स नहीं खोली जा सकीं</string>
     <string name="update_available">अपडेट उपलब्ध है: v%1$s</string>
     <string name="software_update">सॉफ़्टवेयर अपडेट</string>
-    <string name="update_available_body">bitchord %1$s डाउनलोड के लिए उपलब्ध है।</string>
-    <string name="update_downloading_body">bitchord %1$s डाउनलोड हो रहा है…</string>
-    <string name="update_ready_body">bitchord %1$s इंस्टॉल के लिए तैयार है।</string>
-    <string name="update_failed_body">bitchord %1$s डाउनलोड नहीं हो सका।</string>
+    <string name="update_available_body">BitChard %1$s डाउनलोड के लिए उपलब्ध है।</string>
+    <string name="update_downloading_body">BitChard %1$s डाउनलोड हो रहा है…</string>
+    <string name="update_ready_body">BitChard %1$s इंस्टॉल के लिए तैयार है।</string>
+    <string name="update_failed_body">BitChard %1$s डाउनलोड नहीं हो सका।</string>
     <string name="download_now">अभी डाउनलोड करें</string>
     <string name="install_now">अभी इंस्टॉल करें</string>
     <string name="later">बाद में</string>
@@ -770,7 +770,6 @@
 
     <string name="miscellaneous_footer">चालू होने पर, हाल के ऐप्स स्क्रीन से ऐप बंद करने पर संगीत प्लेबैक भी रुक जाएगा।</string>
 
-
     <plurals name="track_count_plural">
         <item quantity="one">%1$d ट्रैक</item>
         <item quantity="other">%1$d ट्रैक</item>
@@ -801,7 +800,6 @@
     <string name="automix_mode_performance">उच्च प्रदर्शन</string>
 
     <string name="automix_mode_performance_subtitle">4 थ्रेड्स · सबसे तेज़ विश्लेषण · अधिक बैटरी उपयोग</string>
-
 
     <string name="automix_performance">Automix प्रदर्शन</string>
 
@@ -869,7 +867,6 @@
     <string name="output_precision">आउटपुट परिशुद्धता</string>
 
     <string name="personal">व्यक्तिगत</string>
-
 
     <string name="playlist_action">प्लेलिस्ट</string>
 
@@ -1012,12 +1009,7 @@
 
     <string name="use_this_profile">इस प्रोफ़ाइल का उपयोग करें</string>
 
-
     <string name="lyrics_offset">Lyrics offset</string>
-
-
-
-
 
     <string name="auto_quick_picks">Quick picks</string>
 
@@ -1154,8 +1146,6 @@
 
     <string name="no_languages_match">No languages match</string>
 
-
-
     <string name="audio_pipeline">Audio Pipeline</string>
     <string name="cast_dialog_title">Cast</string>
     <string name="cast_dialog_subtitle">Play on a Chromecast or Google Cast speaker</string>
@@ -1212,8 +1202,6 @@
 
     <string name="pipeline_device_name">Device Name</string>
 
-
-
     <string name="shared_link">Shared link</string>
 
     <string name="song_will_play_next">Song will play next</string>
@@ -1237,16 +1225,6 @@
 
     <string name="paxsenix_api_key_missing">PaxSenix API key — optional, not configured</string>
 
-
-
-
-
-
-
-
-
-
-
     <string name="source_needs_lossless_output">लॉसलेस आउटपुट चाहिए · लॉसलेस सपोर्ट करने वाला डिवाइस इस्तेमाल करें</string>
     <string name="source_needs_lossless_bt_codec">लॉसलेस आउटपुट चाहिए · Bluetooth %1$s पर है; लॉसलेस सपोर्ट करने वाला डिवाइस इस्तेमाल करें</string>
     <string name="source_needs_lossless_bt_unknown">लॉसलेस आउटपुट चाहिए · पता नहीं चल रहा कि कौन-सा Bluetooth कोडेक चल रहा है</string>
@@ -1256,6 +1234,10 @@
     <string name="cached_songs">कैश किए गए गाने</string>
     <string name="cached_songs_subtitle">सॉन्ग कैश में YouTube और JioSaavn के गाने</string>
     <string name="cached_songs_empty">अभी कोई कैश किया गया गाना नहीं है। YouTube या JioSaavn से चलाए गए गाने यहाँ दिखेंगे।</string>
+    <string name="cached_song_partial">आंशिक</string>
+    <string name="remove_from_cache">कैश से हटाएँ</string>
+    <string name="cached_song_remove">हटाएँ</string>
+    <string name="removed_from_cache">गाने के कैश से हटाया गया</string>
     <string name="show_cache_folder">कैश किए गए गानों का फ़ोल्डर दिखाएँ</string>
     <string name="show_cache_folder_subtitle">लाइब्रेरी में सॉन्ग कैश में रखे YouTube और JioSaavn गानों का फ़ोल्डर जोड़ता है</string>
     <string name="song_cache_unlimited">असीमित</string>
@@ -1311,6 +1293,10 @@
     <string name="replay_summary_end_week">हफ़्ता</string>
     <string name="replay_this_week">इस हफ़्ते</string>
     <string name="onboarding_title">लाखों गाने, BitChard पर स्ट्रीम करें</string>
+    <string name="replay_period_weekly">साप्ताहिक</string>
+    <string name="replay_period_monthly">मासिक</string>
+    <string name="replay_period_yearly">वार्षिक</string>
+    <string name="replay_period_lifetime">सर्वकालिक</string>
     <string name="onboarding_name_prompt">हम आपको क्या कहकर बुलाएँ?</string>
     <string name="onboarding_name_hint">आपका नाम</string>
     <string name="onboarding_name_footer">साथ सुनें इस्तेमाल करने पर दोस्तों को यह दिखता है। इसे बाद में सेटिंग में बदला जा सकता है।</string>
@@ -1379,4 +1365,13 @@
     <string name="app_up_to_date">BitChard अप टू डेट है (v%1$s)</string>
     <string name="update_check_failed">अपडेट की जांच नहीं की जा सकी</string>
     <string name="allow_unknown_apps_to_update">अपडेट जारी रखने के लिए कृपया BitChard को ऐप इंस्टॉल करने की अनुमति दें</string>
+    <string name="song_info">गाने की जानकारी</string>
+    <string name="song_info_album">एल्बम</string>
+    <string name="song_info_release_date">रिलीज़ की तारीख</string>
+    <string name="song_info_views">प्ले / व्यू</string>
+    <string name="song_info_likes">पसंद</string>
+    <string name="song_info_comments">टिप्पणियाँ</string>
+    <string name="song_info_unavailable">उपलब्ध नहीं</string>
+    <string name="song_info_error">कुछ जानकारी लोड नहीं हो सकी।</string>
+    <string name="song_info_retry">फिर से कोशिश करें</string>
 </resources>

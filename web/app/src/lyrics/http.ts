@@ -13,6 +13,20 @@ import { getBridge } from '@/extension/bridge';
  *   that send no CORS headers or need headers a page can't set.
  */
 
+/** Hosts the page can't reach itself: KuGou, Musixmatch, Genius and Apple's catalogue (for PaxSenix). */
+export const LYRIC_EXTENSION_ORIGINS = [
+  'https://mobileservice.kugou.com',
+  'https://lyrics.kugou.com',
+  'https://apic.musixmatch.com',
+  'https://www.musixmatch.com',
+  'https://genius.com',
+  'https://music.apple.com',
+  'https://amp-api.music.apple.com',
+  'https://api.paxsenix.org',
+  'https://lyrics-api.boidu.dev',
+  'https://unison.boidu.dev',
+];
+
 const DIRECT_TIMEOUT_MS = 6000;
 const EXTENSION_TIMEOUT_MS = 15_000;
 

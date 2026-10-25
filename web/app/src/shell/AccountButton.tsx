@@ -2,15 +2,19 @@ import { ArrowUpRight, ChevronsUpDown } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { Menu, MenuHeader, MenuItem, MenuSeparator } from '@/components/Menu';
 import { useRefreshYtAuth, useSelectChannel, useSetConnected, useYtAuth } from '@/extension/useYtAuth';
-import styles from './AccountButton.module.css';
 
 const SIGN_IN_URL = 'https://accounts.google.com/ServiceLogin?service=youtube&continue=https://music.youtube.com/';
 
+// The signed-out pill: Apple's red "Sign In" (report §1, .navigation__native-cta).
+const pill =
+  'self-start rounded-[16px] bg-key px-3.5 py-[5px] type-[600_13px/18px] text-white hover:brightness-[1.08] disabled:opacity-60';
+const avatar = 'inline-grid flex-none place-items-center rounded-full bg-quinary object-cover type-[600_11px/1] text-secondary';
+
 function Avatar({ src, name, size }: { src: string | null; name: string; size: number }) {
   return src ? (
-    <img className={styles.avatar} src={src} alt="" width={size} height={size} referrerPolicy="no-referrer" />
+    <img className={avatar} src={src} alt="" width={size} height={size} referrerPolicy="no-referrer" />
   ) : (
-    <span className={styles.avatar} style={{ width: size, height: size }} aria-hidden="true">
+    <span className={avatar} style={{ width: size, height: size }} aria-hidden="true">
       {name.slice(0, 1).toUpperCase()}
     </span>
   );
@@ -37,14 +41,14 @@ export function AccountButton() {
 
   if (!auth.browserSignedIn) {
     return (
-      <a className={styles.pill} href={SIGN_IN_URL} target="_blank" rel="noreferrer">
+      <a className={pill} href={SIGN_IN_URL} target="_blank" rel="noreferrer">
         Sign In
       </a>
     );
   }
   if (!auth.connected) {
     return (
-      <button className={styles.pill} onClick={() => connect.mutate(true)} disabled={connect.isPending}>
+      <button className={pill} onClick={() => connect.mutate(true)} disabled={connect.isPending}>
         Connect YouTube Music
       </button>
     );
@@ -53,7 +57,7 @@ export function AccountButton() {
     // Signed in to the browser, but the account couldn't be read (the reason is on the Extension page).
     return (
       <button
-        className={styles.pill}
+        className={pill}
         title={auth.problem ?? undefined}
         onClick={() => refresh.mutate()}
         disabled={refresh.isPending}
@@ -68,14 +72,15 @@ export function AccountButton() {
   return (
     <>
       <button
-        className={styles.account}
+        // Signed in: a 24px avatar and the name, opening the account menu.
+        className="flex w-full min-w-0 items-center gap-2 rounded-nav px-1 py-1.5 text-start type-body-reduced text-primary hover:bg-quinary aria-expanded:bg-quinary"
         aria-haspopup="menu"
         aria-expanded={anchor !== null}
         onClick={(event) => setAnchor(anchor ? null : event.currentTarget)}
       >
         <Avatar src={active.avatarUrl} name={active.name} size={24} />
-        <span className={styles.name}>{active.name}</span>
-        {multiple && <ChevronsUpDown size={14} strokeWidth={2} className={styles.chevron} />}
+        <span className="min-w-0 flex-1 truncate">{active.name}</span>
+        {multiple && <ChevronsUpDown size={14} strokeWidth={2} className="flex-none text-secondary" />}
       </button>
       {anchor && (
         <Menu anchor={anchor} placement="above-start" onClose={close} label="Account">

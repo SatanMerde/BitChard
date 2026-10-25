@@ -95,6 +95,8 @@ export async function installRules(origins: string[]): Promise<void> {
  */
 export const EXTENSION_FETCH_RULE_ID = 100;
 const EXTENSION_MUSIC_FETCH_RULE_ID = 101;
+/** s.youtube.com, where the play-reporting pings go, as YouTube Music's own. */
+const EXTENSION_STATS_FETCH_RULE_ID = 102;
 
 export async function installExtensionFetchRule(): Promise<void> {
   const own = (id: number, host: string, origin: string): Rule => ({
@@ -104,10 +106,11 @@ export async function installExtensionFetchRule(): Promise<void> {
     action: { type: 'modifyHeaders', requestHeaders: impersonate(origin).slice(0, 2) },
   });
   await browser.declarativeNetRequest.updateSessionRules({
-    removeRuleIds: [EXTENSION_FETCH_RULE_ID, EXTENSION_MUSIC_FETCH_RULE_ID],
+    removeRuleIds: [EXTENSION_FETCH_RULE_ID, EXTENSION_MUSIC_FETCH_RULE_ID, EXTENSION_STATS_FETCH_RULE_ID],
     addRules: [
       own(EXTENSION_FETCH_RULE_ID, 'www.youtube.com', 'https://www.youtube.com'),
       own(EXTENSION_MUSIC_FETCH_RULE_ID, 'music.youtube.com', 'https://music.youtube.com'),
+      own(EXTENSION_STATS_FETCH_RULE_ID, 's.youtube.com', 'https://music.youtube.com'),
     ],
   });
 }

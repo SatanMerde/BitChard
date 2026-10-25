@@ -16,7 +16,7 @@ export const BRIDGE_CHANNEL = 'bitchord-bridge';
 export const EVENTS_PORT = 'bitchord-events';
 
 /** What the installed extension can do; `ping` reports it. */
-export type Capability = 'yt' | 'yt.auth' | 'addon' | 'lyrics' | 'spotify' | 'discord';
+export type Capability = 'yt' | 'yt.auth' | 'yt.stats' | 'addon' | 'lyrics' | 'spotify' | 'discord';
 
 export type BrowserFamily = 'chromium' | 'firefox';
 

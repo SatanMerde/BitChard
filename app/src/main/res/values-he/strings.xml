@@ -106,10 +106,10 @@
     <string name="dolby_atmos_open_failed">לא ניתן לפתוח את הגדרות Dolby Atmos</string>
     <string name="update_available">עדכון זמין: גרסה %1$s</string>
     <string name="software_update">עדכון תוכנה</string>
-    <string name="update_available_body">bitchord %1$s זמין להורדה.</string>
-    <string name="update_downloading_body">מוריד את bitchord %1$s…</string>
-    <string name="update_ready_body">bitchord %1$s מוכן להתקנה.</string>
-    <string name="update_failed_body">לא ניתן היה להוריד את bitchord %1$s.</string>
+    <string name="update_available_body">BitChard %1$s זמין להורדה.</string>
+    <string name="update_downloading_body">מוריד את BitChard %1$s…</string>
+    <string name="update_ready_body">BitChard %1$s מוכן להתקנה.</string>
+    <string name="update_failed_body">לא ניתן היה להוריד את BitChard %1$s.</string>
     <string name="download_now">הורדה עכשיו</string>
     <string name="install_now">התקנה עכשיו</string>
     <string name="later">מאוחר יותר</string>
@@ -775,7 +775,6 @@
 
     <string name="miscellaneous_footer">כשמופעל, סגירת האפליקציה ממסך האפליקציות האחרונות תעצור גם את השמעת המוזיקה.</string>
 
-
     <plurals name="track_count_plural">
         <item quantity="one">רצועה %1$d</item>
         <item quantity="other">%1$d רצועות</item>
@@ -806,7 +805,6 @@
     <string name="automix_mode_performance">ביצועים</string>
 
     <string name="automix_mode_performance_subtitle">4 תהליכונים · ניתוח מהיר ביותר · שימוש מוגבר בסוללה</string>
-
 
     <string name="automix_performance">ביצועי Automix</string>
 
@@ -874,7 +872,6 @@
     <string name="output_precision">דיוק פלט</string>
 
     <string name="personal">אישי</string>
-
 
     <string name="playlist_action">פלייליסט</string>
 
@@ -1017,12 +1014,7 @@
 
     <string name="use_this_profile">השתמש בפרופיל זה</string>
 
-
     <string name="lyrics_offset">Lyrics offset</string>
-
-
-
-
 
     <string name="auto_quick_picks">Quick picks</string>
 
@@ -1159,8 +1151,6 @@
 
     <string name="no_languages_match">No languages match</string>
 
-
-
     <string name="audio_pipeline">Audio Pipeline</string>
     <string name="cast_dialog_title">Cast</string>
     <string name="cast_dialog_subtitle">Play on a Chromecast or Google Cast speaker</string>
@@ -1217,8 +1207,6 @@
 
     <string name="pipeline_device_name">Device Name</string>
 
-
-
     <string name="shared_link">Shared link</string>
 
     <string name="song_will_play_next">Song will play next</string>
@@ -1242,16 +1230,6 @@
 
     <string name="paxsenix_api_key_missing">PaxSenix API key — optional, not configured</string>
 
-
-
-
-
-
-
-
-
-
-
     <string name="source_needs_lossless_output">דורש פלט ללא אובדן · השתמשו במכשיר שתומך באודיו ללא אובדן</string>
     <string name="source_needs_lossless_bt_codec">דורש פלט ללא אובדן · ה‑Bluetooth משתמש ב‑%1$s; השתמשו במכשיר שתומך באודיו ללא אובדן</string>
     <string name="source_needs_lossless_bt_unknown">דורש פלט ללא אובדן · לא ניתן לדעת באיזה קודק Bluetooth נעשה שימוש</string>
@@ -1261,6 +1239,10 @@
     <string name="cached_songs">שירים במטמון</string>
     <string name="cached_songs_subtitle">שירים מ-YouTube ומ-JioSaavn במטמון השירים</string>
     <string name="cached_songs_empty">אין עדיין שירים במטמון. שירים שתנגן מ-YouTube או מ-JioSaavn יופיעו כאן.</string>
+    <string name="cached_song_partial">חלקי</string>
+    <string name="remove_from_cache">הסרה מהמטמון</string>
+    <string name="cached_song_remove">הסרה</string>
+    <string name="removed_from_cache">הוסר ממטמון השירים</string>
     <string name="show_cache_folder">הצג תיקיית שירים במטמון</string>
     <string name="show_cache_folder_subtitle">מוסיף לספרייה תיקייה עם שירי YouTube ו-JioSaavn שנשמרו במטמון</string>
     <string name="song_cache_unlimited">ללא הגבלה</string>
@@ -1316,6 +1298,10 @@
     <string name="replay_summary_end_week">שבוע</string>
     <string name="replay_this_week">השבוע</string>
     <string name="onboarding_title">מיליוני שירים, בסטרימינג ב-BitChard</string>
+    <string name="replay_period_weekly">שבועי</string>
+    <string name="replay_period_monthly">חודשי</string>
+    <string name="replay_period_yearly">שנתי</string>
+    <string name="replay_period_lifetime">כל הזמן</string>
     <string name="onboarding_name_prompt">איך לקרוא לך?</string>
     <string name="onboarding_name_hint">השם שלך</string>
     <string name="onboarding_name_footer">חברים רואים את זה כשמאזינים יחד. אפשר לשנות זאת מאוחר יותר בהגדרות.</string>
@@ -1384,4 +1370,13 @@
     <string name="app_up_to_date">BitChard מעודכנת (v%1$s)</string>
     <string name="update_check_failed">לא ניתן לבדוק אם יש עדכונים</string>
     <string name="allow_unknown_apps_to_update">אנא אשר ל-BitChard להתקין אפליקציות כדי להמשיך בעדכון</string>
+    <string name="song_info">מידע על השיר</string>
+    <string name="song_info_album">אלבום</string>
+    <string name="song_info_release_date">תאריך יציאה</string>
+    <string name="song_info_views">השמעות / צפיות</string>
+    <string name="song_info_likes">לייקים</string>
+    <string name="song_info_comments">תגובות</string>
+    <string name="song_info_unavailable">לא זמין</string>
+    <string name="song_info_error">לא ניתן לטעון חלק מהמידע.</string>
+    <string name="song_info_retry">ניסיון חוזר</string>
 </resources>

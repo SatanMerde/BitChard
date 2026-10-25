@@ -159,11 +159,41 @@ object SpotifyImporter {
      * Resolves a track to the best matching YouTube Music Song.
      * Searches both SONGS and VIDEOS with smart sanitized queries and candidate scoring.
      */
-    suspend fun matchTarget(target: TrackMatcher.Target): Song? {
+    suspend fun matchTarget(
+        target: TrackMatcher.Target,
+        preferredLanguage: String? = null,
+        knownLanguages: List<String> = emptyList(),
+    ): Song? {
         val queries = TrackMatcher.queries(target).toMutableList()
+        if (preferredLanguage != null) {
+            val localized = "${target.title} ${target.artist} $preferredLanguage".trim()
+            if (localized !in queries) queries.add(0, localized)
+        }
         val rawQuery = "${target.title} ${target.artist}".trim()
         if (rawQuery.isNotBlank() && rawQuery !in queries) {
             queries.add(rawQuery)
+        }
+
+        // Drops candidates whose title/album says another language, so a Hindi
+        // import does not land on the Tamil or English upload of the same song.
+        fun pick(candidates: List<Song>): Song? {
+            val pool = if (preferredLanguage == null) {
+                candidates
+            } else {
+                candidates.filter { candidate ->
+                    val meta = "${candidate.title} ${candidate.artist} ${candidate.albumName.orEmpty()}".lowercase()
+                    knownLanguages.none { lang ->
+                        !lang.equals(preferredLanguage, ignoreCase = true) &&
+                            (
+                                meta.contains("(${lang.lowercase()})") ||
+                                    meta.contains("${lang.lowercase()} version") ||
+                                    meta.contains("${lang.lowercase()} song")
+                                )
+                    }
+                }.ifEmpty { candidates }
+            }
+            return TrackMatcher.best(pool, target)
+                ?: TrackMatcher.bestOfficialAudioForVideo(pool, target)
         }
 
         // 1. Search in SearchFilter.SONGS first across generated queries
@@ -177,8 +207,7 @@ object SpotifyImporter {
                 }
             }
             if (songCandidates.isNotEmpty()) {
-                val best = TrackMatcher.best(songCandidates, target)
-                    ?: TrackMatcher.bestOfficialAudioForVideo(songCandidates, target)
+                val best = pick(songCandidates)
                 if (best != null) return best
             }
         }
@@ -194,8 +223,7 @@ object SpotifyImporter {
                 }
             }
             if (videoCandidates.isNotEmpty()) {
-                val best = TrackMatcher.best(videoCandidates, target)
-                    ?: TrackMatcher.bestOfficialAudioForVideo(videoCandidates, target)
+                val best = pick(videoCandidates)
                 if (best != null) return best
             }
         }
@@ -211,8 +239,7 @@ object SpotifyImporter {
                 }
             }
             if (allCandidates.isNotEmpty()) {
-                val best = TrackMatcher.best(allCandidates, target)
-                    ?: TrackMatcher.bestOfficialAudioForVideo(allCandidates, target)
+                val best = pick(allCandidates)
                 if (best != null) return best
             }
         }
@@ -249,12 +276,16 @@ object SpotifyImporter {
         return matchTarget(target)
     }
 
-    suspend fun matchImportTrack(track: SpotifyImportTrack): Song? {
+    suspend fun matchImportTrack(
+        track: SpotifyImportTrack,
+        preferredLanguage: String? = null,
+        knownLanguages: List<String> = emptyList(),
+    ): Song? {
         val target = TrackMatcher.Target(
             title = track.title,
             artist = track.artist,
         )
-        return matchTarget(target)
+        return matchTarget(target, preferredLanguage, knownLanguages)
     }
 
     /** Tracks the embed page lists before it cuts off. */
@@ -313,20 +344,35 @@ object SpotifyImporter {
 
     /**
      * Resolves a list of Spotify tracks to full Song objects using Innertube search.
+     * Optionally filters or prioritizes matches by specified [language].
      * Reports real-time progress via [onProgress].
      */
     suspend fun resolveToSongs(
         tracks: List<SpotifyImportTrack>,
+        language: String? = null,
         onProgress: (completed: Int, total: Int) -> Unit,
     ): Pair<List<Song>, List<SpotifyImportTrack>> = coroutineScope {
         val total = tracks.size
         val completedCount = AtomicInteger(0)
         val semaphore = Semaphore(4) // Bounded concurrency for search queries
 
+        val cleanLang = language?.trim()?.takeIf {
+            !it.equals("No Preference", ignoreCase = true) &&
+            !it.equals("Multilingual", ignoreCase = true) &&
+            it.isNotBlank()
+        }
+
+        val knownLanguages = listOf(
+            "Tamil", "Telugu", "Kannada", "Malayalam", "Hindi",
+            "English", "Punjabi", "Marathi", "Bengali", "Bhojpuri", "Gujarati"
+        )
+
         val deferredResults = tracks.map { track ->
             async(Dispatchers.IO) {
                 semaphore.withPermit {
-                    val matchedSong = runCatching { matchImportTrack(track) }.getOrNull()
+                    val matchedSong = runCatching {
+                        matchImportTrack(track, cleanLang, knownLanguages)
+                    }.getOrNull()
 
                     val done = completedCount.incrementAndGet()
                     onProgress(done, total)

@@ -27,7 +27,7 @@ function focusSearch(navigate: ReturnType<typeof useNavigate>) {
 /**
  * The web player's shortcuts, which BitChard matches (report §8): Space
  * play/pause; ⌘/Ctrl+→ / ← next/previous; ⌘/Ctrl+↑ / ↓ volume; ⌘/Ctrl+F or
- * "/" focuses search; Esc closes the side panel.
+ * "/" focuses search; Esc closes the full-screen player, else the side panel.
  */
 export function useKeyboardShortcuts() {
   const navigate = useNavigate();
@@ -54,7 +54,11 @@ export function useKeyboardShortcuts() {
         return focusSearch(navigate);
       }
       if (event.key === 'Escape') {
-        if (useUi.getState().sidePanel) useUi.getState().closeSidePanel();
+        const ui = useUi.getState();
+        // A menu or dialog over the player closes first, on its own.
+        if ((event.target as HTMLElement | null)?.closest('[role="menu"], [role="dialog"]:not([data-full-screen])')) return;
+        if (ui.fullScreen) ui.setFullScreen(false);
+        else if (ui.sidePanel) ui.closeSidePanel();
         return;
       }
       if (!command) return;

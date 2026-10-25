@@ -24,7 +24,7 @@ const ALLOWED_ORIGINS = new Set(__SITE_ORIGINS__);
 const OWN_ORIGIN = new URL(browser.runtime.getURL('/')).origin;
 
 /** Grows as each phase lands its methods; Discord only in builds that include it. */
-const CAPABILITIES: Capability[] = ['yt', 'yt.auth', 'lyrics', 'spotify', ...(discord.AVAILABLE ? (['discord'] as const) : [])];
+const CAPABILITIES: Capability[] = ['yt', 'yt.auth', 'yt.stats', 'lyrics', 'spotify', ...(discord.AVAILABLE ? (['discord'] as const) : [])];
 
 function originOf(sender: Browser.runtime.MessageSender): string | null {
   if (sender.origin) return sender.origin;

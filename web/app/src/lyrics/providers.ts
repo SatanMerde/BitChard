@@ -1,6 +1,7 @@
 import { line, lineAlignments, withInstrumentalGaps, wordsFromRuns, type LyricLine, type TimedRun } from './model';
 import { decodeEntities, parseEnhancedLrc, parseLrc, parseProvider, parseTtml, plainLines, type Parsed } from './parse';
 import { lyricsGet, urlWith } from './http';
+import { appleWebToken } from '@/data/apple/webToken';
 
 /**
  * Every provider, ported from shared/…/data/lyrics/<Name>.kt. Each takes the
@@ -161,23 +162,6 @@ export async function unison(q: LyricsQuery): Promise<Parsed | null> {
 }
 
 // ---- PaxSenix (PaxSenix.kt) ---------------------------------------------------------------------
-
-let appleToken: Promise<string | null> | null = null;
-
-/** Apple's web player token, scraped from its own script (through the extension: no CORS there). */
-function appleWebToken(): Promise<string | null> {
-  appleToken ??= (async () => {
-    const page = await lyricsGet('https://music.apple.com/us/new', { route: 'extension' });
-    const script = page?.match(/\/assets\/index~[^"]+\.js/)?.[0];
-    if (!script) return null;
-    const source = await lyricsGet(`https://music.apple.com${script}`, { route: 'extension' });
-    return source?.match(/eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/)?.[0] ?? null;
-  })().then((token) => {
-    if (!token) appleToken = null;
-    return token;
-  });
-  return appleToken;
-}
 
 interface Candidate {
   id: string;
@@ -350,14 +334,9 @@ export async function paxSenixMusixmatch(q: LyricsQuery, key: string): Promise<P
 
 // ---- LyricsPlus (LyricsPlus.kt) ------------------------------------------------------------------
 
-const MIRRORS = [
-  'https://lyricsplus.prjktla.my.id',
-  'https://lyricsplus.atomix.one',
-  'https://lyricsplus.binimum.org',
-  'https://lyricsplus.prjktla.workers.dev',
-  'https://lyricsplus-seven.vercel.app',
-  'https://lyrics-plus-backend.vercel.app',
-];
+// atomix.one (bad certificate), prjktla.workers.dev (worker deleted) and the
+// two vercel.app deployments (disabled, 402) were dropped on 2026-10-17.
+const MIRRORS = ['https://lyricsplus.prjktla.my.id', 'https://lyricsplus.binimum.org'];
 let lastGoodMirror: string | null = null;
 
 interface LyricsPlusResponse {
@@ -507,6 +486,15 @@ export function stripKugouCredits(lrc: string): string {
   return body.slice(0, body.length - tail).join('\n');
 }
 
+const KUGOU_STAMP = /\[\d{2}:\d{2}\.\d{2,3}\]/g;
+const KUGOU_INSTRUMENTAL = /纯音乐.*欣赏/;
+
+/** A file holding nothing but KuGou's "纯音乐，请欣赏" ("pure music, please enjoy") notice. */
+export function isKugouInstrumentalNotice(lrc: string): boolean {
+  const lines = lrc.split(/\r?\n/).map((l) => l.replace(KUGOU_STAMP, '').trim()).filter(Boolean);
+  return lines.length > 0 && lines.every((l) => KUGOU_INSTRUMENTAL.test(l));
+}
+
 export async function kugou(q: LyricsQuery): Promise<Parsed | null> {
   const keyword = `${stripParenthetical(q.title)} - ${stripParenthetical(q.artist)}${q.album ? ` ${q.album}` : ''}`;
   const secs = Math.floor(q.durationMs / 1000);
@@ -534,7 +522,9 @@ export async function kugou(q: LyricsQuery): Promise<Parsed | null> {
   if (!download?.content) return null;
   try {
     const lrc = new TextDecoder().decode(Uint8Array.from(atob(download.content), (c) => c.charCodeAt(0)));
-    return fromLines(parseLrc(stripKugouCredits(lrc)));
+    const stripped = stripKugouCredits(lrc);
+    if (isKugouInstrumentalNotice(stripped)) return null;
+    return fromLines(parseLrc(stripped));
   } catch {
     return null;
   }

@@ -104,10 +104,10 @@
     <string name="dolby_atmos_open_failed">Dolby-Atmos-Einstellungen konnten nicht geöffnet werden</string>
     <string name="update_available">Update verfügbar: v%1$s</string>
     <string name="software_update">Softwareupdate</string>
-    <string name="update_available_body">bitchord %1$s steht zum Download bereit.</string>
-    <string name="update_downloading_body">bitchord %1$s wird heruntergeladen…</string>
-    <string name="update_ready_body">bitchord %1$s ist bereit zur Installation.</string>
-    <string name="update_failed_body">bitchord %1$s konnte nicht heruntergeladen werden.</string>
+    <string name="update_available_body">BitChard %1$s steht zum Download bereit.</string>
+    <string name="update_downloading_body">BitChard %1$s wird heruntergeladen…</string>
+    <string name="update_ready_body">BitChard %1$s ist bereit zur Installation.</string>
+    <string name="update_failed_body">BitChard %1$s konnte nicht heruntergeladen werden.</string>
     <string name="download_now">Jetzt herunterladen</string>
     <string name="install_now">Jetzt installieren</string>
     <string name="later">Später</string>
@@ -770,7 +770,6 @@
 
     <string name="miscellaneous_footer">Wenn aktiviert, stoppt das Schließen der App aus den letzten Apps auch die Musikwiedergabe.</string>
 
-
     <plurals name="track_count_plural">
         <item quantity="one">%1$d Titel</item>
         <item quantity="other">%1$d Titel</item>
@@ -801,7 +800,6 @@
     <string name="automix_mode_performance">Leistung</string>
 
     <string name="automix_mode_performance_subtitle">4 Threads · schnellste Analyse · höherer Akkuverbrauch</string>
-
 
     <string name="automix_performance">Automix-Leistung</string>
 
@@ -869,7 +867,6 @@
     <string name="output_precision">Ausgabegenauigkeit</string>
 
     <string name="personal">Persönlich</string>
-
 
     <string name="playlist_action">Playlist</string>
 
@@ -1012,12 +1009,7 @@
 
     <string name="use_this_profile">Dieses Profil nutzen</string>
 
-
     <string name="lyrics_offset">Lyrics offset</string>
-
-
-
-
 
     <string name="auto_quick_picks">Quick picks</string>
 
@@ -1154,8 +1146,6 @@
 
     <string name="no_languages_match">No languages match</string>
 
-
-
     <string name="audio_pipeline">Audio Pipeline</string>
     <string name="cast_dialog_title">Cast</string>
     <string name="cast_dialog_subtitle">Play on a Chromecast or Google Cast speaker</string>
@@ -1212,8 +1202,6 @@
 
     <string name="pipeline_device_name">Device Name</string>
 
-
-
     <string name="shared_link">Shared link</string>
 
     <string name="song_will_play_next">Song will play next</string>
@@ -1237,16 +1225,6 @@
 
     <string name="paxsenix_api_key_missing">PaxSenix API key — optional, not configured</string>
 
-
-
-
-
-
-
-
-
-
-
     <string name="source_needs_lossless_output">Braucht eine verlustfreie Ausgabe · nutze ein Gerät, das Lossless unterstützt</string>
     <string name="source_needs_lossless_bt_codec">Braucht eine verlustfreie Ausgabe · Bluetooth nutzt %1$s; nutze ein Gerät, das Lossless unterstützt</string>
     <string name="source_needs_lossless_bt_unknown">Braucht eine verlustfreie Ausgabe · der Bluetooth-Codec ist nicht erkennbar</string>
@@ -1256,6 +1234,10 @@
     <string name="cached_songs">Zwischengespeicherte Songs</string>
     <string name="cached_songs_subtitle">Songs von YouTube und JioSaavn im Song-Cache</string>
     <string name="cached_songs_empty">Noch keine zwischengespeicherten Songs. Songs, die du von YouTube oder JioSaavn abspielst, erscheinen hier.</string>
+    <string name="cached_song_partial">Teilweise</string>
+    <string name="remove_from_cache">Aus dem Cache entfernen</string>
+    <string name="cached_song_remove">Entfernen</string>
+    <string name="removed_from_cache">Aus dem Song-Cache entfernt</string>
     <string name="show_cache_folder">Ordner für zwischengespeicherte Songs anzeigen</string>
     <string name="show_cache_folder_subtitle">Fügt der Mediathek einen Ordner mit den YouTube- und JioSaavn-Songs im Song-Cache hinzu</string>
     <string name="song_cache_unlimited">Unbegrenzt</string>
@@ -1311,6 +1293,10 @@
     <string name="replay_summary_end_week">Woche</string>
     <string name="replay_this_week">Diese Woche</string>
     <string name="onboarding_title">Millionen Songs, gestreamt auf BitChard</string>
+    <string name="replay_period_weekly">Wöchentlich</string>
+    <string name="replay_period_monthly">Monatlich</string>
+    <string name="replay_period_yearly">Jährlich</string>
+    <string name="replay_period_lifetime">Gesamt</string>
     <string name="onboarding_name_prompt">Wie sollen wir dich nennen?</string>
     <string name="onboarding_name_hint">Dein Name</string>
     <string name="onboarding_name_footer">Freunde sehen das bei Gemeinsam hören. Du kannst es später in den Einstellungen ändern.</string>
@@ -1379,4 +1365,13 @@
     <string name="app_up_to_date">BitChard ist auf dem neuesten Stand (v%1$s)</string>
     <string name="update_check_failed">Updates konnten nicht gesucht werden</string>
     <string name="allow_unknown_apps_to_update">Bitte erlaube BitChard, Apps zu installieren, um mit dem Update fortzufahren</string>
+    <string name="song_info">Titelinformationen</string>
+    <string name="song_info_album">Album</string>
+    <string name="song_info_release_date">Veröffentlichungsdatum</string>
+    <string name="song_info_views">Wiedergaben / Aufrufe</string>
+    <string name="song_info_likes">Gefällt mir</string>
+    <string name="song_info_comments">Kommentare</string>
+    <string name="song_info_unavailable">Nicht verfügbar</string>
+    <string name="song_info_error">Einige Informationen konnten nicht geladen werden.</string>
+    <string name="song_info_retry">Erneut versuchen</string>
 </resources>

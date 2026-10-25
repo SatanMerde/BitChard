@@ -1,4 +1,4 @@
-import { Star } from 'lucide-react';
+import { StarFilledIcon, StarIcon } from '@/components/icons/Transport';
 import { useLikeStatus, useSetLiked, useSignedIn } from '@/data/music/queries';
 
 interface FavoriteButtonProps {
@@ -29,7 +29,7 @@ export function FavoriteButton({ videoId, className, size = 18 }: FavoriteButton
         setLiked.mutate({ videoId, liked: !liked });
       }}
     >
-      <Star size={size} strokeWidth={2} fill={liked ? 'currentColor' : 'none'} />
+      {liked ? <StarFilledIcon size={size} /> : <StarIcon size={size} />}
     </button>
   );
 }

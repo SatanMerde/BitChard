@@ -28,6 +28,7 @@ import com.music.bitchord.data.lyrics.LyricLine
 import com.music.bitchord.data.lyrics.LyricsRepository
 import com.music.bitchord.data.lyrics.LyricsSource
 import com.music.bitchord.data.settings.AppSettings
+import com.music.bitchord.ui.navigation.AppNavigator
 import com.music.bitchord.data.innertube.Innertube
 import com.music.bitchord.data.innertube.PlaybackTracker
 import com.music.bitchord.data.innertube.StreamResolver
@@ -584,6 +585,17 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
      */
     private val _detailStack = MutableStateFlow<List<DetailPage>>(emptyList())
     val detailStack: StateFlow<List<DetailPage>> = _detailStack.asStateFlow()
+
+    /**
+     * The app's back stack: the routes pushed over the tabs, interleaved with
+     * [detailStack]. Held here so it survives a configuration change along
+     * with the release pages it is ordered against.
+     */
+    val navigator = AppNavigator(
+        detailDepth = { _detailStack.value.size },
+        popDetail = ::closeDetail,
+        clearDetails = ::clearDetail,
+    )
 
     /** UI-side continuation fetches that can be handed to the playback service. */
     private val fillInJobs = mutableMapOf<String, Job>()
@@ -1341,7 +1353,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     /**
-     * The playlist's entries as they stand on YouTube, for the reorder sheet —
+     * The playlist's entries as they stand on YouTube, for the reorder page —
      * see [YtMusicRepository.playlistEntries] for why not the open page's list.
      */
     fun loadPlaylistEntries(playlist: UserPlaylist, onResult: (Result<List<Song>>) -> Unit) {
@@ -1440,6 +1452,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                     // nothing left to show.
                     _detailStack.value = _detailStack.value
                         .filterNot { it.browseId == playlist.browseId }
+                    navigator.onDetailStackShrunk(_detailStack.value.size)
                     libraryStale = true
                 },
                 onFailure = {},
@@ -1762,6 +1775,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     /** Tapping a tab should leave any pushed page behind. */
     fun clearDetail() {
         if (_detailStack.value.isNotEmpty()) _detailStack.value = emptyList()
+        navigator.onDetailStackShrunk(0)
     }
 
     fun loadHome() {
@@ -3202,6 +3216,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         val stack = _detailStack.value
         if (stack.isEmpty()) return false
         _detailStack.value = stack.dropLast(1)
+        navigator.onDetailStackShrunk(_detailStack.value.size)
         return true
     }
 

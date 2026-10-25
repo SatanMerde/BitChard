@@ -1,23 +1,24 @@
 import { ChevronRight, Users } from 'lucide-react';
 import { lazy, Suspense, useState, type ComponentType, type ReactNode } from 'react';
 import { MdOutlineExtension } from 'react-icons/md';
-import { SiDiscord, SiSpotify, SiYoutubemusic } from 'react-icons/si';
+import { SiApplemusic, SiDiscord, SiSpotify, SiYoutubemusic } from 'react-icons/si';
 import { PageHeader } from '@/components/PageHeader';
 import { PrefetchLink } from '@/components/PrefetchLink';
 import { useDiscord } from '@/extension/useDiscord';
 import { useExtension } from '@/extension/useExtension';
 import { useYtAuth } from '@/extension/useYtAuth';
 import { useParty } from '@/party/useParty';
+import { useHistorySettings } from '@/playback/historyReporting';
 import { CROSSFADE_CHOICES, usePlayer } from '@/state/player';
-import { CanvasToggle, DiscordIntegration, SpotifyIntegration, Toggle } from './IntegrationSettings';
-import styles from './ExtensionPage.module.css';
+import { AppleMusicIntegration, AppleMusicToggles, CanvasToggle, DiscordIntegration, LyricSourcesAccess, SpotifyIntegration, Toggle } from './IntegrationSettings';
+import { settingsUi } from './settingsStyles';
 
 const LyricsSettings = lazy(() => import('@/shell/LyricsSettings').then((m) => ({ default: m.LyricsSettings })));
 
 /** An integration's coloured glyph, as on the Extension page. */
 function Glyph({ Icon, color, ink }: { Icon: ComponentType<{ size?: number }>; color: string; ink?: string }) {
   return (
-    <span className={styles.integrationIcon} style={{ backgroundColor: color, ...(ink && { color: ink }) }}>
+    <span className={settingsUi.integrationIcon} style={{ backgroundColor: color, ...(ink && { color: ink }) }}>
       <Icon size={15} />
     </span>
   );
@@ -26,10 +27,10 @@ function Glyph({ Icon, color, ink }: { Icon: ComponentType<{ size?: number }>; c
 /** A row that opens a page of its own. */
 function LinkRow({ to, icon, title, value }: { to: string; icon?: ReactNode; title: string; value?: string | null }) {
   return (
-    <PrefetchLink to={to} className={`${styles.integration} ${styles.linkRow}`}>
+    <PrefetchLink to={to} className={`${icon ? settingsUi.integration : settingsUi.integrationPlain} ${settingsUi.linkRow}`}>
       {icon}
-      <span className={styles.integrationName}>{title}</span>
-      <span className={styles.value}>
+      <span className={settingsUi.integrationName}>{title}</span>
+      <span className={settingsUi.value}>
         {value}
         <ChevronRight size={16} />
       </span>
@@ -57,6 +58,8 @@ export default function SettingsPage() {
   const party = useParty();
   const autoplay = usePlayer((s) => s.autoplay);
   const crossfadeSec = usePlayer((s) => s.crossfadeSec);
+  const shareHistory = useHistorySettings((s) => s.share);
+  const setShareHistory = useHistorySettings((s) => s.setShare);
   const { setAutoplay, setCrossfade } = usePlayer.getState();
   const [lyrics, setLyrics] = useState(false);
   const present = extension.state === 'present';
@@ -70,20 +73,20 @@ export default function SettingsPage() {
         : null;
 
   return (
-    <div className={styles.centered}>
+    <div className={settingsUi.centered}>
       <PageHeader title="Settings" />
-      <div className={styles.body}>
-        <h2 className={styles.sectionHeader}>Account & Integrations</h2>
-        <section className={styles.group}>
-          <div className={styles.integration}>
+      <div className={settingsUi.body}>
+        <h2 className={settingsUi.sectionHeader}>Account & Integrations</h2>
+        <section className={settingsUi.group}>
+          <div className={settingsUi.integration}>
             <Glyph Icon={SiYoutubemusic} color="#ffffff" ink="#ff0033" />
-            <span className={styles.integrationName}>YouTube Music</span>
-            <span className={styles.value}>{youtubeText(yt)}</span>
+            <span className={settingsUi.integrationName}>YouTube Music</span>
+            <span className={settingsUi.value}>{youtubeText(yt)}</span>
           </div>
-          <div className={styles.integration}>
+          <div className={settingsUi.integration}>
             <Glyph Icon={SiSpotify} color="#1ed760" />
-            <span className={styles.integrationName}>Spotify</span>
-            {present ? <SpotifyIntegration /> : <span className={styles.value}>Needs the extension</span>}
+            <span className={settingsUi.integrationName}>Spotify</span>
+            {present ? <SpotifyIntegration /> : <span className={settingsUi.value}>Needs the extension</span>}
           </div>
           {present && discord.state === 'ready' && discord.discord.available && (
             <LinkRow to="/settings/discord" icon={<Glyph Icon={SiDiscord} color="#5865f2" />} title="Discord" value={discordText} />
@@ -95,12 +98,33 @@ export default function SettingsPage() {
             value={present ? `v${extension.extension.info.version}` : 'Not installed'}
           />
         </section>
-        <section className={`${styles.group} ${styles.spaced}`}>
+        <section className={`${settingsUi.group} mt-3 empty:hidden`}>
+          <Toggle
+            label="Share Listening Activity to YouTube"
+            detail={
+              present && !extension.extension.info.capabilities.includes('yt.stats')
+                ? 'Update the BitChard extension to share: this version can’t send plays to YouTube.'
+                : 'Songs you play here go to your YouTube Music history and shape its recommendations.'
+            }
+            checked={shareHistory}
+            onChange={setShareHistory}
+          />
           <CanvasToggle />
         </section>
 
-        <h2 className={styles.sectionHeader}>Listen Together</h2>
-        <section className={styles.group}>
+        <h2 className={settingsUi.sectionHeader}>Apple Music</h2>
+        <section className={settingsUi.group}>
+          <div className={settingsUi.integration}>
+            <Glyph Icon={SiApplemusic} color="#fa2d48" />
+            <span className={settingsUi.integrationName}>Extension Access</span>
+            {present ? <AppleMusicIntegration /> : <span className={settingsUi.value}>Needs the extension</span>}
+          </div>
+          <AppleMusicToggles />
+        </section>
+        <p className={settingsUi.footer}>From Apple Music’s public pages. No Apple Music account or sign-in needed.</p>
+
+        <h2 className={settingsUi.sectionHeader}>Listen Together</h2>
+        <section className={settingsUi.group}>
           <LinkRow
             to="/settings/listen-together"
             icon={<Glyph Icon={Users} color="#fa2d48" />}
@@ -109,17 +133,17 @@ export default function SettingsPage() {
           />
         </section>
 
-        <h2 className={styles.sectionHeader}>Playback</h2>
-        <section className={styles.group}>
+        <h2 className={settingsUi.sectionHeader}>Playback</h2>
+        <section className={settingsUi.group}>
           <Toggle
             label="AutoPlay"
             detail="When the queue ends, keep playing similar music."
             checked={autoplay}
             onChange={setAutoplay}
           />
-          <label className={styles.row}>
+          <label className={settingsUi.controlRow}>
             <span>Crossfade</span>
-            <select className={styles.select} value={crossfadeSec} onChange={(e) => setCrossfade(Number(e.currentTarget.value))}>
+            <select className={settingsUi.select} value={crossfadeSec} onChange={(e) => setCrossfade(Number(e.currentTarget.value))}>
               {CROSSFADE_CHOICES.map((seconds) => (
                 <option key={seconds} value={seconds}>
                   {seconds === 0 ? 'Off' : `${seconds} seconds`}
@@ -129,15 +153,19 @@ export default function SettingsPage() {
           </label>
         </section>
 
-        <h2 className={styles.sectionHeader}>Lyrics</h2>
-        <section className={styles.group}>
-          <button className={`${styles.integration} ${styles.linkRow}`} onClick={() => setLyrics(true)}>
-            <span className={styles.integrationName}>Lyric Sources</span>
-            <span className={styles.value}>
+        <h2 className={settingsUi.sectionHeader}>Lyrics</h2>
+        <section className={settingsUi.group}>
+          <button className={`${settingsUi.integrationPlain} ${settingsUi.linkRow}`} onClick={() => setLyrics(true)}>
+            <span className={settingsUi.integrationName}>Lyric Sources</span>
+            <span className={settingsUi.value}>
               Order, sources, syllable timing
               <ChevronRight size={16} />
             </span>
           </button>
+          <div className={settingsUi.integrationPlain}>
+            <span className={settingsUi.integrationName}>Lyric Sources Access</span>
+            {present ? <LyricSourcesAccess /> : <span className={settingsUi.value}>Needs the extension</span>}
+          </div>
         </section>
       </div>
       {lyrics && (

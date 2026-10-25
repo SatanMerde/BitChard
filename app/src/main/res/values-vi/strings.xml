@@ -764,10 +764,6 @@
 
     <string name="lyrics_offset">Lyrics offset</string>
 
-
-
-
-
     <string name="auto_quick_picks">Quick picks</string>
 
     <string name="auto_recents">Recent</string>
@@ -895,17 +891,6 @@
 
     <string name="eq_preset_custom">Custom</string>
 
-
-
-
-
-
-
-
-
-
-
-
     <string name="translation_language">Translation language</string>
 
     <string name="translation_language_description">The language the translate button turns lyrics into.</string>
@@ -921,8 +906,6 @@
     <string name="search_languages">Search languages</string>
 
     <string name="no_languages_match">No languages match</string>
-
-
 
     <string name="audio_pipeline">Audio Pipeline</string>
 
@@ -978,8 +961,6 @@
 
     <string name="pipeline_device_name">Device Name</string>
 
-
-
     <string name="shared_link">Shared link</string>
 
     <string name="song_will_play_next">Song will play next</string>
@@ -991,16 +972,6 @@
     <string name="paxsenix_api_key_configured">PaxSenix API key — configured</string>
 
     <string name="paxsenix_api_key_missing">PaxSenix API key — optional, not configured</string>
-
-
-
-
-
-
-
-
-
-
 
     <string name="listen_together">Listen together</string>
 
@@ -1094,9 +1065,6 @@
 
     <string name="listen_together_in_sync">In sync · %1$d ms round trip</string>
 
-
-
-
     <string name="party_queue_full">Queue is full (maximum %d songs in party)</string>
     <string name="listen_together_profile">Your party profile</string>
     <string name="listen_together_nickname_hint">Nickname for this party</string>
@@ -1173,6 +1141,10 @@
     <string name="cached_songs">Bài hát đã lưu bộ nhớ đệm</string>
     <string name="cached_songs_subtitle">Bài hát từ YouTube và JioSaavn trong bộ nhớ đệm</string>
     <string name="cached_songs_empty">Chưa có bài hát nào trong bộ nhớ đệm. Bài hát bạn phát từ YouTube hoặc JioSaavn sẽ hiện ở đây.</string>
+    <string name="cached_song_partial">Một phần</string>
+    <string name="remove_from_cache">Xóa khỏi bộ nhớ đệm</string>
+    <string name="cached_song_remove">Xóa</string>
+    <string name="removed_from_cache">Đã xóa khỏi bộ nhớ đệm bài hát</string>
     <string name="show_cache_folder">Hiện thư mục bài hát trong bộ nhớ đệm</string>
     <string name="show_cache_folder_subtitle">Thêm vào Thư viện một thư mục chứa các bài hát YouTube và JioSaavn được lưu trong bộ nhớ đệm</string>
     <string name="song_cache_unlimited">Không giới hạn</string>
@@ -1228,6 +1200,10 @@
     <string name="replay_summary_end_week">tuần</string>
     <string name="replay_this_week">Tuần này</string>
     <string name="onboarding_title">Hàng triệu bài hát, phát trực tuyến trên BitChard</string>
+    <string name="replay_period_weekly">Tuần</string>
+    <string name="replay_period_monthly">Tháng</string>
+    <string name="replay_period_yearly">Năm</string>
+    <string name="replay_period_lifetime">Mọi lúc</string>
     <string name="onboarding_name_prompt">Chúng tôi nên gọi bạn là gì?</string>
     <string name="onboarding_name_hint">Tên của bạn</string>
     <string name="onboarding_name_footer">Bạn bè sẽ thấy tên này khi bạn dùng Nghe cùng nhau. Bạn có thể đổi sau trong Cài đặt.</string>
@@ -1296,4 +1272,13 @@
     <string name="app_up_to_date">BitChard đã cập nhật (v%1$s)</string>
     <string name="update_check_failed">Không thể kiểm tra cập nhật</string>
     <string name="allow_unknown_apps_to_update">Vui lòng cho phép BitChard cài đặt ứng dụng để tiếp tục cập nhật</string>
+    <string name="song_info">Thông tin bài hát</string>
+    <string name="song_info_album">Album</string>
+    <string name="song_info_release_date">Ngày phát hành</string>
+    <string name="song_info_views">Lượt phát / lượt xem</string>
+    <string name="song_info_likes">Lượt thích</string>
+    <string name="song_info_comments">Bình luận</string>
+    <string name="song_info_unavailable">Không có thông tin</string>
+    <string name="song_info_error">Không thể tải một số thông tin.</string>
+    <string name="song_info_retry">Thử lại</string>
 </resources>
