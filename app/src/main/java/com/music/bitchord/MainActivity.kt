@@ -609,6 +609,9 @@ private fun BitChordApp(
     var showGlobalDjSheet by remember { mutableStateOf(false) }
     var showDiscordLogin by remember { mutableStateOf(false) }
     var showSpotifyLogin by remember { mutableStateOf(false) }
+    var showDeezerLogin by remember { mutableStateOf(false) }
+    var showAppleMusicLogin by remember { mutableStateOf(false) }
+    var activeImportService by remember { mutableStateOf<com.music.bitchord.ui.components.ConnectedMusicService?>(null) }
     var discordDialog by remember { mutableStateOf<DiscordDialog?>(null) }
     var songActions by remember { mutableStateOf<Song?>(null) }
     var showLyricsOffset by remember { mutableStateOf(false) }
@@ -2785,6 +2788,9 @@ private fun BitChordApp(
                                 onOpenLastfmLogin = { showLastfmLogin = true },
                                 onOpenDiscord = { navigator.push(AppRoute.Discord) },
                                 onOpenSpotify = { navigator.push(AppRoute.Spotify) },
+                                onOpenDeezer = { showDeezerLogin = true },
+                                onOpenAppleMusic = { showAppleMusicLogin = true },
+                                onTriggerImport = { s -> activeImportService = s },
                                 contentPadding = listPadding,
                             )
                         } else if (pageRoute == AppRoute.Sources) {
@@ -4931,6 +4937,7 @@ private fun BitChordApp(
                                     if (mode == WebSessionMode.SIGN_IN) {
                                         navigator.clear()
                                         selectedTab = TAB_LIBRARY
+                                        activeImportService = com.music.bitchord.ui.components.ConnectedMusicService.YOUTUBE_MUSIC
                                     }
                                 } else {
                                     captureFailed = true
@@ -5322,6 +5329,81 @@ private fun BitChordApp(
                         onConnected = { token ->
                             AppSettings.setSpotifySpdcToken(token)
                             showSpotifyLogin = false
+                            activeImportService = com.music.bitchord.ui.components.ConnectedMusicService.SPOTIFY
+                        },
+                    )
+                }
+            }
+        }
+
+        // ---- Deezer sign-in (full screen WebView) ----
+        if (showDeezerLogin) {
+            BackHandler { showDeezerLogin = false }
+            Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                Column(Modifier.fillMaxSize()) {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .statusBarsPadding()
+                            .padding(horizontal = 8.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        IconButton(onClick = { showDeezerLogin = false }) {
+                            Icon(
+                                Icons.Rounded.Close,
+                                contentDescription = stringResource(R.string.close),
+                                tint = MaterialTheme.colorScheme.onBackground,
+                            )
+                        }
+                        Text(
+                            "Connexion à Deezer",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onBackground,
+                        )
+                    }
+                    com.music.bitchord.auth.DeezerLoginScreen(
+                        modifier = Modifier.navigationBarsPadding(),
+                        onConnected = { token ->
+                            AppSettings.setDeezerArlToken(token)
+                            showDeezerLogin = false
+                            activeImportService = com.music.bitchord.ui.components.ConnectedMusicService.DEEZER
+                        },
+                    )
+                }
+            }
+        }
+
+        // ---- Apple Music sign-in (full screen WebView) ----
+        if (showAppleMusicLogin) {
+            BackHandler { showAppleMusicLogin = false }
+            Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                Column(Modifier.fillMaxSize()) {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .statusBarsPadding()
+                            .padding(horizontal = 8.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        IconButton(onClick = { showAppleMusicLogin = false }) {
+                            Icon(
+                                Icons.Rounded.Close,
+                                contentDescription = stringResource(R.string.close),
+                                tint = MaterialTheme.colorScheme.onBackground,
+                            )
+                        }
+                        Text(
+                            "Connexion à Apple Music",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onBackground,
+                        )
+                    }
+                    com.music.bitchord.auth.AppleMusicLoginScreen(
+                        modifier = Modifier.navigationBarsPadding(),
+                        onConnected = { token ->
+                            AppSettings.setAppleMusicUserToken(token)
+                            showAppleMusicLogin = false
+                            activeImportService = com.music.bitchord.ui.components.ConnectedMusicService.APPLE_MUSIC
                         },
                     )
                 }
@@ -5340,6 +5422,15 @@ private fun BitChordApp(
                 which = which,
                 hazeState = hazeState,
                 onDismiss = { discordDialog = null },
+            )
+        }
+
+        activeImportService?.let { service ->
+            com.music.bitchord.ui.components.AccountLibraryImportDialog(
+                service = service,
+                hazeState = hazeState,
+                viewModel = viewModel,
+                onDismiss = { activeImportService = null },
             )
         }
 

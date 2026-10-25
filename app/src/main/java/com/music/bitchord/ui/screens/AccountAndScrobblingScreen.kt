@@ -14,11 +14,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Album
 import androidx.compose.material.icons.rounded.Cloud
 import androidx.compose.material.icons.rounded.GraphicEq
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.LibraryMusic
+import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.SwitchAccount
+import androidx.compose.material.icons.rounded.Sync
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
@@ -49,6 +52,9 @@ fun AccountAndScrobblingScreen(
     onOpenLastfmLogin: () -> Unit,
     onOpenDiscord: () -> Unit,
     onOpenSpotify: () -> Unit,
+    onOpenDeezer: () -> Unit = {},
+    onOpenAppleMusic: () -> Unit = {},
+    onTriggerImport: (com.music.bitchord.ui.components.ConnectedMusicService) -> Unit = {},
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
@@ -68,6 +74,8 @@ fun AccountAndScrobblingScreen(
     val discordUsername by AppSettings.discordUsername.collectAsStateWithLifecycle()
     val discordRpcEnabled by AppSettings.discordRpcEnabled.collectAsStateWithLifecycle()
     val spotifyConnected by AppSettings.spotifySpdcToken.collectAsStateWithLifecycle()
+    val deezerConnected by AppSettings.deezerArlToken.collectAsStateWithLifecycle()
+    val appleMusicConnected by AppSettings.appleMusicUserToken.collectAsStateWithLifecycle()
 
     Column(
         modifier = modifier
@@ -122,11 +130,76 @@ fun AccountAndScrobblingScreen(
             )
             if (spotifyConnected.isNotBlank()) {
                 FullWidthDivider()
+                SettingsRow(
+                    icon = Icons.Rounded.Sync,
+                    title = "Importer la bibliothèque",
+                    subtitle = "Playlists, favoris et artistes suivis",
+                    onClick = { onTriggerImport(com.music.bitchord.ui.components.ConnectedMusicService.SPOTIFY) },
+                )
+                FullWidthDivider()
                 DestructiveRow(
                     label = stringResource(R.string.spotify_disconnect),
                     onClick = {
                         clearSpotifyWebSession()
                         AppSettings.setSpotifySpdcToken("")
+                    },
+                )
+            }
+        }
+
+        SettingsGroup(
+            header = "Deezer",
+            footer = "Connectez votre compte Deezer pour synchroniser vos playlists, coups de cœur et artistes.",
+        ) {
+            SettingsRow(
+                icon = Icons.Rounded.MusicNote,
+                title = "Deezer",
+                subtitle = if (deezerConnected.isNotBlank()) stringResource(R.string.connected) else stringResource(R.string.tap_to_connect),
+                onClick = onOpenDeezer,
+            )
+            if (deezerConnected.isNotBlank()) {
+                FullWidthDivider()
+                SettingsRow(
+                    icon = Icons.Rounded.Sync,
+                    title = "Importer la bibliothèque Deezer",
+                    subtitle = "Playlists, coups de cœur et artistes",
+                    onClick = { onTriggerImport(com.music.bitchord.ui.components.ConnectedMusicService.DEEZER) },
+                )
+                FullWidthDivider()
+                DestructiveRow(
+                    label = "Déconnecter Deezer",
+                    onClick = {
+                        com.music.bitchord.auth.clearDeezerWebSession()
+                        AppSettings.setDeezerArlToken("")
+                    },
+                )
+            }
+        }
+
+        SettingsGroup(
+            header = "Apple Music",
+            footer = "Connectez votre compte Apple Music pour importer vos playlists et morceaux favoris.",
+        ) {
+            SettingsRow(
+                icon = Icons.Rounded.Album,
+                title = "Apple Music",
+                subtitle = if (appleMusicConnected.isNotBlank()) stringResource(R.string.connected) else stringResource(R.string.tap_to_connect),
+                onClick = onOpenAppleMusic,
+            )
+            if (appleMusicConnected.isNotBlank()) {
+                FullWidthDivider()
+                SettingsRow(
+                    icon = Icons.Rounded.Sync,
+                    title = "Importer la bibliothèque Apple Music",
+                    subtitle = "Playlists, favoris et artistes",
+                    onClick = { onTriggerImport(com.music.bitchord.ui.components.ConnectedMusicService.APPLE_MUSIC) },
+                )
+                FullWidthDivider()
+                DestructiveRow(
+                    label = "Déconnecter Apple Music",
+                    onClick = {
+                        com.music.bitchord.auth.clearAppleMusicWebSession()
+                        AppSettings.setAppleMusicUserToken("")
                     },
                 )
             }
