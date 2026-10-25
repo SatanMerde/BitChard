@@ -1,16 +1,19 @@
 """
-SatanMerde Discord Bot — Anti-Raid Security, Auto-Role, Bilingual Welcoming, Ticket System & Slash Commands
-Strictly for BitChard & D-MoniakPatches (Educational Open-Source Research)
+SatanMerde Discord Bot — Anti-Raid Security, Auto-Role, Bilingual Welcoming, Ticket System,
+Slash Commands & Automated Real-time GitHub Release Tracker for BitChard & D-MoniakPatches.
 """
 
 import sys
 import os
 import asyncio
 import time
+import json
+import urllib.request
 from collections import defaultdict
 import discord
 from discord import app_commands, Colour, Embed, ButtonStyle
 from discord.ui import View, Button
+from discord.ext import tasks
 
 try:
     sys.stdout.reconfigure(encoding='utf-8')
@@ -25,11 +28,37 @@ tree = app_commands.CommandTree(client)
 
 TOKEN = os.environ.get("DISCORD_BOT_TOKEN", "")
 
-# Anti-Raid In-Memory Tracking
-recent_joins = []
-user_message_times = defaultdict(list)
-RAID_WINDOW_SECONDS = 10
-RAID_JOIN_THRESHOLD = 5 # 5+ joins within 10s triggers anti-raid alert
+# ---------------- STATE & GITHUB RELEASE TRACKER ----------------
+
+STATE_FILE = os.path.join(os.path.dirname(__file__), "last_releases.json")
+
+def load_last_releases():
+    if os.path.exists(STATE_FILE):
+        try:
+            with open(STATE_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {"BitChard": "v1.8.7", "D-moniakPatches": "v1.52.20"}
+
+def save_last_releases(data):
+    try:
+        with open(STATE_FILE, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+    except Exception as e:
+        print(f"[!] Error saving releases state: {e}")
+
+last_known_releases = load_last_releases()
+
+def fetch_github_release(repo):
+    url = f"https://api.github.com/repos/{repo}/releases/latest"
+    req = urllib.request.Request(url, headers={"User-Agent": "BitChard-DiscordBot"})
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            return json.loads(resp.read().decode())
+    except Exception as e:
+        print(f"[!] GitHub API error for {repo}: {e}")
+        return None
 
 # ---------------- INTERACTIVE VIEWS : TICKETS ----------------
 
@@ -137,8 +166,12 @@ async def slash_help(interaction: discord.Interaction):
         inline=False
     )
     embed.add_field(
-        name="🛡️ Staff Moderation",
-        value="`/clear <amount>` : Purge messages\n`/setup-ticket-panel` : Deploy ticket launcher button",
+        name="🛡️ Staff Moderation & Automation",
+        value=(
+            "`/clear <amount>` : Purge messages\n"
+            "`/setup-ticket-panel` : Deploy ticket launcher button\n"
+            "`/check-releases` : Force check GitHub releases right now"
+        ),
         inline=False
     )
     await interaction.response.send_message(embed=embed)
@@ -241,6 +274,7 @@ async def slash_serverinfo(interaction: discord.Interaction):
     )
     embed.add_field(name="🔍 Content Filter", value="Active for all members", inline=True)
     embed.add_field(name="🎫 Ticket Engine", value="Active & Operational", inline=True)
+    embed.add_field(name="🚀 Auto GitHub Tracker", value="Active (60s loop)", inline=True)
     await interaction.response.send_message(embed=embed)
 
 @tree.command(name="clear", description="Purges a specified number of messages (Staff)")
@@ -274,6 +308,98 @@ async def slash_setup_ticket(interaction: discord.Interaction):
     await interaction.channel.send(embed=embed, view=TicketLauncher())
     await interaction.response.send_message("✅ Panneau de tickets déployé / Ticket panel deployed!", ephemeral=True)
 
+@tree.command(name="check-releases", description="Manually check GitHub for new releases (Staff)")
+@app_commands.checks.has_permissions(administrator=True)
+async def slash_check_releases(interaction: discord.Interaction):
+    await interaction.response.defer(ephemeral=True)
+    bitchard_rel = fetch_github_release("SatanMerde/BitChard")
+    dmoniak_rel = fetch_github_release("SatanMerde/D-moniakPatches")
+    b_tag = bitchard_rel.get("tag_name", "N/A") if bitchard_rel else "Error"
+    d_tag = dmoniak_rel.get("tag_name", "N/A") if dmoniak_rel else "Error"
+    await interaction.followup.send(
+        f"🔍 **GitHub Live Check** :\n• BitChard Latest Tag : `{b_tag}` (Local known : `{last_known_releases.get('BitChard')}`)\n• D-MoniakPatches Latest Tag : `{d_tag}` (Local known : `{last_known_releases.get('D-moniakPatches')}`)",
+        ephemeral=True
+    )
+
+# ---------------- AUTOMATED GITHUB RELEASES MONITOR TASK ----------------
+
+@tasks.loop(seconds=60)
+async def check_github_releases_task():
+    await client.wait_until_ready()
+    for guild in client.guilds:
+        # 1. Check BitChard
+        b_data = fetch_github_release("SatanMerde/BitChard")
+        if b_data:
+            tag = b_data.get("tag_name")
+            if tag and tag != last_known_releases.get("BitChard"):
+                print(f"[+] New BitChard Release detected: {tag}")
+                last_known_releases["BitChard"] = tag
+                save_last_releases(last_known_releases)
+
+                # Format Announcement Embed
+                embed = Embed(
+                    title=f"🚀 BitChard {tag} is Available! / est disponible !",
+                    url=b_data.get("html_url"),
+                    description=(
+                        f"A new official release of **BitChard** has just been published on GitHub!\n\n"
+                        f"**Release Title :** {b_data.get('name', tag)}\n\n"
+                        f"**Changelog Snippet :**\n"
+                        f"{(b_data.get('body', '')[:500] + '...') if len(b_data.get('body', '')) > 500 else b_data.get('body', 'No changelog provided.')}\n\n"
+                        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                        f"🔗 **Download APK / Télécharger** : [GitHub Releases]({b_data.get('html_url')})"
+                    ),
+                    color=Colour.from_rgb(255, 23, 68)
+                )
+                embed.set_thumbnail(url="https://github.com/SatanMerde.png")
+                embed.set_footer(text="Automated GitHub Tracker • BitChard")
+
+                # Post in #📢・bitchard-releases
+                ch = discord.utils.get(guild.text_channels, name="📢・bitchard-releases")
+                role = discord.utils.get(guild.roles, name="🎵 BitChard Fan")
+                ping = role.mention if role else ""
+                if ch:
+                    await ch.send(content=f"🔔 {ping} **New BitChard Release / Nouvelle Version !**", embed=embed)
+
+                # Also post in #🚀・github-releases
+                ch_gh = discord.utils.get(guild.text_channels, name="🚀・github-releases")
+                if ch_gh:
+                    await ch_gh.send(embed=embed)
+
+        # 2. Check D-MoniakPatches
+        d_data = fetch_github_release("SatanMerde/D-moniakPatches")
+        if d_data:
+            tag = d_data.get("tag_name")
+            if tag and tag != last_known_releases.get("D-moniakPatches"):
+                print(f"[+] New D-MoniakPatches Release detected: {tag}")
+                last_known_releases["D-moniakPatches"] = tag
+                save_last_releases(last_known_releases)
+
+                embed = Embed(
+                    title=f"🦈 D-MoniakPatches {tag} is Released! / est publié !",
+                    url=d_data.get("html_url"),
+                    description=(
+                        f"A new release of **D-MoniakPatches** (Morphe / ReVanced) has been published on GitHub!\n\n"
+                        f"**Release Title :** {d_data.get('name', tag)}\n\n"
+                        f"**Changelog :**\n"
+                        f"{(d_data.get('body', '')[:500] + '...') if len(d_data.get('body', '')) > 500 else d_data.get('body', 'No changelog provided.')}\n\n"
+                        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                        f"🔗 **View on GitHub** : [GitHub Releases]({d_data.get('html_url')})"
+                    ),
+                    color=Colour.from_rgb(41, 121, 255)
+                )
+                embed.set_thumbnail(url="https://github.com/SatanMerde.png")
+                embed.set_footer(text="Automated GitHub Tracker • D-MoniakPatches")
+
+                ch = discord.utils.get(guild.text_channels, name="📢・dmoniak-releases")
+                role = discord.utils.get(guild.roles, name="🦈 D-moniak Fan")
+                ping = role.mention if role else ""
+                if ch:
+                    await ch.send(content=f"🔔 {ping} **New Morphe Patches Release / Nouvelle Version !**", embed=embed)
+
+                ch_gh = discord.utils.get(guild.text_channels, name="🚀・github-releases")
+                if ch_gh:
+                    await ch_gh.send(embed=embed)
+
 # ---------------- ON READY ----------------
 
 @client.event
@@ -284,33 +410,16 @@ async def on_ready():
     client.add_view(TicketLauncher())
     client.add_view(TicketCloseView())
 
+    # Start automated background release tracker
+    if not check_github_releases_task.is_running():
+        check_github_releases_task.start()
+        print("[+] GitHub release tracker task started (checking every 60s)")
+
     # Sync slash commands
     for guild in client.guilds:
         tree.copy_global_to(guild=guild)
         await tree.sync(guild=guild)
         print(f"  [+] Slash commands synced to: {guild.name}")
-
-        # Auto-deploy ticket panel in #🎫・open-a-ticket if needed
-        ticket_ch = discord.utils.get(guild.channels, name="🎫・open-a-ticket")
-        if ticket_ch:
-            history = [msg async for msg in ticket_ch.history(limit=5)]
-            if not history:
-                embed = Embed(
-                    title="🎫 Private Support Tickets / Billetterie Privée",
-                    description=(
-                        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                        "🇬🇧 **ENGLISH**\n"
-                        "Need private technical support or want to report a security issue?\n"
-                        "Click below to open a private ticket channel with the team!\n\n"
-                        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                        "🇫🇷 **FRANÇAIS**\n"
-                        "Besoin d'une aide technique privée ou d'un signalement de sécurité ?\n"
-                        "Cliquez ci-dessous pour ouvrir un salon privé avec l'équipe !"
-                    ),
-                    color=Colour.from_rgb(0, 188, 212)
-                )
-                await ticket_ch.send(embed=embed, view=TicketLauncher())
-                print("  [+] Ticket launcher deployed in #🎫・open-a-ticket!")
 
     await client.change_presence(
         activity=discord.Activity(
