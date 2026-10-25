@@ -1,6 +1,6 @@
 """
 SatanMerde Discord Bot — Anti-Raid Security, Auto-Role, Bilingual Welcoming, Ticket System,
-Slash Commands & Automated Real-time GitHub Release Tracker for BitChard & D-MoniakPatches.
+Interactive Role Panels, Slash Commands & Real-time GitHub Release Tracker.
 """
 
 import sys
@@ -60,6 +60,49 @@ def fetch_github_release(repo):
         print(f"[!] GitHub API error for {repo}: {e}")
         return None
 
+# ---------------- INTERACTIVE VIEWS : ROLE SELECTION ----------------
+
+class RoleSelectionView(View):
+    def __init__(self):
+        super().__init__(timeout=None)
+
+    async def toggle_role(self, interaction: discord.Interaction, role_name: str):
+        guild = interaction.guild
+        user = interaction.user
+        role = discord.utils.get(guild.roles, name=role_name)
+        if not role:
+            await interaction.response.send_message(f"⚠️ Rôle `{role_name}` introuvable sur le serveur.", ephemeral=True)
+            return
+
+        if role in user.roles:
+            await user.remove_roles(role)
+            await interaction.response.send_message(
+                f"❌ Rôle **{role_name}** retiré ! / Role removed!",
+                ephemeral=True
+            )
+        else:
+            await user.add_roles(role)
+            await interaction.response.send_message(
+                f"✅ Rôle **{role_name}** attribué ! / Role added!",
+                ephemeral=True
+            )
+
+    @discord.ui.button(label="BitChard Fan", style=ButtonStyle.danger, emoji="🎵", custom_id="role_bitchard_fan_btn")
+    async def btn_bitchard(self, interaction: discord.Interaction, button: Button):
+        await self.toggle_role(interaction, "🎵 BitChard Fan")
+
+    @discord.ui.button(label="D-moniak Fan", style=ButtonStyle.primary, emoji="🦈", custom_id="role_dmoniak_fan_btn")
+    async def btn_dmoniak(self, interaction: discord.Interaction, button: Button):
+        await self.toggle_role(interaction, "🦈 D-moniak Fan")
+
+    @discord.ui.button(label="VIP Tester", style=ButtonStyle.secondary, emoji="🧪", custom_id="role_vip_tester_btn")
+    async def btn_vip(self, interaction: discord.Interaction, button: Button):
+        await self.toggle_role(interaction, "🧪 VIP Tester")
+
+    @discord.ui.button(label="Membre", style=ButtonStyle.success, emoji="👥", custom_id="role_membre_btn")
+    async def btn_membre(self, interaction: discord.Interaction, button: Button):
+        await self.toggle_role(interaction, "👥 Membre")
+
 # ---------------- INTERACTIVE VIEWS : TICKETS ----------------
 
 class TicketCloseView(View):
@@ -87,7 +130,6 @@ class TicketLauncher(View):
         guild = interaction.guild
         user = interaction.user
         
-        # Check if ticket already exists
         existing = discord.utils.get(guild.channels, name=f"ticket-{user.name.lower()}")
         if existing:
             await interaction.response.send_message(
@@ -166,10 +208,11 @@ async def slash_help(interaction: discord.Interaction):
         inline=False
     )
     embed.add_field(
-        name="🛡️ Staff Moderation & Automation",
+        name="🛡️ Staff Moderation & Panels",
         value=(
             "`/clear <amount>` : Purge messages\n"
             "`/setup-ticket-panel` : Deploy ticket launcher button\n"
+            "`/setup-role-panel` : Deploy role selection buttons\n"
             "`/check-releases` : Force check GitHub releases right now"
         ),
         inline=False
@@ -308,6 +351,28 @@ async def slash_setup_ticket(interaction: discord.Interaction):
     await interaction.channel.send(embed=embed, view=TicketLauncher())
     await interaction.response.send_message("✅ Panneau de tickets déployé / Ticket panel deployed!", ephemeral=True)
 
+@tree.command(name="setup-role-panel", description="Deploys interactive role buttons panel (Staff)")
+@app_commands.checks.has_permissions(administrator=True)
+async def slash_setup_roles(interaction: discord.Interaction):
+    embed = Embed(
+        title="✨ Self-Assign Roles & Notifications / Attribution des Rôles",
+        description=(
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "🇬🇧 **ENGLISH**\n"
+            "Click the buttons below to assign or remove roles instantly :\n\n"
+            "• 🎵 **BitChard Fan** : Pings for new BitChard app updates & releases.\n"
+            "• 🦈 **D-moniak Fan** : Pings for Morphe bytecode patches updates.\n"
+            "• 🧪 **VIP Tester** : Access to preview beta drops & experimental builds.\n"
+            "• 👥 **Membre** : Official member badge.\n\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "🇫🇷 **FRANÇAIS**\n"
+            "Cliquez sur les boutons ci-dessous pour vous attribuer vos rôles en un clic !"
+        ),
+        color=Colour.from_rgb(255, 64, 129)
+    )
+    await interaction.channel.send(embed=embed, view=RoleSelectionView())
+    await interaction.response.send_message("✅ Panneau de rôles déployé / Role panel deployed!", ephemeral=True)
+
 @tree.command(name="check-releases", description="Manually check GitHub for new releases (Staff)")
 @app_commands.checks.has_permissions(administrator=True)
 async def slash_check_releases(interaction: discord.Interaction):
@@ -336,7 +401,6 @@ async def check_github_releases_task():
                 last_known_releases["BitChard"] = tag
                 save_last_releases(last_known_releases)
 
-                # Format Announcement Embed
                 embed = Embed(
                     title=f"🚀 BitChard {tag} is Available! / est disponible !",
                     url=b_data.get("html_url"),
@@ -353,14 +417,12 @@ async def check_github_releases_task():
                 embed.set_thumbnail(url="https://github.com/SatanMerde.png")
                 embed.set_footer(text="Automated GitHub Tracker • BitChard")
 
-                # Post in #📢・bitchard-releases
                 ch = discord.utils.get(guild.text_channels, name="📢・bitchard-releases")
                 role = discord.utils.get(guild.roles, name="🎵 BitChard Fan")
                 ping = role.mention if role else ""
                 if ch:
                     await ch.send(content=f"🔔 {ping} **New BitChard Release / Nouvelle Version !**", embed=embed)
 
-                # Also post in #🚀・github-releases
                 ch_gh = discord.utils.get(guild.text_channels, name="🚀・github-releases")
                 if ch_gh:
                     await ch_gh.send(embed=embed)
@@ -409,17 +471,50 @@ async def on_ready():
     # Register persistent interactive views
     client.add_view(TicketLauncher())
     client.add_view(TicketCloseView())
+    client.add_view(RoleSelectionView())
 
     # Start automated background release tracker
     if not check_github_releases_task.is_running():
         check_github_releases_task.start()
         print("[+] GitHub release tracker task started (checking every 60s)")
 
-    # Sync slash commands
+    # Sync slash commands and deploy views if needed
     for guild in client.guilds:
         tree.copy_global_to(guild=guild)
         await tree.sync(guild=guild)
         print(f"  [+] Slash commands synced to: {guild.name}")
+
+        # Update role selection panel in #✨・roles if needed
+        roles_ch = discord.utils.get(guild.text_channels, name="✨・roles")
+        if roles_ch:
+            msgs = [m async for m in roles_ch.history(limit=5)]
+            # Check if interactive buttons are already present
+            has_buttons = any(len(m.components) > 0 for m in msgs)
+            if not has_buttons:
+                await roles_ch.purge(limit=5)
+                embed = Embed(
+                    title="✨ Self-Assign Roles & Notifications / Attribution des Rôles",
+                    description=(
+                        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                        "🇬🇧 **ENGLISH**\n"
+                        "Click the buttons below to assign or remove roles instantly :\n\n"
+                        "• 🎵 **BitChard Fan** : Notifications for new BitChard app updates & APK releases.\n"
+                        "• 🦈 **D-moniak Fan** : Notifications for Morphe bytecode patches updates.\n"
+                        "• 🧪 **VIP Tester** : Access to preview beta drops & experimental builds.\n"
+                        "• 👥 **Membre** : Official server member badge.\n\n"
+                        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                        "🇫🇷 **FRANÇAIS**\n"
+                        "Cliquez sur les boutons ci-dessous pour obtenir ou retirer vos rôles en un clic !\n\n"
+                        "• 🎵 **BitChard Fan** : Alertes pour chaque mise à jour et APK de BitChard.\n"
+                        "• 🦈 **D-moniak Fan** : Alertes pour les patchs Morphe.\n"
+                        "• 🧪 **VIP Tester** : Accès aux versions de test et bêtas.\n"
+                        "• 👥 **Membre** : Badge officiel de membre du serveur."
+                    ),
+                    color=Colour.from_rgb(255, 64, 129)
+                )
+                embed.set_footer(text="SatanMerde Projects • Interactive Role Picker")
+                await roles_ch.send(embed=embed, view=RoleSelectionView())
+                print("  [+] Interactive Role Panel deployed in #✨・roles!")
 
     await client.change_presence(
         activity=discord.Activity(
