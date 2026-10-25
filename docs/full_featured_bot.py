@@ -95,13 +95,12 @@ class RoleSelectionView(View):
     async def btn_dmoniak(self, interaction: discord.Interaction, button: Button):
         await self.toggle_role(interaction, "🦈 D-moniak Fan")
 
-    @discord.ui.button(label="VIP Tester", style=ButtonStyle.secondary, emoji="🧪", custom_id="role_vip_tester_btn")
+    @discord.ui.button(label="VIP Tester (Coming Soon)", style=ButtonStyle.secondary, emoji="🧪", custom_id="role_vip_tester_btn", disabled=True)
     async def btn_vip(self, interaction: discord.Interaction, button: Button):
-        await self.toggle_role(interaction, "🧪 VIP Tester")
-
-    @discord.ui.button(label="Membre", style=ButtonStyle.success, emoji="👥", custom_id="role_membre_btn")
-    async def btn_membre(self, interaction: discord.Interaction, button: Button):
-        await self.toggle_role(interaction, "👥 Membre")
+        await interaction.response.send_message(
+            "⏳ Le rôle VIP Tester sera disponible très prochainement ! / Coming soon!",
+            ephemeral=True
+        )
 
 # ---------------- INTERACTIVE VIEWS : TICKETS ----------------
 
@@ -355,21 +354,24 @@ async def slash_setup_ticket(interaction: discord.Interaction):
 @app_commands.checks.has_permissions(administrator=True)
 async def slash_setup_roles(interaction: discord.Interaction):
     embed = Embed(
-        title="✨ Self-Assign Roles & Notifications / Attribution des Rôles",
+        title="✨ Notification Roles / Attribution des Rôles",
         description=(
             "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
             "🇬🇧 **ENGLISH**\n"
-            "Click the buttons below to assign or remove roles instantly :\n\n"
-            "• 🎵 **BitChard Fan** : Pings for new BitChard app updates & releases.\n"
-            "• 🦈 **D-moniak Fan** : Pings for Morphe bytecode patches updates.\n"
-            "• 🧪 **VIP Tester** : Access to preview beta drops & experimental builds.\n"
-            "• 👥 **Membre** : Official member badge.\n\n"
+            "Click the buttons below to pick your project notification roles :\n\n"
+            "• 🎵 **BitChard Fan** : Notifications for new BitChard app updates & releases.\n"
+            "• 🦈 **D-moniak Fan** : Notifications for Morphe bytecode patches updates.\n"
+            "• ~~🧪 **VIP Tester**~~ *(In Coming / Coming Soon)* : Early access testing program opening soon.\n\n"
             "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
             "🇫🇷 **FRANÇAIS**\n"
-            "Cliquez sur les boutons ci-dessous pour vous attribuer vos rôles en un clic !"
+            "Cliquez sur les boutons ci-dessous pour choisir vos alertes de projets :\n\n"
+            "• 🎵 **BitChard Fan** : Alertes pour chaque mise à jour et APK de BitChard.\n"
+            "• 🦈 **D-moniak Fan** : Alertes pour les patchs Morphe.\n"
+            "• ~~🧪 **VIP Tester**~~ *(In Coming / À venir)* : Programme de test VIP bientôt disponible."
         ),
         color=Colour.from_rgb(255, 64, 129)
     )
+    embed.set_footer(text="SatanMerde Projects • Notification Roles")
     await interaction.channel.send(embed=embed, view=RoleSelectionView())
     await interaction.response.send_message("✅ Panneau de rôles déployé / Role panel deployed!", ephemeral=True)
 
@@ -484,37 +486,31 @@ async def on_ready():
         await tree.sync(guild=guild)
         print(f"  [+] Slash commands synced to: {guild.name}")
 
-        # Update role selection panel in #✨・roles if needed
+        # Clean and deploy refreshed role panel in #✨・roles
         roles_ch = discord.utils.get(guild.text_channels, name="✨・roles")
         if roles_ch:
-            msgs = [m async for m in roles_ch.history(limit=5)]
-            # Check if interactive buttons are already present
-            has_buttons = any(len(m.components) > 0 for m in msgs)
-            if not has_buttons:
-                await roles_ch.purge(limit=5)
-                embed = Embed(
-                    title="✨ Self-Assign Roles & Notifications / Attribution des Rôles",
-                    description=(
-                        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                        "🇬🇧 **ENGLISH**\n"
-                        "Click the buttons below to assign or remove roles instantly :\n\n"
-                        "• 🎵 **BitChard Fan** : Notifications for new BitChard app updates & APK releases.\n"
-                        "• 🦈 **D-moniak Fan** : Notifications for Morphe bytecode patches updates.\n"
-                        "• 🧪 **VIP Tester** : Access to preview beta drops & experimental builds.\n"
-                        "• 👥 **Membre** : Official server member badge.\n\n"
-                        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                        "🇫🇷 **FRANÇAIS**\n"
-                        "Cliquez sur les boutons ci-dessous pour obtenir ou retirer vos rôles en un clic !\n\n"
-                        "• 🎵 **BitChard Fan** : Alertes pour chaque mise à jour et APK de BitChard.\n"
-                        "• 🦈 **D-moniak Fan** : Alertes pour les patchs Morphe.\n"
-                        "• 🧪 **VIP Tester** : Accès aux versions de test et bêtas.\n"
-                        "• 👥 **Membre** : Badge officiel de membre du serveur."
-                    ),
-                    color=Colour.from_rgb(255, 64, 129)
-                )
-                embed.set_footer(text="SatanMerde Projects • Interactive Role Picker")
-                await roles_ch.send(embed=embed, view=RoleSelectionView())
-                print("  [+] Interactive Role Panel deployed in #✨・roles!")
+            await roles_ch.purge(limit=10)
+            embed = Embed(
+                title="✨ Notification Roles / Attribution des Rôles",
+                description=(
+                    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    "🇬🇧 **ENGLISH**\n"
+                    "Click the buttons below to pick your project notification roles :\n\n"
+                    "• 🎵 **BitChard Fan** : Notifications for new BitChard app updates & releases.\n"
+                    "• 🦈 **D-moniak Fan** : Notifications for Morphe bytecode patches updates.\n"
+                    "• ~~🧪 **VIP Tester**~~ *(In Coming / Coming Soon)* : Early access testing program opening soon.\n\n"
+                    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    "🇫🇷 **FRANÇAIS**\n"
+                    "Cliquez sur les boutons ci-dessous pour choisir vos alertes de projets :\n\n"
+                    "• 🎵 **BitChard Fan** : Alertes pour chaque mise à jour et APK de BitChard.\n"
+                    "• 🦈 **D-moniak Fan** : Alertes pour les patchs Morphe.\n"
+                    "• ~~🧪 **VIP Tester**~~ *(In Coming / À venir)* : Programme de test VIP bientôt disponible."
+                ),
+                color=Colour.from_rgb(255, 64, 129)
+            )
+            embed.set_footer(text="SatanMerde Projects • Notification Roles")
+            await roles_ch.send(embed=embed, view=RoleSelectionView())
+            print("  [+] Cleaned & deployed single refreshed Role Panel in #✨・roles!")
 
     await client.change_presence(
         activity=discord.Activity(
