@@ -23,6 +23,7 @@
 
 [![Report Bug](https://img.shields.io/badge/🐛_Report-Bug-FA233B?style=for-the-badge&logo=github&logoColor=white)](https://github.com/SatanMerde/BitChard/issues/new?template=bug_report.yml)
 [![Request Feature](https://img.shields.io/badge/✨_Request-Feature-00D2FF?style=for-the-badge&logo=github&logoColor=white)](https://github.com/SatanMerde/BitChard/issues/new?template=feature_request.yml)
+[![Discord Server](https://img.shields.io/badge/Discord-Join%20Community-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/pw9wNbDzMx)
 [![Community Discussions](https://img.shields.io/badge/💬_Community-Discussions-8A2BE2?style=for-the-badge&logo=github&logoColor=white)](https://github.com/SatanMerde/BitChard/discussions)
 
 <br/><br/>
@@ -173,10 +174,10 @@ We welcome your feedback, ideas, and issue reports to keep making BitChard bette
 
 <div align="center">
 
-| 🐛 Found a Bug? | ✨ Want a Feature? | 💬 Have a Question? |
-|:---:|:---:|:---:|
-| [**Open Bug Report**](https://github.com/SatanMerde/BitChard/issues/new?template=bug_report.yml) | [**Request Feature**](https://github.com/SatanMerde/BitChard/issues/new?template=feature_request.yml) | [**Join Discussions**](https://github.com/SatanMerde/BitChard/discussions) |
-| Detailed crash & device reproduction form | Propose improvements for BitG, UI, or Audio | Chat with the community & creator |
+| 🐛 Found a Bug? | ✨ Want a Feature? | 💬 Have a Question? | 🎧 Discord Community |
+|:---:|:---:|:---:|:---:|
+| [**Open Bug Report**](https://github.com/SatanMerde/BitChard/issues/new?template=bug_report.yml) | [**Request Feature**](https://github.com/SatanMerde/BitChard/issues/new?template=feature_request.yml) | [**Join Discussions**](https://github.com/SatanMerde/BitChard/discussions) | [**Join Discord Server**](https://discord.gg/pw9wNbDzMx) |
+| Detailed crash & device reproduction form | Propose improvements for BitG, UI, or Audio | Chat with the community & creator | Live support, beta drops & AI DJ prompts |
 
 </div>
 
