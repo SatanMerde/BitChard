@@ -1,6 +1,7 @@
 package com.music.bitchord.playback
 
 import android.os.Bundle
+import android.util.Log
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import com.music.bitchord.data.model.QueueTier
@@ -8,9 +9,11 @@ import com.music.bitchord.data.model.Song
 import com.music.bitchord.data.settings.AppSettings
 import com.music.bitchord.data.YtMusicRepository
 import com.music.bitchord.data.isAiGenerated
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -57,7 +60,10 @@ object QueueShuffle {
     val isSmartShuffle: StateFlow<Boolean> = _isSmartShuffle.asStateFlow()
 
     private var smartShuffleJob: Job? = null
-    private val shuffleScope = CoroutineScope(Dispatchers.Main)
+    private val exceptionHandler = CoroutineExceptionHandler { _, err ->
+        Log.e("QueueShuffle", "Unhandled error in QueueShuffle coroutine", err)
+    }
+    private val shuffleScope = CoroutineScope(Dispatchers.Main + SupervisorJob() + exceptionHandler)
 
     fun setEnabled(enabled: Boolean) {
         _enabled.value = enabled
@@ -258,32 +264,45 @@ object QueueShuffle {
      */
     fun enableSmartShuffle(player: Player) {
         smartShuffleJob?.cancel()
-        val currentItem = player.currentMediaItem
-        val currentSong = currentItem?.toSong()
-        val seedId = currentSong?.videoId ?: ctx?.items?.firstOrNull()?.mediaId ?: return
+        runCatching {
+            val total = player.mediaItemCount
+            val curIndex = player.currentMediaItemIndex
+            if (curIndex !in 0 until total) return
 
-        smartShuffleJob = shuffleScope.launch(Dispatchers.IO) {
-            val existingMediaIds = (0 until player.mediaItemCount).mapNotNull {
+            val currentItem = player.getMediaItemAt(curIndex)
+            val currentSong = currentItem.toSong()
+            val seedId = currentSong.videoId.ifEmpty { ctx?.items?.firstOrNull()?.mediaId } ?: return
+
+            // MUST collect existing media IDs on the Main/application thread!
+            val existingMediaIds = (0 until total).mapNotNull {
                 player.getMediaItemAt(it).mediaId
             }.toSet()
 
-            val radioTracks = runCatching {
-                YtMusicRepository.radio(seedId).getOrNull()
-            }.getOrNull().orEmpty()
-
-            val recommendations = radioTracks
-                .filterNot { it.videoId in existingMediaIds }
-                .let { list ->
-                    if (AppSettings.blockAiContent.value) list.filterNot { it.isAiGenerated() } else list
+            smartShuffleJob = shuffleScope.launch {
+                val radioTracks = withContext(Dispatchers.IO) {
+                    runCatching {
+                        YtMusicRepository.radio(seedId).getOrNull()
+                    }.getOrNull().orEmpty()
                 }
-                .take(9)
 
-            if (recommendations.isEmpty()) return@launch
+                val recommendations = radioTracks
+                    .filterNot { it.videoId in existingMediaIds }
+                    .let { list ->
+                        if (AppSettings.blockAiContent.value) list.filterNot { it.isAiGenerated() } else list
+                    }
+                    .take(9)
 
-            withContext(Dispatchers.Main) {
-                if (_shuffleMode.value != ShuffleMode.SMART) return@withContext
-                insertSmartRecommendations(player, recommendations)
+                if (recommendations.isEmpty()) return@launch
+
+                if (_shuffleMode.value != ShuffleMode.SMART) return@launch
+                runCatching {
+                    insertSmartRecommendations(player, recommendations)
+                }.onFailure { err ->
+                    Log.e("QueueShuffle", "Error inserting smart recommendations", err)
+                }
             }
+        }.onFailure { err ->
+            Log.e("QueueShuffle", "Failed to enable smart shuffle", err)
         }
     }
 
@@ -292,15 +311,19 @@ object QueueShuffle {
         val total = player.mediaItemCount
         if (curIndex !in 0 until total) return
 
+        val items = (0 until total).map { player.getMediaItemAt(it) }
+        val upcoming = items.drop(curIndex + 1)
+        if (upcoming.isEmpty() && recs.isEmpty()) return
+
         var recIdx = 0
         var consecutiveContext = 0
-        var i = curIndex + 1
+        val newUpcoming = ArrayList<MediaItem>(upcoming.size + recs.size)
 
-        while (i < player.mediaItemCount && recIdx < recs.size) {
-            val item = player.getMediaItemAt(i)
+        for (item in upcoming) {
+            newUpcoming.add(item)
             if (item.queueTier == QueueTier.CONTEXT) {
                 consecutiveContext++
-                if (consecutiveContext >= 3) {
+                if (consecutiveContext >= 3 && recIdx < recs.size) {
                     val recSong = recs[recIdx].copy(isSmartRecommendation = true)
                     val recItem = withQueueMetadata(
                         recSong.toMediaItem(),
@@ -308,16 +331,13 @@ object QueueShuffle {
                         newTier = QueueTier.CONTEXT,
                         isSmartRecommendation = true,
                     )
-                    player.addMediaItem(i + 1, recItem)
+                    newUpcoming.add(recItem)
                     recIdx++
                     consecutiveContext = 0
-                    i++ // Skip past newly inserted item
                 }
             }
-            i++
         }
 
-        // If queue had few upcoming context tracks, append at least 2 recommendations
         while (recIdx < minOf(2, recs.size)) {
             val recSong = recs[recIdx].copy(isSmartRecommendation = true)
             val recItem = withQueueMetadata(
@@ -326,20 +346,31 @@ object QueueShuffle {
                 newTier = QueueTier.CONTEXT,
                 isSmartRecommendation = true,
             )
-            player.addMediaItem(recItem)
+            newUpcoming.add(recItem)
             recIdx++
         }
+
+        replaceChanged(player, curIndex + 1, total, newUpcoming)
     }
 
     fun disableSmartShuffle(player: Player) {
         smartShuffleJob?.cancel()
-        val curIndex = player.currentMediaItemIndex
-        for (i in (player.mediaItemCount - 1) downTo 0) {
-            if (i == curIndex) continue
-            val item = player.getMediaItemAt(i)
-            if (item.mediaMetadata.extras?.getBoolean(EXTRA_SMART_RECOMMENDATION) == true) {
-                player.removeMediaItem(i)
+        runCatching {
+            val curIndex = player.currentMediaItemIndex
+            val total = player.mediaItemCount
+            if (curIndex !in 0 until total) return
+
+            val items = (0 until total).map { player.getMediaItemAt(it) }
+            val upcoming = items.drop(curIndex + 1)
+            val filteredUpcoming = upcoming.filterNot {
+                it.mediaMetadata.extras?.getBoolean(EXTRA_SMART_RECOMMENDATION) == true
             }
+
+            if (filteredUpcoming.size != upcoming.size) {
+                replaceChanged(player, curIndex + 1, total, filteredUpcoming)
+            }
+        }.onFailure { err ->
+            Log.e("QueueShuffle", "Failed to disable smart shuffle", err)
         }
     }
 

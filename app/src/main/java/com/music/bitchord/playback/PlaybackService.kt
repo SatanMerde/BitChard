@@ -2497,22 +2497,26 @@ class PlaybackService : MediaLibraryService() {
     }
 
     private fun toggleShuffleFromSession() {
-        val window = boundedContextWindow
-        if (window != null && !ListenTogether.state.value.inParty) {
-            val target = !(boundedEditState.desiredShuffle ?: window.isShuffleEnabled)
-            boundedEditState = BoundedQueueEdits.requestShuffle(
-                boundedEditState,
-                desiredShuffle = target,
-            )
-            if (crossfade?.isTransitioning() != true) applyDeferredBoundedQueueEdit()
-            return
+        runCatching {
+            val window = boundedContextWindow
+            if (window != null && !ListenTogether.state.value.inParty) {
+                val target = !(boundedEditState.desiredShuffle ?: window.isShuffleEnabled)
+                boundedEditState = BoundedQueueEdits.requestShuffle(
+                    boundedEditState,
+                    desiredShuffle = target,
+                )
+                if (crossfade?.isTransitioning() != true) applyDeferredBoundedQueueEdit()
+                return
+            }
+            // A party's queue is the server's, not the album last played here.
+            // A stale canonical order would let turning shuffle off splice that
+            // album back in whenever the party plays one of its tracks.
+            if (ListenTogether.state.value.inParty) QueueShuffle.clearCanonicalContext()
+            player?.let(QueueShuffle::cycle)
+            refreshCustomLayouts()
+        }.onFailure { err ->
+            Log.e("PlaybackService", "Error toggling shuffle from session", err)
         }
-        // A party's queue is the server's, not the album last played here.
-        // A stale canonical order would let turning shuffle off splice that
-        // album back in whenever the party plays one of its tracks.
-        if (ListenTogether.state.value.inParty) QueueShuffle.clearCanonicalContext()
-        player?.let(QueueShuffle::cycle)
-        refreshCustomLayouts()
     }
 
     /**
