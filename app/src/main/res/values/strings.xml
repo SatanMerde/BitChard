@@ -384,6 +384,8 @@
     <string name="download_quality_subtitle">%1$s per track, whatever the connection</string>
     <string name="filter_non_music_audio">Filter non-music audio</string>
     <string name="filter_non_music_audio_subtitle">Hides clips under 30 seconds, WAV files, voice notes, recordings and system sounds</string>
+    <string name="block_ai_content">Block AI-generated music</string>
+    <string name="block_ai_content_subtitle">Hide and automatically skip AI songs, covers, and generators (Suno, Udio, AI vocals)</string>
     <string name="performance">Performance</string>
     <string name="high_performance_mode">High performance mode</string>
     <string name="high_performance_subtitle">Uses full animations and blur, and requests a higher display refresh rate</string>

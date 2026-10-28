@@ -233,6 +233,8 @@ object BitgAiService {
                - Un titre court de 2 à 4 mots (ex: "Focus Vald & Co", "Session Rap Aiguisé", "Détente Nocturne").
             4. Requêtes de recherche musicale (searchQueries) :
                - Fournis une liste de 4 à 7 requêtes précises d'artistes ou morceaux (ex: ["Vald Désaccordé", "Georgio", "Lorenzo", "Orelsan"]) pour composer la playlist idéale.
+            5. Filtre de contenu :
+               - Ne propose JAMAIS de musiques générées par IA (pas de Suno, Udio, AI covers ou imitations artificielles). Propose uniquement de véritables artistes et morceaux authentiques.
             
             Réponds EXCLUSIVEMENT avec un objet JSON valide (aucun texte avant ou après, pas de bloc Markdown) sous cette forme :
             {
@@ -256,6 +258,9 @@ object BitgAiService {
                - A punchy 2-4 word title (e.g. "Late Night Chill", "High Energy Flow", "Deep Cuts Selection").
             4. Search queries (searchQueries):
                - 4 to 7 precise artist or track queries for YouTube Music to generate the set.
+            5. Content filter:
+               - NEVER suggest AI-generated songs, synthetic vocals, Suno, Udio, or AI covers. Recommend authentic artists and tracks only.
+            
 
             Respond EXCLUSIVELY with a valid raw JSON object (no markdown, no extra text):
             {

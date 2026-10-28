@@ -6,6 +6,9 @@ import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
+import androidx.media3.common.Player
+import androidx.media3.common.MediaItem
+import com.music.bitchord.data.isAiGenerated
 import androidx.media3.session.MediaController
 import com.music.bitchord.data.LocalMediaRepository
 import com.music.bitchord.data.YtMusicRepository
@@ -43,6 +46,37 @@ object AiDjManager {
         DISCOVERIES("Pépites & Découvertes", "Fresh Discoveries"),
         ENERGY("Vibe Énergie", "High Energy"),
         CHILL("Détente & Chill", "Chill & Relax"),
+    }
+
+    private const val TRACKS_PER_SET = 4
+    private var boundController: MediaController? = null
+    private var boundScope: CoroutineScope? = null
+    private var boundContext: Context? = null
+    private var tracksPlayedInSet = 0
+    private var totalSetsCompleted = 0
+
+    private val playerListener = object : Player.Listener {
+        override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+            if (!_isActive.value) return
+            if (reason == Player.MEDIA_ITEM_TRANSITION_REASON_AUTO) {
+                tracksPlayedInSet++
+                Log.d(TAG, "BitG DJ track played in set: $tracksPlayedInSet / $TRACKS_PER_SET")
+                if (tracksPlayedInSet >= TRACKS_PER_SET) {
+                    tracksPlayedInSet = 0
+                    val ctx = boundContext ?: return
+                    val sc = boundScope ?: return
+                    advanceToNextSet(ctx, sc)
+                }
+            }
+        }
+    }
+
+    private fun setAudioDucking(ducked: Boolean) {
+        boundController?.let { controller ->
+            runCatching {
+                controller.volume = if (ducked) 0.20f else 1.0f
+            }
+        }
     }
 
     private var tts: TextToSpeech? = null
@@ -254,6 +288,13 @@ object AiDjManager {
     ) {
         init(context)
         _isActive.value = true
+        tracksPlayedInSet = 0
+        totalSetsCompleted = 0
+        boundContext = context
+        boundScope = scope
+        boundController?.removeListener(playerListener)
+        boundController = controller
+        controller?.addListener(playerListener)
         currentVibeIndex = 0
         val vibe = DjVibe.entries[currentVibeIndex]
         updateVibeLabel(vibe)
@@ -323,6 +364,14 @@ object AiDjManager {
     ) {
         init(context)
         _isActive.value = true
+        tracksPlayedInSet = 0
+        boundContext = context
+        boundScope = scope
+        if (controller != null && controller !== boundController) {
+            boundController?.removeListener(playerListener)
+            boundController = controller
+            controller.addListener(playerListener)
+        }
         currentVibeIndex = (currentVibeIndex + 1) % DjVibe.entries.size
         val vibe = DjVibe.entries[currentVibeIndex]
         updateVibeLabel(vibe)
@@ -511,6 +560,14 @@ object AiDjManager {
         if (rawPrompt.isBlank()) return
         init(context)
         _isActive.value = true
+        tracksPlayedInSet = 0
+        boundContext = context
+        boundScope = scope
+        if (controller != null && controller !== boundController) {
+            boundController?.removeListener(playerListener)
+            boundController = controller
+            controller.addListener(playerListener)
+        }
 
         val isFrench = getEffectiveLanguage() == "fr"
 
@@ -578,7 +635,9 @@ object AiDjManager {
 
             tracks.take(3).forEach { song ->
                 if (seenIds.add(song.videoId)) {
-                    out.add(song)
+                    if (!AppSettings.blockAiContent.value || !song.isAiGenerated()) {
+                        out.add(song)
+                    }
                 }
             }
 
@@ -634,6 +693,12 @@ object AiDjManager {
         _isActive.value = false
         _isSpeaking.value = false
         _currentSpeech.value = ""
+        tracksPlayedInSet = 0
+        setAudioDucking(false)
+        (controller ?: boundController)?.removeListener(playerListener)
+        boundController = null
+        boundScope = null
+        boundContext = null
         runCatching { tts?.stop() }
         if (pauseMusic && controller != null) {
             runCatching { controller.pause() }
@@ -669,14 +734,18 @@ object AiDjManager {
             putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId)
         }
 
+        setAudioDucking(true)
+
         ttsEngine.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
             override fun onStart(id: String?) {
                 if (_isActive.value) _isSpeaking.value = true
+                setAudioDucking(true)
             }
 
             override fun onDone(id: String?) {
                 if (id == utteranceId) {
                     _isSpeaking.value = false
+                    setAudioDucking(false)
                     if (_isActive.value) onDone?.invoke()
                 }
             }
@@ -685,6 +754,7 @@ object AiDjManager {
             override fun onError(id: String?) {
                 if (id == utteranceId) {
                     _isSpeaking.value = false
+                    setAudioDucking(false)
                     if (_isActive.value) onDone?.invoke()
                 }
             }
@@ -692,6 +762,82 @@ object AiDjManager {
 
         _isSpeaking.value = true
         ttsEngine.speak(text, TextToSpeech.QUEUE_FLUSH, params, utteranceId)
+    }
+
+    /**
+     * Continuous Spotify AI DJ inter-set bridge:
+     * When a set finishes (every 4 songs), automatically switches to the next thematic vibe,
+     * speaks contextual inter-set transition commentary, and plays the new curated set.
+     */
+    private fun advanceToNextSet(context: Context, scope: CoroutineScope) {
+        if (!_isActive.value) return
+        activeJob?.cancel()
+        activeJob = scope.launch {
+            totalSetsCompleted++
+            currentVibeIndex = (currentVibeIndex + 1) % DjVibe.entries.size
+            val nextVibe = DjVibe.entries[currentVibeIndex]
+            updateVibeLabel(nextVibe)
+
+            val isFrench = getEffectiveLanguage() == "fr"
+
+            if (BitgAiService.isAiConfigured()) {
+                val transitionPrompt = if (isFrench) {
+                    "Transition fluide entre deux blocs musicaux de DJ. Fais un commentaire court et annonce le prochain set ambiance : ${nextVibe.labelFr}"
+                } else {
+                    "Smooth transition between two DJ sets. Keep it punchy and announce the upcoming set vibe: ${nextVibe.labelEn}"
+                }
+                val aiResult = BitgAiService.generateAiDjSession(
+                    context = context,
+                    userPrompt = transitionPrompt,
+                    vibe = nextVibe,
+                    isFrench = isFrench,
+                ).getOrNull()
+
+                if (aiResult != null && _isActive.value) {
+                    _currentVibe.value = "BitG • ${aiResult.vibeTitle}"
+                    speak(aiResult.spokenCommentary) {
+                        if (!_isActive.value) return@speak
+                        scope.launch {
+                            val rawSongs = searchMultipleQueries(aiResult.searchQueries)
+                            val songs = if (AppSettings.blockAiContent.value) rawSongs.filterNot { it.isAiGenerated() } else rawSongs
+                            val ctrl = boundController
+                            if (_isActive.value && songs.isNotEmpty() && ctrl != null) {
+                                ctrl.playSongs(songs, 0)
+                            }
+                        }
+                    }
+                    return@launch
+                }
+            }
+
+            val songs = loadTracksForVibe(context, nextVibe).let { list ->
+                if (AppSettings.blockAiContent.value) list.filterNot { it.isAiGenerated() } else list
+            }
+            val leadSong = songs.firstOrNull()
+
+            val text = if (isFrench) {
+                if (leadSong != null) {
+                    "Voilà pour ce bloc ! On change d'ambiance avec ${nextVibe.labelFr}, en commençant par ${leadSong.title} de ${leadSong.artist}."
+                } else {
+                    "On continue sur notre lancée ! Place à un nouveau set : ${nextVibe.labelFr}."
+                }
+            } else {
+                if (leadSong != null) {
+                    "That wraps up that run! Shifting gears into ${nextVibe.labelEn}, starting off with ${leadSong.title} by ${leadSong.artist}."
+                } else {
+                    "Keeping the energy flowing! Moving into ${nextVibe.labelEn}."
+                }
+            }
+
+            speak(text) {
+                val ctrl = boundController
+                if (_isActive.value && songs.isNotEmpty() && ctrl != null) {
+                    scope.launch {
+                        ctrl.playSongs(songs, 0)
+                    }
+                }
+            }
+        }
     }
 
     private fun updateVibeLabel(vibe: DjVibe) {
@@ -712,7 +858,12 @@ object AiDjManager {
             YtMusicRepository.homeRecentlyPlayed().getOrNull()?.items?.mapNotNull { it.toSong() }
         }.getOrNull().orEmpty()
 
-        val seedPool: List<Song> = (favorites + recents + downloaded + local).distinctBy { it.videoId }
+        val basePool: List<Song> = (favorites + recents + downloaded + local).distinctBy { it.videoId }
+        val seedPool: List<Song> = if (AppSettings.blockAiContent.value) {
+            basePool.filterNot { it.isAiGenerated() }
+        } else {
+            basePool
+        }
 
         when (vibe) {
             DjVibe.FAVORITES -> {

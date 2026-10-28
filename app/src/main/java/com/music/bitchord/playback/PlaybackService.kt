@@ -982,6 +982,19 @@ class PlaybackService : MediaLibraryService() {
             // The player this fired on, which is by definition the one the
             // session is currently pointed at.
             val exoPlayer = player ?: return
+            if (AppSettings.blockAiContent.value && mediaItem != null) {
+                val title = mediaItem.mediaMetadata.title?.toString()
+                val artist = mediaItem.mediaMetadata.artist?.toString()
+                val album = mediaItem.mediaMetadata.albumTitle?.toString()
+                if (com.music.bitchord.data.AiContentFilter.isAiText(title) ||
+                    com.music.bitchord.data.AiContentFilter.isAiText(artist) ||
+                    com.music.bitchord.data.AiContentFilter.isAiText(album)
+                ) {
+                    Log.i(TAG, "Skipping AI-generated track: $title by $artist")
+                    exoPlayer.seekToNextMediaItem()
+                    return
+                }
+            }
             // A quality swap replaces the playing item, which Media3
             // reports here as a playlist change — indistinguishable, from
             // this callback's point of view, from the queue moving on. It

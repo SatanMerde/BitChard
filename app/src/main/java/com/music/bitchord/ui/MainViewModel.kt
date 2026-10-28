@@ -1,5 +1,6 @@
 package com.music.bitchord.ui
 
+import com.music.bitchord.data.isAiGenerated
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -1849,18 +1850,26 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         identity == listenerKey() && generation == homeLoadGeneration.get()
 
     private fun publishHomeShelves(shelves: List<HomeShelf>, prepend: Boolean = false) {
+        val effectiveShelves = if (AppSettings.blockAiContent.value) {
+            shelves.mapNotNull { shelf ->
+                val cleanItems = shelf.items.filterNot { it.isAiGenerated() }
+                if (cleanItems.isEmpty()) null else shelf.copy(items = cleanItems)
+            }
+        } else {
+            shelves
+        }
         val existing = (_home.value as? UiState.Success)?.data.orEmpty()
         if (prepend) {
             // YouTube's core home can also contain a stale "Recently played"
             // shelf. The dedicated history endpoint wins and replaces it.
-            val replacing = shelves.map { it.title.lowercase(Locale.ROOT) }.toSet()
+            val replacing = effectiveShelves.map { it.title.lowercase(Locale.ROOT) }.toSet()
             homeSeenTitles.addAll(replacing)
-            _home.value = UiState.Success(shelves + existing.filterNot {
+            _home.value = UiState.Success(effectiveShelves + existing.filterNot {
                 it.title.lowercase(Locale.ROOT) in replacing
             })
             return
         }
-        val added = shelves.withoutRepeatsOf(existing)
+        val added = effectiveShelves.withoutRepeatsOf(existing)
             .filter { homeSeenTitles.add(it.title.lowercase(Locale.ROOT)) }
         if (added.isNotEmpty()) _home.value = UiState.Success(existing + added)
     }
@@ -2328,7 +2337,12 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             if (stillCurrent) {
                 next.onSuccess { page ->
                     val current = (_results.value as? UiState.Success)?.data.orEmpty()
-                    val merged = (current + page.rows).distinctBy(::searchResultKey)
+                    val pageRows = if (AppSettings.blockAiContent.value) {
+                        page.rows.filterNot { it.isAiGenerated() }
+                    } else {
+                        page.rows
+                    }
+                    val merged = (current + pageRows).distinctBy(::searchResultKey)
                     searchCache.put(session.key, SearchCacheEntry(merged, page.continuation))
                     searchSession = session.copy(continuation = page.continuation)
                     _results.value = UiState.Success(merged)
@@ -2407,7 +2421,9 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                     return@collectLatest
                 }
                 // Cap results so the dropdown doesn't grow unbounded.
-                _typeaheadResults.value = result?.rows.orEmpty().take(TYPEAHEAD_MAX_RESULTS)
+                val candidates = result?.rows.orEmpty()
+            val filtered = if (AppSettings.blockAiContent.value) candidates.filterNot { it.isAiGenerated() } else candidates
+            _typeaheadResults.value = filtered.take(TYPEAHEAD_MAX_RESULTS)
             }
     }
 
@@ -2417,7 +2433,11 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         key: String,
         requestId: Long,
     ): UiState<List<SearchResult>> {
-        val rows = page.rows
+        val rows = if (AppSettings.blockAiContent.value) {
+            page.rows.filterNot { it.isAiGenerated() }
+        } else {
+            page.rows
+        }
         if (rows.isEmpty()) return UiState.Error(text(R.string.no_results))
         searchCache.put(key, SearchCacheEntry(rows, page.continuation))
         searchSession = SearchSession(key, requestId, _filter.value, page.continuation)

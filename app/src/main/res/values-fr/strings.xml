@@ -251,6 +251,8 @@
     <string name="download_quality_subtitle">%1$s par piste, quelle que soit la connexion</string>
     <string name="filter_non_music_audio">Filtrer l\'audio non musical</string>
     <string name="filter_non_music_audio_subtitle">Masque les extraits de moins de 30 secondes, les fichiers WAV, les notes vocales, les enregistrements et les sons système</string>
+    <string name="block_ai_content">Bloquer la musique générée par IA</string>
+    <string name="block_ai_content_subtitle">Masquer et ignorer automatiquement les morceaux, reprises et générateurs IA (Suno, Udio, voix IA)</string>
     <string name="performance">Performance</string>
     <string name="high_performance_mode">Mode haute performance</string>
     <string name="high_performance_subtitle">Utilise toutes les animations et le flou, et demande un taux de rafraîchissement plus élevé</string>

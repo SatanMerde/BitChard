@@ -1,5 +1,6 @@
 package com.music.bitchord.playback
 
+import com.music.bitchord.data.isAiGenerated
 import android.content.ComponentName
 import android.net.Uri
 import android.os.Bundle
@@ -894,6 +895,24 @@ fun mediaIdIn(uri: Uri): String? = if (uri.authority == "source") {
  */
 suspend fun MediaController.playSongs(songs: List<Song>, startIndex: Int) {
     if (songs.isEmpty()) return
+    val songsToPlay = if (AppSettings.blockAiContent.value) {
+        val filtered = songs.filterNot { it.isAiGenerated() }
+        if (filtered.isEmpty()) return
+        filtered
+    } else {
+        songs
+    }
+    val effectiveStartIndex = if (AppSettings.blockAiContent.value) {
+        val targetSong = songs.getOrNull(startIndex)
+        if (targetSong != null && !targetSong.isAiGenerated()) {
+            val found = songsToPlay.indexOfFirst { it.videoId == targetSong.videoId }
+            if (found >= 0) found else 0
+        } else {
+            0
+        }
+    } else {
+        startIndex
+    }
     sendCustomCommand(
         SessionCommand(ACTION_CLEAR_BOUNDED_CONTEXT, Bundle.EMPTY),
         Bundle.EMPTY,
@@ -903,14 +922,14 @@ suspend fun MediaController.playSongs(songs: List<Song>, startIndex: Int) {
     // leads, so it ends up at the top instead of at [startIndex].
     val shuffled = QueueShuffle.enabled.value
     val items = withContext(Dispatchers.Default) {
-        val songsWithIds = songs.map { song ->
+        val songsWithIds = songsToPlay.map { song ->
             if (song.queueEntryId == null) song.copy(queueEntryId = java.util.UUID.randomUUID().toString()) else song
         }
         val contextEntries = songsWithIds.filter { it.queueTier == QueueTier.CONTEXT }
         val canonicalIndexMap = contextEntries.mapIndexed { idx, s -> s.queueEntryId!! to idx }.toMap()
 
         val queue = if (shuffled) {
-            QueueShuffle.startingOrder(songsWithIds, startIndex.coerceIn(songsWithIds.indices))
+            QueueShuffle.startingOrder(songsWithIds, effectiveStartIndex.coerceIn(songsWithIds.indices))
         } else {
             songsWithIds
         }
@@ -929,7 +948,7 @@ suspend fun MediaController.playSongs(songs: List<Song>, startIndex: Int) {
 
         mediaItems
     }
-    setMediaItems(items, queueStartIndex(startIndex, items.size, shuffled), 0L)
+    setMediaItems(items, queueStartIndex(effectiveStartIndex, items.size, shuffled), 0L)
     prepare()
     play()
 }

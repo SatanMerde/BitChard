@@ -258,6 +258,7 @@ fun SettingsScreen(
     val preferMusicOnly by AppSettings.preferMusicOnly.collectAsStateWithLifecycle()
     val smartVersionAlignment by AppSettings.smartVersionAlignment.collectAsStateWithLifecycle()
     val filterNonMusicAudio by AppSettings.filterNonMusicAudio.collectAsStateWithLifecycle()
+    val blockAiContent by AppSettings.blockAiContent.collectAsStateWithLifecycle()
     val localMusicFolderUri by AppSettings.localMusicFolderUri.collectAsStateWithLifecycle()
     val highPerformanceMode by AppSettings.highPerformanceMode.collectAsStateWithLifecycle()
     val performanceRefreshRate by AppSettings.performanceRefreshRate.collectAsStateWithLifecycle()
@@ -1196,6 +1197,26 @@ fun SettingsScreen(
                         )
                     },
                     onClick = { AppSettings.setFilterNonMusicAudio(!filterNonMusicAudio) },
+                )
+            }
+
+            val blockAiContentTitle = stringResource(R.string.block_ai_content)
+            row(blockAiContentTitle, "ai", "artificial intelligence", "suno", "udio", "cover", "voice", "ia") {
+                SettingsRow(
+                    icon = Icons.Rounded.MusicOff,
+                    title = blockAiContentTitle,
+                    subtitle = stringResource(R.string.block_ai_content_subtitle),
+                    trailing = {
+                        Switch(
+                            checked = blockAiContent,
+                            onCheckedChange = AppSettings::setBlockAiContent,
+                            colors = SwitchDefaults.colors(
+                                checkedTrackColor = MaterialTheme.colorScheme.primary,
+                                checkedBorderColor = MaterialTheme.colorScheme.primary,
+                            ),
+                        )
+                    },
+                    onClick = { AppSettings.setBlockAiContent(!blockAiContent) },
                 )
             }
         }
