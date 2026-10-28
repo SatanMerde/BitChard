@@ -41,7 +41,7 @@ Ce document détaille l'architecture complète, la structure des catégories, sa
 
 ### 🎵 3. BITCHARD & AUDIO (Dédié à BitChard & Music Apps)
 *Concerne : BitChard, SpotiFLAC-Mobile, SpotiFiak, spotube, Stash.*
-- `📢・bitchard-news` : Annonces dédiées aux versions de BitChard (v1.8.7, futures v1.9, etc.).
+- `📢・bitchard-news` : Annonces dédiées aux versions de BitChard (v1.8.9, futures v1.9, etc.).
 - `🤖・bitg-ai-dj` : Discussions et partages de prompts / configurations pour le DJ IA BitG (Gemini, Claude, DeepSeek).
 - `🎧・bitchard-support` : Aide à l'installation des APKs (universal, arm64), synchronisation Spotify/Deezer/Apple Music.
 - `🐛・bitchard-bug-reports` : Signalement de bugs ou crashs sur l'app.
@@ -76,7 +76,7 @@ Ce document détaille l'architecture complète, la structure des catégories, sa
 ---
 
 ### 💻 7. GITHUB SYNC (Automatisé via Webhooks)
-- `🚀・github-releases` : Reçoit instantanément une notification dès qu'une Release GitHub est publiée (ex: BitChard v1.8.7).
+- `🚀・github-releases` : Reçoit instantanément une notification dès qu'une Release GitHub est publiée (ex: BitChard v1.8.9).
 - `📦・github-commits` : Flux des commits poussés sur les repos principaux (`main`).
 - `🎯・github-issues` : Alertes quand un utilisateur ouvre ou ferme une Issue GitHub.
 

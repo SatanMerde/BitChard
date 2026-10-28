@@ -39,7 +39,7 @@ def load_last_releases():
                 return json.load(f)
         except Exception:
             pass
-    return {"BitChard": "v1.8.7", "D-moniakPatches": "v1.52.20"}
+    return {"BitChard": "v1.8.9", "D-moniakPatches": "v1.52.20"}
 
 def save_last_releases(data):
     try:
@@ -187,7 +187,7 @@ async def slash_help(interaction: discord.Interaction):
     embed.add_field(
         name="🇬🇧 English Commands",
         value=(
-            "`/bitchard` : App details, v1.8.7 changelog & APK download\n"
+            "`/bitchard` : App details, v1.8.9 changelog & APK download\n"
             "`/dmoniak` : Morphe / ReVanced patch suite details\n"
             "`/repos` : Official GitHub repositories & releases\n"
             "`/legal` : Educational framework & terms of use\n"
@@ -198,7 +198,7 @@ async def slash_help(interaction: discord.Interaction):
     embed.add_field(
         name="🇫🇷 Commandes en Français",
         value=(
-            "`/bitchard` : Infos détaillées, v1.8.7 & téléchargements\n"
+            "`/bitchard` : Infos détaillées, v1.8.9 & téléchargements\n"
             "`/dmoniak` : Patchs Morphe / ReVanced & documentation\n"
             "`/repos` : Dépôts officiels GitHub & versions\n"
             "`/legal` : Mentions légales et cadre d'utilisation\n"
@@ -218,7 +218,7 @@ async def slash_help(interaction: discord.Interaction):
     )
     await interaction.response.send_message(embed=embed)
 
-@tree.command(name="bitchard", description="BitChard overview, features and download links (v1.8.7)")
+@tree.command(name="bitchard", description="BitChard overview, features and download links (v1.8.9)")
 async def slash_bitchard(interaction: discord.Interaction):
     embed = Embed(
         title="🎵 BitChard — The Ultimate YouTube Music Client",

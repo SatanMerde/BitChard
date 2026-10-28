@@ -47,12 +47,12 @@
   <tr>
     <td width="50%" valign="top">
 
-### 🤖 BitG — The Interactive AI DJ
-- **Real-Time Voice Commentary** powered by natural, expressive text-to-speech (TTS) synthesis.
+### 🤖 BitG — Advanced AI DJ
+- **Spotify DJ Architecture** : Curates structured dynamic batches (4–6 tracks), speaks natural commentary transitions between sets, and switches vibes instantly.
+- **Real-Time Audio Ducking** : Automatically reduces music playback volume to 20% while BitG speaks, fading smoothly back to 100%.
 - **Multi-LLM Intelligence** : Connects seamlessly to **Google Gemini 2.0 Flash**, **Claude 3.5 Sonnet**, OpenAI GPT-4o, or custom local endpoints.
-- **Musical DNA Analysis** : Analyzes your Replay listening history, top artists, and starred favorites to curate bespoke track blocks.
-- **Natural Language Voice & Text Prompts** : Ask for any vibe (*"energetic 80s synthwave for late-night coding"*, *"chill lo-fi hip hop"*) and BitG spins it up instantly.
-- **Dynamic Set Transitions** : Hit **"Play Other Tracks"** anytime to switch vibes seamlessly without interrupting playback.
+- **Natural Language Voice & Text Prompts** : Ask for any vibe (*"energetic 80s synthwave for late-night coding"*, *"chill lo-fi hip hop"*) in French or English.
+- **Musical DNA Analysis** : Analyzes your listening history, top artists, and starred favorites to curate bespoke track blocks.
 
     </td>
     <td width="50%" valign="top">
@@ -103,6 +103,25 @@
 
     </td>
   </tr>
+  <tr>
+    <td width="50%" valign="top">
+
+### ✨ Spotify Smart Shuffle (« Lecture Intelligente »)
+- **3-State Shuffle Cycle** : Cycle effortlessly through `OFF` → `ON` → `SMART SHUFFLE` ✨ from player controls.
+- **Queue Context Weaving** : Seamlessly interleaves 1 handpicked contextual recommendation every 3 tracks without interrupting your listening flow.
+- **Visual Sparkle Badges** : Recommended tracks stand out with an elegant `✨ Recommandé pour cette playlist` badge.
+- **Zero Interruption Restoration** : Turning shuffle off smoothly strips recommendations and restores canonical track order.
+
+    </td>
+    <td width="50%" valign="top">
+
+### 🛡️ AI Content & Vocal Generator Blocker
+- **1-Click Filter in Settings** : Toggle on *Block AI-generated music* to purge synthetic songs from your musical world.
+- **Universal Guardrails** : Automatically filters out Suno, Udio, AI covers, Diff-SVC, and RVC vocal clones from search results, home shelves, and playlists.
+- **Automatic Playback Skip** : Instantly skips past any AI-generated song encountered in radio or autoplay.
+
+    </td>
+  </tr>
 </table>
 
 </div>
@@ -114,7 +133,9 @@
 | Feature | BitChard | Original BitChord | Official YouTube Music |
 |---|:---:|:---:|:---:|
 | **Zero Ads & Full Background Playback** | ✅ **Yes (Free & Forever)** | ✅ Yes | ❌ Paid Subscription Required |
-| **Interactive Voice AI DJ (Gemini 2.0 / Claude / BitG)** | ✅ **Yes (Exclusive BitG)** | ❌ No | ❌ No |
+| **Interactive Voice AI DJ (Gemini 2.0 / Claude / BitG)** | ✅ **Yes (Spotify-style ducking & sets)** | ❌ No | ❌ No |
+| **Spotify Smart Shuffle (« Lecture Intelligente »)** | ✅ **Yes (3-state cycle & weave)** | ❌ Standard only | ❌ No |
+| **AI Music & Vocal Clone Blocker (Suno / Udio)** | ✅ **Yes (Full filter & skip)** | ❌ No | ❌ No |
 | **Word & Syllable-Level Synced Lyrics (Apple Music Style)** | ✅ **Yes** | ✅ Yes | ⚠️ Basic (Line-by-line) |
 | **24-bit Hi-Res Lossless FLAC / ALAC Streams** | ✅ **Yes** | ✅ Yes | ❌ 256kbps AAC Max |
 | **100% Editable Imported Playlists (Reorder / Rename)** | ✅ **Yes (Full control)** | ❌ Read-only | ❌ No |
@@ -132,12 +153,12 @@ Pre-compiled and signed packages are available in the [**GitHub Releases**](http
 
 | Platform | Package / Asset | Details |
 |---|---|---|
-| **Android (Recommended)** | [`BitChard-arm64-v8a-debug.apk`](https://github.com/SatanMerde/BitChard/releases) | Optimized for modern 64-bit Android smartphones (~67 MB) |
-| **Android (Universal)** | [`BitChard-universal-debug.apk`](https://github.com/SatanMerde/BitChard/releases) | Compatible with all Android architectures & emulators (~171 MB) |
-| **Windows** | [`BitChard-Setup.exe`](https://github.com/SatanMerde/BitChard/releases) / `.msi` | Windows installer with native Mica / Acrylic material |
-| **Linux** | [`BitChard.AppImage`](https://github.com/SatanMerde/BitChard/releases) / `.deb` / `.rpm` | Standalone binary with MPRIS2 integration |
-| **macOS** | [`BitChard.dmg`](https://github.com/SatanMerde/BitChard/releases) | Universal disk image for Apple Silicon & Intel Macs |
-| **WearOS** | [`BitChardWear.apk`](https://github.com/SatanMerde/BitChard/releases) | Companion app for WearOS smartwatches |
+| **Android (Recommended)** | [`BitChard-arm64-v8a.apk`](https://github.com/SatanMerde/BitChard/releases) | Signed production APK for 64-bit Android smartphones (~65 MB) |
+| **Android (Universal)** | [`BitChard-universal.apk`](https://github.com/SatanMerde/BitChard/releases) | Compatible with all Android architectures & emulators (~164 MB) |
+| **Windows** | [`BitChard-windows-x64-setup.exe`](https://github.com/SatanMerde/BitChard/releases) / `.msi` | Windows installer with native Mica / Acrylic material |
+| **Linux** | [`BitChard-linux-x86_64.AppImage`](https://github.com/SatanMerde/BitChard/releases) / `.deb` / `.rpm` | Standalone binary with MPRIS2 integration |
+| **macOS** | [`BitChard-macos-arm64.dmg`](https://github.com/SatanMerde/BitChard/releases) | Disk image for Apple Silicon & Intel Macs |
+| **WearOS** | [`BitChardWear-prod-release.apk`](https://github.com/SatanMerde/BitChard/releases) | Companion app for WearOS smartwatches |
 
 </div>
 
