@@ -997,6 +997,7 @@ private fun BitChordApp(
         }
     }
     val shuffleEnabled by QueueShuffle.enabled.collectAsStateWithLifecycle()
+    val isSmartShuffle by QueueShuffle.isSmartShuffle.collectAsStateWithLifecycle()
     val preferMusicOnly by AppSettings.preferMusicOnly.collectAsStateWithLifecycle()
     // A conversion is deliberately scoped to the current listening session.
     // Keeping the complete original row here lets Revert restore the exact
@@ -2368,6 +2369,7 @@ private fun BitChordApp(
             hasNext = player.hasNext,
             repeatMode = player.repeatMode,
             shuffleEnabled = shuffleEnabled,
+            isSmartShuffle = isSmartShuffle,
             autoplayEnabled = autoplayEnabled,
             signedIn = signedIn,
             likeStatus = likeStatuses[song.videoId] ?: LikeStatus.INDIFFERENT,

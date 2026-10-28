@@ -6,6 +6,13 @@ import androidx.media3.common.Player
 import com.music.bitchord.data.model.QueueTier
 import com.music.bitchord.data.model.Song
 import com.music.bitchord.data.settings.AppSettings
+import com.music.bitchord.data.YtMusicRepository
+import com.music.bitchord.data.isAiGenerated
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,12 +41,33 @@ import java.util.UUID
  */
 object QueueShuffle {
 
-    private val _enabled = MutableStateFlow(false)
+    enum class ShuffleMode {
+        OFF,
+        ON,
+        SMART,
+    }
 
-    /** Whether the queue is currently held in shuffled order. */
+    private val _shuffleMode = MutableStateFlow(ShuffleMode.OFF)
+    val shuffleMode: StateFlow<ShuffleMode> = _shuffleMode.asStateFlow()
+
+    private val _enabled = MutableStateFlow(false)
     val enabled: StateFlow<Boolean> = _enabled.asStateFlow()
+
+    private val _isSmartShuffle = MutableStateFlow(false)
+    val isSmartShuffle: StateFlow<Boolean> = _isSmartShuffle.asStateFlow()
+
+    private var smartShuffleJob: Job? = null
+    private val shuffleScope = CoroutineScope(Dispatchers.Main)
+
     fun setEnabled(enabled: Boolean) {
         _enabled.value = enabled
+        if (!enabled) {
+            _shuffleMode.value = ShuffleMode.OFF
+            _isSmartShuffle.value = false
+        } else if (_shuffleMode.value == ShuffleMode.OFF) {
+            _shuffleMode.value = ShuffleMode.ON
+            _isSmartShuffle.value = false
+        }
     }
 
     /** Entry IDs in their pre-shuffle order. Empty while shuffle is off. */
@@ -138,12 +166,14 @@ object QueueShuffle {
         newCanonicalIndex: Int? = item.canonicalIndex,
         newTier: QueueTier = item.queueTier,
         newContextCycleId: Long? = item.contextCycleId,
+        isSmartRecommendation: Boolean = item.mediaMetadata.extras?.getBoolean(EXTRA_SMART_RECOMMENDATION) == true,
     ): MediaItem {
         val currentExtras = item.mediaMetadata.extras ?: Bundle()
         val newExtras = Bundle(currentExtras).apply {
             if (newEntryId != null) putString(EXTRA_QUEUE_ENTRY_ID, newEntryId)
             if (newCanonicalIndex != null) putInt(EXTRA_CANONICAL_INDEX, newCanonicalIndex)
             if (newContextCycleId != null) putLong(EXTRA_CONTEXT_CYCLE_ID, newContextCycleId)
+            if (isSmartRecommendation) putBoolean(EXTRA_SMART_RECOMMENDATION, true)
             putString(EXTRA_QUEUE_TIER, newTier.name)
         }
         val newMetadata = item.mediaMetadata.buildUpon().setExtras(newExtras).build()
@@ -174,7 +204,121 @@ object QueueShuffle {
         if (c != null && !isCanonicalContextValid(player, c)) {
             clearCanonicalContext()
         }
-        if (_enabled.value) restore(player) else shuffle(player)
+        when (_shuffleMode.value) {
+            ShuffleMode.OFF -> {
+                _shuffleMode.value = ShuffleMode.ON
+                _enabled.value = true
+                _isSmartShuffle.value = false
+                AppSettings.setShuffleEnabled(true)
+                shuffle(player)
+            }
+            ShuffleMode.ON -> {
+                _shuffleMode.value = ShuffleMode.SMART
+                _enabled.value = true
+                _isSmartShuffle.value = true
+                enableSmartShuffle(player)
+            }
+            ShuffleMode.SMART -> {
+                _shuffleMode.value = ShuffleMode.OFF
+                _enabled.value = false
+                _isSmartShuffle.value = false
+                AppSettings.setShuffleEnabled(false)
+                disableSmartShuffle(player)
+                restore(player)
+            }
+        }
+    }
+
+    /**
+     * Reverses Spotify Smart Shuffle (Lecture Intelligente):
+     * Analyzes the active queue context, queries matching musical recommendations,
+     * and weaves them into the shuffled upcoming queue (1 recommendation every 3 tracks).
+     */
+    fun enableSmartShuffle(player: Player) {
+        smartShuffleJob?.cancel()
+        val currentItem = player.currentMediaItem
+        val currentSong = currentItem?.toSong()
+        val seedId = currentSong?.videoId ?: ctx?.items?.firstOrNull()?.mediaId ?: return
+
+        smartShuffleJob = shuffleScope.launch(Dispatchers.IO) {
+            val existingMediaIds = (0 until player.mediaItemCount).mapNotNull {
+                player.getMediaItemAt(it).mediaId
+            }.toSet()
+
+            val radioTracks = runCatching {
+                YtMusicRepository.radio(seedId).getOrNull()
+            }.getOrNull().orEmpty()
+
+            val recommendations = radioTracks
+                .filterNot { it.videoId in existingMediaIds }
+                .let { list ->
+                    if (AppSettings.blockAiContent.value) list.filterNot { it.isAiGenerated() } else list
+                }
+                .take(9)
+
+            if (recommendations.isEmpty()) return@launch
+
+            withContext(Dispatchers.Main) {
+                if (_shuffleMode.value != ShuffleMode.SMART) return@withContext
+                insertSmartRecommendations(player, recommendations)
+            }
+        }
+    }
+
+    private fun insertSmartRecommendations(player: Player, recs: List<Song>) {
+        val curIndex = player.currentMediaItemIndex
+        val total = player.mediaItemCount
+        if (curIndex !in 0 until total) return
+
+        var recIdx = 0
+        var consecutiveContext = 0
+        var i = curIndex + 1
+
+        while (i < player.mediaItemCount && recIdx < recs.size) {
+            val item = player.getMediaItemAt(i)
+            if (item.queueTier == QueueTier.CONTEXT) {
+                consecutiveContext++
+                if (consecutiveContext >= 3) {
+                    val recSong = recs[recIdx].copy(isSmartRecommendation = true)
+                    val recItem = withQueueMetadata(
+                        recSong.toMediaItem(),
+                        newEntryId = UUID.randomUUID().toString(),
+                        newTier = QueueTier.CONTEXT,
+                        isSmartRecommendation = true,
+                    )
+                    player.addMediaItem(i + 1, recItem)
+                    recIdx++
+                    consecutiveContext = 0
+                    i++ // Skip past newly inserted item
+                }
+            }
+            i++
+        }
+
+        // If queue had few upcoming context tracks, append at least 2 recommendations
+        while (recIdx < minOf(2, recs.size)) {
+            val recSong = recs[recIdx].copy(isSmartRecommendation = true)
+            val recItem = withQueueMetadata(
+                recSong.toMediaItem(),
+                newEntryId = UUID.randomUUID().toString(),
+                newTier = QueueTier.CONTEXT,
+                isSmartRecommendation = true,
+            )
+            player.addMediaItem(recItem)
+            recIdx++
+        }
+    }
+
+    fun disableSmartShuffle(player: Player) {
+        smartShuffleJob?.cancel()
+        val curIndex = player.currentMediaItemIndex
+        for (i in (player.mediaItemCount - 1) downTo 0) {
+            if (i == curIndex) continue
+            val item = player.getMediaItemAt(i)
+            if (item.mediaMetadata.extras?.getBoolean(EXTRA_SMART_RECOMMENDATION) == true) {
+                player.removeMediaItem(i)
+            }
+        }
     }
 
     /**
@@ -305,6 +449,7 @@ object QueueShuffle {
      * in place and restore applies from cur + 2 onward.
      */
     private fun restore(player: Player) {
+        disableSmartShuffle(player)
         var c = ctx
         if (c != null && !isCanonicalContextValid(player, c)) {
             clearCanonicalContext()

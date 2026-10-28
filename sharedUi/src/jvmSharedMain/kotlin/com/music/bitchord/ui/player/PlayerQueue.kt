@@ -785,13 +785,23 @@ private fun InlineQueueRow(
                 style = MaterialTheme.typography.titleMedium,
                 color = if (isCurrent) Color.White else Color.White.copy(alpha = 0.92f),
             )
-            Text(
-                text = song.artist,
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.White.copy(alpha = 0.55f),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+            if (song.isSmartRecommendation) {
+                Text(
+                    text = "✨ ${song.artist} • " + stringResource(Res.string.smart_recommendation_badge),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            } else {
+                Text(
+                    text = song.artist,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White.copy(alpha = 0.55f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
         if (isCurrent) {
             Icon(

@@ -118,6 +118,8 @@
     <string name="show_original_lyrics">Afficher les paroles originales</string>
     <string name="shuffle_off">Lecture aléatoire désactivée</string>
     <string name="shuffle_on">Lecture aléatoire activée</string>
+    <string name="smart_shuffle_on">Lecture intelligente activée</string>
+    <string name="smart_recommendation_badge">Recommandé pour cette playlist</string>
     <string name="stereo">Stéréo</string>
     <string name="translate_lyrics">Traduire les paroles</string>
     <string name="translating_lyrics_to">Traduction en %1$s…</string>

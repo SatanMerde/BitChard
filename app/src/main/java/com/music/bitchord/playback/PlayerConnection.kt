@@ -485,6 +485,7 @@ fun MediaItem.toSong() = Song(
     playbackSourceId = mediaMetadata.extras?.getString(EXTRA_PLAYBACK_SOURCE_ID),
     localUri = mediaMetadata.extras?.getString(EXTRA_LOCAL_URI),
     localPath = mediaMetadata.extras?.getString(EXTRA_LOCAL_PATH),
+    isSmartRecommendation = mediaMetadata.extras?.getBoolean(EXTRA_SMART_RECOMMENDATION) == true,
 )
 
 internal val mediaItemTiers = java.util.Collections.synchronizedMap(java.util.WeakHashMap<MediaItem, QueueTier>())
@@ -520,6 +521,7 @@ val MediaItem.playbackSourceId: String?
     get() = mediaMetadata.extras?.getString(EXTRA_PLAYBACK_SOURCE_ID)
 
 /** Public metadata keys for queue categorization and immutable queue entry identity. */
+const val EXTRA_SMART_RECOMMENDATION = "bitchord.smartRecommendation"
 const val EXTRA_QUEUE_TIER = "bitchord.queueTier"
 const val EXTRA_QUEUE_ENTRY_ID = "bitchord.queueEntryId"
 const val EXTRA_CANONICAL_INDEX = "bitchord.canonicalIndex"
@@ -767,7 +769,7 @@ fun Song.toMediaItem(): MediaItem {
             // back a null duration and later matching loses the `&d=` it
             // depends on.
             .apply {
-                if (queueTier != QueueTier.CONTEXT || queueEntryId != null || fromAutoplay ||
+                if (isSmartRecommendation || queueTier != QueueTier.CONTEXT || queueEntryId != null || fromAutoplay ||
                     offlineUri != null || durationText != null ||
                     artistId != null || albumId != null || setVideoId != null ||
                     isExplicit != null || isVideo || isVideoOrigin || radioName != null ||
@@ -794,6 +796,7 @@ fun Song.toMediaItem(): MediaItem {
                             EXTRA_VIDEO_ORIGIN to isVideoOrigin,
                             EXTRA_SOURCE_QUALITY to sourceQuality,
                             EXTRA_SOURCE_HI_RES to sourceHiRes,
+                            EXTRA_SMART_RECOMMENDATION to isSmartRecommendation,
                         ),
                     )
                 }

@@ -1400,4 +1400,6 @@
     <string name="song_info_unavailable">Non disponible</string>
     <string name="song_info_error">Certaines informations n’ont pas pu être chargées.</string>
     <string name="song_info_retry">Réessayer</string>
+    <string name="smart_shuffle_on">Lecture intelligente activée</string>
+    <string name="smart_recommendation_badge">Recommandé pour cette playlist</string>
 </resources>

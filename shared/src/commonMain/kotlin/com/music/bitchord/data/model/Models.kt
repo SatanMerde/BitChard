@@ -137,6 +137,8 @@ data class Song(
     val playbackSourceId: String? = null,
     /** Play or stream count (e.g. "2.3M plays", "102K écoutes") on artist top songs or search hits. */
     val playCount: String? = null,
+    /** Whether this track is a smart recommendation dynamically woven into the queue during Smart Shuffle. */
+    val isSmartRecommendation: Boolean = false,
 ) {
     /** Legacy derived property: true if and only if [queueTier] is [QueueTier.AUTOPLAY]. */
     val fromAutoplay: Boolean get() = queueTier == QueueTier.AUTOPLAY

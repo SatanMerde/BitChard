@@ -279,6 +279,53 @@ object BitChordIcons {
         }.build()
     }
 
+    val SmartShuffle: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "bc_smart_shuffle",
+            defaultWidth = 24.dp, defaultHeight = 24.dp,
+            viewportWidth = 24f, viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = stroke,
+                strokeLineWidth = STROKE,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+            ) {
+                // Strand that crosses downwards, with its arrow head
+                moveTo(3.4f, 7.4f); lineTo(7f, 7.4f); lineTo(16.6f, 16.6f); lineTo(20.6f, 16.6f)
+                moveTo(18.1f, 14.1f); lineTo(20.6f, 16.6f); lineTo(18.1f, 19.1f)
+                // Strand that crosses upwards, broken around the intersection
+                moveTo(3.4f, 16.6f); lineTo(7f, 16.6f); lineTo(9.8f, 13.9f)
+                moveTo(13.9f, 10.1f); lineTo(16.6f, 7.4f); lineTo(20.6f, 7.4f)
+                moveTo(18.1f, 4.9f); lineTo(20.6f, 7.4f); lineTo(18.1f, 9.9f)
+            }
+            // Top-left sparkle star
+            path(fill = stroke) {
+                moveTo(3.5f, 1.8f)
+                lineTo(4.1f, 3.2f)
+                lineTo(5.5f, 3.8f)
+                lineTo(4.1f, 4.4f)
+                lineTo(3.5f, 5.8f)
+                lineTo(2.9f, 4.4f)
+                lineTo(1.5f, 3.8f)
+                lineTo(2.9f, 3.2f)
+                close()
+            }
+            // Accent sparkle
+            path(fill = stroke) {
+                moveTo(11.5f, 2f)
+                lineTo(12f, 3f)
+                lineTo(13f, 3.5f)
+                lineTo(12f, 4f)
+                lineTo(11.5f, 5f)
+                lineTo(11f, 4f)
+                lineTo(10f, 3.5f)
+                lineTo(11f, 3f)
+                close()
+            }
+        }.build()
+    }
+
     val Repeat: ImageVector by lazy { repeatLoop("bc_repeat") }
 
     /**

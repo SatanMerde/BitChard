@@ -561,6 +561,7 @@ internal fun PlayerActionRow(
     lyricsOpen: Boolean,
     queueOpen: Boolean,
     shuffleEnabled: Boolean,
+    isSmartShuffle: Boolean = false,
     repeatMode: Int,
     autoplayEnabled: Boolean,
     onToggleLyrics: () -> Unit,
@@ -636,14 +637,17 @@ internal fun PlayerActionRow(
                     // Spaced the same as the output/party capsule, so the two
                     // read as one control growing a segment.
                     Pill {
+                        val shuffleIcon = if (isSmartShuffle) BitChordIcons.SmartShuffle else BitChordIcons.Shuffle
                         PillSegment(
-                            icon = BitChordIcons.Shuffle,
+                            icon = shuffleIcon,
                             contentDescription = stringResource(
-                                if (shuffleEnabled) Res.string.shuffle_on else Res.string.shuffle_off,
+                                if (isSmartShuffle) Res.string.smart_shuffle_on
+                                else if (shuffleEnabled) Res.string.shuffle_on
+                                else Res.string.shuffle_off,
                             ),
                             onClick = onToggleShuffle,
-                            highlighted = shuffleEnabled,
-                            haptic = if (shuffleEnabled) Haptic.ToggleOff else Haptic.ToggleOn,
+                            highlighted = shuffleEnabled || isSmartShuffle,
+                            haptic = if (shuffleEnabled || isSmartShuffle) Haptic.ToggleOn else Haptic.ToggleOff,
                             tapWindowMs = SHUFFLE_TAP_WINDOW_MS,
                         )
                         PillDivider()

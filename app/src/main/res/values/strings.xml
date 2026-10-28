@@ -1272,4 +1272,6 @@
     <string name="bitg_ai_desc" translatable="false">BitG analyzes your listening history over time to understand your musical DNA and generate custom DJ sets and spoken commentary.</string>
     <string name="local_favorites" translatable="false">Liked songs</string>
     <string name="local_favorites_subtitle" translatable="false">%1$d tracks saved locally</string>
+    <string name="smart_shuffle_on">Smart Shuffle on</string>
+    <string name="smart_recommendation_badge">Smart recommendation</string>
 </resources>
