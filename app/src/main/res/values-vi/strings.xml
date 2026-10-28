@@ -1281,4 +1281,9 @@
     <string name="song_info_unavailable">Không có thông tin</string>
     <string name="song_info_error">Không thể tải một số thông tin.</string>
     <string name="song_info_retry">Thử lại</string>
+
+    <string name="block_ai_content">Chặn nhạc do AI tạo</string>
+    <string name="block_ai_content_subtitle">Ẩn và tự động bỏ qua các bài hát, bản cover và nguồn tạo từ AI (Suno, Udio, giọng AI)</string>
+    <string name="smart_shuffle_on">Đã bật Trộn bài Thông minh</string>
+    <string name="smart_recommendation_badge">Gợi ý thông minh</string>
 </resources>

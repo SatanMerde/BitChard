@@ -1351,4 +1351,9 @@
     <string name="song_info_unavailable">暫無資訊</string>
     <string name="song_info_error">部分資訊無法載入。</string>
     <string name="song_info_retry">重試</string>
+
+    <string name="block_ai_content">封鎖 AI 生成音樂</string>
+    <string name="block_ai_content_subtitle">隱藏並自動略過 AI 歌曲、翻唱及生成內容 (Suno、Udio、AI 人聲)</string>
+    <string name="smart_shuffle_on">智慧隨機播放開啟</string>
+    <string name="smart_recommendation_badge">智慧推薦</string>
 </resources>

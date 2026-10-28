@@ -204,6 +204,27 @@ object QueueShuffle {
         if (c != null && !isCanonicalContextValid(player, c)) {
             clearCanonicalContext()
         }
+        if (_enabled.value) {
+            _shuffleMode.value = ShuffleMode.OFF
+            _enabled.value = false
+            _isSmartShuffle.value = false
+            AppSettings.setShuffleEnabled(false)
+            disableSmartShuffle(player)
+            restore(player)
+        } else {
+            _shuffleMode.value = ShuffleMode.ON
+            _enabled.value = true
+            _isSmartShuffle.value = false
+            AppSettings.setShuffleEnabled(true)
+            shuffle(player)
+        }
+    }
+
+    fun cycle(player: Player) {
+        val c = ctx
+        if (c != null && !isCanonicalContextValid(player, c)) {
+            clearCanonicalContext()
+        }
         when (_shuffleMode.value) {
             ShuffleMode.OFF -> {
                 _shuffleMode.value = ShuffleMode.ON
@@ -216,6 +237,7 @@ object QueueShuffle {
                 _shuffleMode.value = ShuffleMode.SMART
                 _enabled.value = true
                 _isSmartShuffle.value = true
+                AppSettings.setShuffleEnabled(true)
                 enableSmartShuffle(player)
             }
             ShuffleMode.SMART -> {

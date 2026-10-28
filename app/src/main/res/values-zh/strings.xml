@@ -1351,4 +1351,9 @@
     <string name="song_info_unavailable">暂无信息</string>
     <string name="song_info_error">部分信息无法加载。</string>
     <string name="song_info_retry">重试</string>
+
+    <string name="block_ai_content">屏蔽 AI 生成音乐</string>
+    <string name="block_ai_content_subtitle">隐藏并自动跳过 AI 歌曲、翻唱及生成内容 (Suno、Udio、AI 人声)</string>
+    <string name="smart_shuffle_on">智能随机播放开启</string>
+    <string name="smart_recommendation_badge">智能推荐</string>
 </resources>

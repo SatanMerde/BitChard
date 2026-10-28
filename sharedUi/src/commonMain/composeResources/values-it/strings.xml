@@ -200,4 +200,7 @@
     <string name="search_library_empty">Cerca i brani nella cartella Musica locale.</string>
     <string name="search_library_hint">Brani, artisti e album</string>
     <string name="search_library_no_results">Nulla in Musica locale corrisponde a «%1$s».</string>
+
+    <string name="smart_shuffle_on">Smart Shuffle attivo</string>
+    <string name="smart_recommendation_badge">Consiglio smart</string>
 </resources>

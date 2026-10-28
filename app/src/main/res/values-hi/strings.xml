@@ -1374,4 +1374,9 @@
     <string name="song_info_unavailable">उपलब्ध नहीं</string>
     <string name="song_info_error">कुछ जानकारी लोड नहीं हो सकी।</string>
     <string name="song_info_retry">फिर से कोशिश करें</string>
+
+    <string name="block_ai_content">AI द्वारा जनरेट संगीत ब्लॉक करें</string>
+    <string name="block_ai_content_subtitle">AI गानों, कवर्स और जनरेटर्स को छिपाएं और स्वचालित रूप से छोड़ें (Suno, Udio, AI वोकल्स)</string>
+    <string name="smart_shuffle_on">स्मार्ट शफ़ल चालू</string>
+    <string name="smart_recommendation_badge">स्मार्ट सिफारिश</string>
 </resources>

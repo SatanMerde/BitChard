@@ -1379,4 +1379,9 @@
     <string name="song_info_unavailable">לא זמין</string>
     <string name="song_info_error">לא ניתן לטעון חלק מהמידע.</string>
     <string name="song_info_retry">ניסיון חוזר</string>
+
+    <string name="block_ai_content">חסום מוזיקה שנוצרה על ידי AI</string>
+    <string name="block_ai_content_subtitle">הסתר ודלג אוטומטית על שירים וקאברים של AI (Suno, Udio, קולות AI)</string>
+    <string name="smart_shuffle_on">ערבוב חכם פועל</string>
+    <string name="smart_recommendation_badge">המלצה חכמה</string>
 </resources>

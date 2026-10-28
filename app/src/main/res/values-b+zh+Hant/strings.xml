@@ -1278,4 +1278,9 @@
     <string name="app_up_to_date">BitChard 已是最新版本 (v%1$s)</string>
     <string name="update_check_failed">無法檢查更新</string>
     <string name="allow_unknown_apps_to_update">請允許 BitChard 安裝應用程式以繼續更新</string>
+
+    <string name="block_ai_content">封鎖 AI 生成音樂</string>
+    <string name="block_ai_content_subtitle">隱藏並自動略過 AI 歌曲、翻唱及生成內容 (Suno、Udio、AI 人聲)</string>
+    <string name="smart_shuffle_on">智慧隨機播放開啟</string>
+    <string name="smart_recommendation_badge">智慧推薦</string>
 </resources>

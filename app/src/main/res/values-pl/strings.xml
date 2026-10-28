@@ -1414,4 +1414,9 @@
     <string name="song_info_unavailable">Niedostępne</string>
     <string name="song_info_error">Nie udało się wczytać części informacji.</string>
     <string name="song_info_retry">Spróbuj ponownie</string>
+
+    <string name="block_ai_content">Blokuj muzykę generowaną przez AI</string>
+    <string name="block_ai_content_subtitle">Ukrywaj i automatycznie pomijaj utwory, covery i generatory AI (Suno, Udio, wokale AI)</string>
+    <string name="smart_shuffle_on">Inteligentne losowanie włączone</string>
+    <string name="smart_recommendation_badge">Inteligentna rekomendacja</string>
 </resources>

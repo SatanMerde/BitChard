@@ -1346,4 +1346,9 @@
     <string name="song_info_unavailable">No disponible</string>
     <string name="song_info_error">No se pudo cargar parte de la información.</string>
     <string name="song_info_retry">Reintentar</string>
+
+    <string name="block_ai_content">Bloquear música generada por IA</string>
+    <string name="block_ai_content_subtitle">Ocultar y saltar automáticamente canciones, covers y generadores de IA (Suno, Udio, voces IA)</string>
+    <string name="smart_shuffle_on">Smart Shuffle activado</string>
+    <string name="smart_recommendation_badge">Recomendación inteligente</string>
 </resources>

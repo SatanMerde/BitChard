@@ -1406,4 +1406,9 @@
     <string name="song_info_unavailable">Недоступно</string>
     <string name="song_info_error">Не удалось загрузить часть информации.</string>
     <string name="song_info_retry">Повторить</string>
+
+    <string name="block_ai_content">Блокировать музыку, созданную ИИ</string>
+    <string name="block_ai_content_subtitle">Скрывать и пропускать треки, каверы и генераторы ИИ (Suno, Udio, ИИ-вокал)</string>
+    <string name="smart_shuffle_on">Умное перемешивание включено</string>
+    <string name="smart_recommendation_badge">Умная рекомендация</string>
 </resources>

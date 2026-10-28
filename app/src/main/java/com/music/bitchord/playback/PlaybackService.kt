@@ -990,7 +990,7 @@ class PlaybackService : MediaLibraryService() {
                     com.music.bitchord.data.AiContentFilter.isAiText(artist) ||
                     com.music.bitchord.data.AiContentFilter.isAiText(album)
                 ) {
-                    Log.i(TAG, "Skipping AI-generated track: $title by $artist")
+                    Log.i("PlaybackService", "Skipping AI-generated track: $title by $artist")
                     exoPlayer.seekToNextMediaItem()
                     return
                 }
@@ -2511,7 +2511,7 @@ class PlaybackService : MediaLibraryService() {
         // A stale canonical order would let turning shuffle off splice that
         // album back in whenever the party plays one of its tracks.
         if (ListenTogether.state.value.inParty) QueueShuffle.clearCanonicalContext()
-        player?.let(QueueShuffle::toggle)
+        player?.let(QueueShuffle::cycle)
         refreshCustomLayouts()
     }
 

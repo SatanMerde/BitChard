@@ -1351,4 +1351,9 @@
     <string name="song_info_unavailable">情報なし</string>
     <string name="song_info_error">一部の情報を読み込めませんでした。</string>
     <string name="song_info_retry">再試行</string>
+
+    <string name="block_ai_content">AI生成音楽をブロック</string>
+    <string name="block_ai_content_subtitle">AI楽曲、カバー、生成音源を非表示にして自動スキップ (Suno、Udio、AIボーカル)</string>
+    <string name="smart_shuffle_on">スマートシャッフル オン</string>
+    <string name="smart_recommendation_badge">スマートおすすめ</string>
 </resources>

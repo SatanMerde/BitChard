@@ -1331,4 +1331,9 @@
     <string name="app_up_to_date">BitChard güncel (v%1$s)</string>
     <string name="update_check_failed">Güncellemeler denetlenemedi</string>
     <string name="allow_unknown_apps_to_update">Güncellemeye devam etmek için lütfen BitChard\'ın uygulama yüklemesine izin verin</string>
+
+    <string name="block_ai_content">Yapay zeka müziklerini engelle</string>
+    <string name="block_ai_content_subtitle">YZ şarkılarını, cover\'larını ve oluşturucularını otomatik olarak gizle ve atla (Suno, Udio, YZ vokalleri)</string>
+    <string name="smart_shuffle_on">Akıllı Karışık Çalma açık</string>
+    <string name="smart_recommendation_badge">Akıllı öneri</string>
 </resources>

@@ -200,4 +200,7 @@
     <string name="search_library_empty">搜索本地音乐文件夹中的歌曲。</string>
     <string name="search_library_hint">歌曲、艺人和专辑</string>
     <string name="search_library_no_results">本地音乐中没有与「%1$s」匹配的内容。</string>
+
+    <string name="smart_shuffle_on">智能随机播放开启</string>
+    <string name="smart_recommendation_badge">智能推荐</string>
 </resources>

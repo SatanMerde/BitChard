@@ -1351,4 +1351,9 @@
     <string name="song_info_unavailable">Tidak tersedia</string>
     <string name="song_info_error">Sebagian informasi tidak dapat dimuat.</string>
     <string name="song_info_retry">Coba lagi</string>
+
+    <string name="block_ai_content">Blokir musik buatan AI</string>
+    <string name="block_ai_content_subtitle">Sembunyikan dan lewati otomatis lagu, cover, dan generator AI (Suno, Udio, vokal AI)</string>
+    <string name="smart_shuffle_on">Smart Shuffle aktif</string>
+    <string name="smart_recommendation_badge">Rekomendasi cerdas</string>
 </resources>
