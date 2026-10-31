@@ -28,6 +28,11 @@
 
 <br/><br/>
 
+<a href="https://fmhy.net/mobile#youtube-music" target="_blank" rel="noopener noreferrer"><img src="https://cdn.jsdelivr.net/gh/JMcrafter26/badges@main/src/assets/available/fmhy/cozy.svg" alt="Featured on FMHY" height="55"/></a>
+<a href="https://trendshift.io/repositories/177639?utm_source=repository-badge&amp;utm_medium=badge&amp;utm_campaign=badge-repository-177639" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/repositories/177639" alt="BitChard | Trendshift" width="250" height="55"/></a>
+
+<br/><br/>
+
 [**✨ What's Unique**](#-whats-unique-in-bitchard) • [**🤖 BitG AI DJ**](#-bitg--the-interactive-ai-dj) • [**🎤 Synced Lyrics**](#-apple-music-style-synced-lyrics) • [**🎛️ Audio Engine**](#%EF%B8%8F-audiophile--lossless-sound-engine) • [**📦 Playlists & Spotify**](#-100-editable-playlists--1-click-spotify-sync) • [**💻 Desktop & Multiplatform**](#-native-desktop--multiplatform-experience) • [**⚡ Downloads**](#-downloads--releases) • [**💬 Feedback & Issues**](#-community-feedback--support) • [**🛠️ Building**](#%EF%B8%8F-building-from-source)
 
 </div>
@@ -70,7 +75,8 @@
 
 ### 🎛️ Audiophile & Lossless Sound Engine
 - **Hi-Res Lossless 24-bit / 96kHz** (FLAC / ALAC) with intelligent automatic fallback to official YouTube Music audio streams.
-- **Harmonic Crossfade & Automix** : Fully customizable 0 to 12-second smooth crossfade with tempo and beat matching.
+- **Bit-perfect USB Exclusive Output** : Sends lossless audio streams directly to a USB DAC unchanged, at each track's native sample rate and bit depth.
+- **Harmonic Crossfade & Automix** : Fully customizable smooth crossfade with tempo and beat matching.
 - **10-Band Parametric Equalizer** with 32-bit floating-point audio processing pipeline.
 - **Smart Silence Trimming** & Customizable sleep timer (end of track or custom duration).
 
@@ -79,6 +85,7 @@
 
 ### 📦 100% Editable Playlists & 1-Click Spotify Sync
 - **Total Editing Freedom** : Rename playlists, reorder tracks via effortless drag-and-drop, and add or remove songs freely.
+- **Device & Offline Playlists** : Create and manage local offline playlists directly on device without needing an account.
 - **1-Click Spotify Batch Import** : Synchronize your entire Spotify library (all playlists and followed artists) into local storage or your YouTube Music account in one go.
 - **High-Precision Matching Algorithm** : Eliminates wrong covers, low-quality karaoke versions, and unwanted live remixes.
 
@@ -100,6 +107,7 @@
 - **Frosted Glassmorphism & Haze Blur** : High-performance dynamic glass blur effects across sheets and player views.
 - **Dynamic Material You Palette** : Application UI colors adapt in real time to the tones of the currently playing album artwork.
 - **Collapsible Volume Bar** : Option in *Settings → Appearance* to completely hide the player volume row for an ultra-clean layout.
+- **Stats for Nerds & Listen Together** : Codec, sample rate, bit depth, and party sync listening.
 
     </td>
   </tr>
