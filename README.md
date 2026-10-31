@@ -28,11 +28,6 @@
 
 <br/><br/>
 
-<a href="https://fmhy.net/mobile#youtube-music" target="_blank" rel="noopener noreferrer"><img src="https://cdn.jsdelivr.net/gh/JMcrafter26/badges@main/src/assets/available/fmhy/cozy.svg" alt="Featured on FMHY" height="55"/></a>
-<a href="https://trendshift.io/repositories/177639?utm_source=repository-badge&amp;utm_medium=badge&amp;utm_campaign=badge-repository-177639" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/repositories/177639" alt="BitChard | Trendshift" width="250" height="55"/></a>
-
-<br/><br/>
-
 [**✨ What's Unique**](#-whats-unique-in-bitchard) • [**🤖 BitG AI DJ**](#-bitg--the-interactive-ai-dj) • [**🎤 Synced Lyrics**](#-apple-music-style-synced-lyrics) • [**🎛️ Audio Engine**](#%EF%B8%8F-audiophile--lossless-sound-engine) • [**📦 Playlists & Spotify**](#-100-editable-playlists--1-click-spotify-sync) • [**💻 Desktop & Multiplatform**](#-native-desktop--multiplatform-experience) • [**⚡ Downloads**](#-downloads--releases) • [**💬 Feedback & Issues**](#-community-feedback--support) • [**🛠️ Building**](#%EF%B8%8F-building-from-source)
 
 </div>
