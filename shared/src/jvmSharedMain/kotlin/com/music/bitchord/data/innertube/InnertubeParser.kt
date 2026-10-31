@@ -820,7 +820,6 @@ object InnertubeParser {
                     .o("durationText").runs(),
             ),
             isExplicit = renderer.hasExplicitBadge(),
-            playCount = playCount,
         )
     }
 

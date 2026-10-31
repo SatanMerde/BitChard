@@ -1136,7 +1136,6 @@ private fun BitChordApp(
     }
     val shuffleEnabled by QueueShuffle.enabled.collectAsStateWithLifecycle()
     val isSmartShuffle by QueueShuffle.isSmartShuffle.collectAsStateWithLifecycle()
-    val preferMusicOnly by AppSettings.preferMusicOnly.collectAsStateWithLifecycle()
     // For the version switch's "there is no other version" notice.
     val versionContext = LocalContext.current
     // Tracks whose other cut a switch looked for and didn't find: their menu

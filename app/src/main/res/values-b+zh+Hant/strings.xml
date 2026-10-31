@@ -1049,7 +1049,6 @@
     <string name="smart_version_alignment_subtitle">分析音訊波形，精確匹配對應的播放時刻</string>
 
 
-    <string name="equalizer_footer">Shapes the sound inside BitChord， before it reaches the system.</string>
     <string name="equalizer_footer">Shapes the sound inside BitChard, before it reaches the system.</string>
 
     <string name="equalizer_dynamic">Dynamic</string>
@@ -1094,7 +1093,6 @@
     <string name="system_equalizer_subtitle">Your device\'s own panel</string>
 
 
-    <string name="system_equalizer_footer">Runs after BitChord\'s， on the whole audio session. Using both applies both.</string>
     <string name="system_equalizer_footer">Runs after BitChard\'s, on the whole audio session. Using both applies both.</string>
 
     <string name="eq_preset_flat">Flat</string>
@@ -1427,4 +1425,73 @@
     <string name="block_ai_content_subtitle">隱藏並自動略過 AI 歌曲、翻唱及生成內容 (Suno、Udio、AI 人聲)</string>
     <string name="smart_shuffle_on">智慧隨機播放開啟</string>
     <string name="smart_recommendation_badge">智慧推薦</string>
+    <string name="ai_dj_active_badge">DJ ACTIVE</string>
+    <string name="ai_dj_card_subtitle">Spotify-like DJ with live spoken commentary &amp; dynamic mix</string>
+    <string name="ai_dj_card_title">AI DJ — BitChard</string>
+    <string name="ai_dj_control">Open DJ Controls</string>
+    <string name="ai_dj_start">Launch AI DJ</string>
+    <string name="ai_dj_stop">Stop DJ Session</string>
+    <string name="ai_dj_switch_vibe">Switch Vibe</string>
+    <string name="ai_dj_title">BitChard AI DJ</string>
+    <string name="app_icon_liquid_glass">Liquid Glass</string>
+    <string name="app_icon_liquid_glass_clear">Liquid Glass Clear</string>
+    <string name="app_icon_liquid_glass_clear_dark">Liquid Glass Clear Dark</string>
+    <string name="app_icon_liquid_glass_dark">Liquid Glass Dark</string>
+    <string name="app_icon_monochrome">Monochrome</string>
+    <string name="app_icon_neon_cyan">Neon Cyan</string>
+    <string name="app_icon_neon_silver">Neon Silver</string>
+    <string name="app_icon_neon_violet">Neon Violet</string>
+    <string name="app_icon_pixel_glass">Pixel Glass</string>
+    <string name="app_icon_pixel_glass_clear">Pixel Glass Clear</string>
+    <string name="app_icon_pixel_glass_clear_dark">Pixel Glass Clear Dark</string>
+    <string name="app_icon_pixel_glass_dark">Pixel Glass Dark</string>
+    <string name="app_icon_pixel_neon_cyan">Pixel Neon Cyan</string>
+    <string name="app_icon_pixel_neon_silver">Pixel Neon Silver</string>
+    <string name="app_icon_pixel_neon_violet">Pixel Neon Violet</string>
+    <string name="app_icon_samsung_glass">Samsung Glass</string>
+    <string name="app_icon_samsung_glass_clear">Samsung Glass Clear</string>
+    <string name="app_icon_samsung_glass_clear_dark">Samsung Glass Clear Dark</string>
+    <string name="app_icon_samsung_glass_dark">Samsung Glass Dark</string>
+    <string name="app_icon_samsung_neon_cyan">Samsung Neon Cyan</string>
+    <string name="app_icon_samsung_neon_silver">Samsung Neon Silver</string>
+    <string name="app_icon_samsung_neon_violet">Samsung Neon Violet</string>
+    <string name="bitg_ai_activate">⚡ Enable Real AI (API Key)</string>
+    <string name="bitg_ai_active">Real AI Active</string>
+    <string name="bitg_ai_desc">BitG analyzes your listening history over time to understand your musical DNA and generate custom DJ sets and spoken commentary.</string>
+    <string name="bitg_ai_provider">AI Provider</string>
+    <string name="bitg_ai_section_title">AI Brain (LLM)</string>
+    <string name="bitg_ai_test">Test AI Connection</string>
+    <string name="bitg_ai_test_error">Connection failed: %1$s</string>
+    <string name="bitg_ai_test_success">Connection successful! BitG is ready.</string>
+    <string name="bitg_ai_testing">Testing connection...</string>
+    <string name="bitg_api_key">API Key</string>
+    <string name="bitg_api_key_hint">Enter or paste your API key</string>
+    <string name="bitg_custom_endpoint">Custom Endpoint URL</string>
+    <string name="bitg_custom_model">Model Name (optional)</string>
+    <string name="bitg_language">BitG Voice Language</string>
+    <string name="bitg_prompt_hint">Ask BitG anything (e.g. 80s rock, chill rap)...</string>
+    <string name="bitg_prompt_send">Ask</string>
+    <string name="bitg_prompt_speak">Speak to BitG</string>
+    <string name="bitg_settings_title">BitG Settings</string>
+    <string name="bitg_voice_enabled">Spoken Commentary</string>
+    <string name="bitg_voice_enabled_subtitle">BitG speaks live to introduce music sessions</string>
+    <string name="bitg_voice_pitch">Voice Pitch</string>
+    <string name="bitg_voice_speed">Speech Speed</string>
+    <string name="local_favorites">Liked songs</string>
+    <string name="local_favorites_subtitle">%1$d tracks saved locally</string>
+    <string name="pipeline_pcm_data_rate">PCM Data Rate</string>
+    <string name="search_source_youtube">YouTube</string>
+    <string name="spotify_batch_import_artists">Import followed artists</string>
+    <string name="spotify_batch_import_button">Import All</string>
+    <string name="spotify_batch_import_card_subtitle">Import all playlists and followed artists</string>
+    <string name="spotify_batch_import_card_title">Batch Import</string>
+    <string name="spotify_batch_import_dialog_title">Import from Spotify</string>
+    <string name="spotify_batch_import_done">Import completed!</string>
+    <string name="spotify_batch_import_playlists">Import playlists (%1$d)</string>
+    <string name="spotify_batch_import_save_local">Save to BitChard (Local playlists)</string>
+    <string name="spotify_batch_import_save_ytm">Save to YouTube Music account</string>
+    <string name="spotify_batch_import_start">Start Import</string>
+    <string name="spotify_batch_import_summary">%1$d playlists and %2$d artists imported</string>
+    <string name="spotify_import_language_hint">e.g. Punjabi, Marathi, Korean…</string>
+    <string name="spotify_import_language_preference">Language preference</string>
 </resources>

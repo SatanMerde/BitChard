@@ -65,8 +65,7 @@ import com.music.bitchord.playback.dj.BitgAiService
 import com.music.bitchord.ui.theme.SFProDisplay
 import kotlinx.coroutines.launch
 
-private val BitgViolet = Color(0xFF8A2BE2)
-private val BitgNeonCyan = Color(0xFF00D2FF)
+private val BitgCyanAccent = Color(0xFF00D2FF)
 private val BitgSurface = Color(0xFF151520)
 private val BitgBorder = Color(0x30FFFFFF)
 
@@ -116,7 +115,7 @@ fun BitgAiConfigDialog(
                 Icon(
                     imageVector = Icons.Rounded.AutoAwesome,
                     contentDescription = null,
-                    tint = BitgNeonCyan,
+                    tint = BitgCyanAccent,
                     modifier = Modifier.size(24.dp),
                 )
                 Spacer(Modifier.width(10.dp))
@@ -172,10 +171,10 @@ fun BitgAiConfigDialog(
                         val isSelected = selectedProvider == opt.id
                         Surface(
                             shape = RoundedCornerShape(16.dp),
-                            color = if (isSelected) BitgViolet else Color(0xFF1E1E2A),
+                            color = if (isSelected) BitgCyanAccent.copy(alpha = 0.2f) else Color(0xFF191922),
                             border = BorderStroke(
                                 1.dp,
-                                if (isSelected) BitgNeonCyan.copy(alpha = 0.8f) else Color.White.copy(alpha = 0.08f),
+                                if (isSelected) BitgCyanAccent.copy(alpha = 0.8f) else Color.White.copy(alpha = 0.08f),
                             ),
                             modifier = Modifier
                                 .clip(RoundedCornerShape(16.dp))
@@ -234,13 +233,13 @@ fun BitgAiConfigDialog(
                         Icon(
                             imageVector = Icons.Rounded.ContentPaste,
                             contentDescription = null,
-                            tint = BitgNeonCyan,
+                            tint = BitgCyanAccent,
                             modifier = Modifier.size(16.dp),
                         )
                         Spacer(Modifier.width(4.dp))
                         Text(
                             text = "Coller",
-                            color = BitgNeonCyan,
+                            color = BitgCyanAccent,
                             style = MaterialTheme.typography.labelMedium.copy(
                                 fontFamily = SFProDisplay,
                                 fontWeight = FontWeight.Bold,
@@ -299,7 +298,7 @@ fun BitgAiConfigDialog(
                         unfocusedContainerColor = BitgSurface,
                         focusedTextColor = Color.White,
                         unfocusedTextColor = Color.White,
-                        focusedBorderColor = BitgNeonCyan,
+                        focusedBorderColor = BitgCyanAccent,
                         unfocusedBorderColor = BitgBorder,
                     ),
                 )
@@ -327,7 +326,7 @@ fun BitgAiConfigDialog(
                             ) {
                                 Text(
                                     text = "Réinitialiser",
-                                    color = BitgNeonCyan,
+                                    color = BitgCyanAccent,
                                     style = MaterialTheme.typography.labelSmall.copy(fontFamily = SFProDisplay),
                                 )
                             }
@@ -350,10 +349,10 @@ fun BitgAiConfigDialog(
                                 (mId.isNotEmpty() && customModelText == mId)
                             Surface(
                                 shape = RoundedCornerShape(12.dp),
-                                color = if (isSelected) BitgViolet else Color(0xFF1E1E2A),
+                                color = if (isSelected) BitgCyanAccent.copy(alpha = 0.2f) else Color(0xFF191922),
                                 border = BorderStroke(
                                     1.dp,
-                                    if (isSelected) BitgNeonCyan.copy(alpha = 0.8f) else Color.White.copy(alpha = 0.08f),
+                                    if (isSelected) BitgCyanAccent.copy(alpha = 0.8f) else Color.White.copy(alpha = 0.08f),
                                 ),
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(12.dp))
@@ -402,7 +401,7 @@ fun BitgAiConfigDialog(
                             unfocusedContainerColor = BitgSurface,
                             focusedTextColor = Color.White,
                             unfocusedTextColor = Color.White,
-                            focusedBorderColor = BitgNeonCyan,
+                            focusedBorderColor = BitgCyanAccent,
                             unfocusedBorderColor = BitgBorder,
                         ),
                     )
@@ -431,7 +430,7 @@ fun BitgAiConfigDialog(
                             unfocusedContainerColor = BitgSurface,
                             focusedTextColor = Color.White,
                             unfocusedTextColor = Color.White,
-                            focusedBorderColor = BitgNeonCyan,
+                            focusedBorderColor = BitgCyanAccent,
                             unfocusedBorderColor = BitgBorder,
                         ),
                     )
@@ -468,12 +467,12 @@ fun BitgAiConfigDialog(
                     enabled = !isTesting && apiKeyText.isNotBlank(),
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    border = BorderStroke(1.dp, if (testSuccess) Color(0xFF00E676) else BitgNeonCyan.copy(alpha = 0.6f)),
+                    border = BorderStroke(1.dp, if (testSuccess) Color(0xFF00E676) else BitgCyanAccent.copy(alpha = 0.6f)),
                 ) {
                     if (isTesting) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(16.dp),
-                            color = BitgNeonCyan,
+                            color = BitgCyanAccent,
                             strokeWidth = 2.dp,
                         )
                         Spacer(Modifier.width(8.dp))
@@ -485,7 +484,7 @@ fun BitgAiConfigDialog(
                     } else {
                         Text(
                             text = stringResource(R.string.bitg_ai_test),
-                            color = BitgNeonCyan,
+                            color = BitgCyanAccent,
                             fontFamily = SFProDisplay,
                             fontWeight = FontWeight.Bold,
                         )
@@ -535,7 +534,7 @@ fun BitgAiConfigDialog(
                     onDismiss()
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = BitgViolet,
+                    containerColor = BitgCyanAccent,
                     contentColor = Color.White,
                 ),
                 shape = RoundedCornerShape(16.dp),

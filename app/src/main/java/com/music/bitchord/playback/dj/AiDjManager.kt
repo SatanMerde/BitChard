@@ -463,87 +463,222 @@ object AiDjManager {
         val trimmed = prompt.trim()
         if (trimmed.isEmpty()) {
             return ParsedDjPrompt(
-                cleanSubject = "Mix",
-                searchQuery = "Top hits",
-                spokenText = if (isFrench) "C'est parti pour une sélection sur mesure !" else "Let's roll with a custom mix!",
+                cleanSubject = if (isFrench) "Mix BitG" else "BitG Mix",
+                searchQuery = "Top hits mix",
+                spokenText = if (isFrench) {
+                    "Installe-toi confortablement, je te cale une sélection affûtée aux petits oignons."
+                } else {
+                    "Sit back and relax, I've got a fresh, handpicked mix lined up for you."
+                },
             )
         }
 
-        var subject = trimmed
+        val lower = trimmed.lowercase(Locale.ROOT)
 
         if (isFrench) {
-            // Remove conversational politeness & trailing filler
-            subject = subject.replace(Regex("(?i)\\b(s'il te plaît|s'il vous plaît|svp|merci|stp)\\b"), "").trim()
+            return when {
+                Regex("\\b(chill|calme|detente|détente|repos|pose|posé|relax|doux|tranquille|zen|apaisant|acoustique)\\b").containsMatchIn(lower) -> {
+                    val phrases = listOf(
+                        "On baisse la lumière et on pose le tempo. Ambiance feutrée au programme, détends-toi.",
+                        "Sélection douce et épurée au programme. Parfait pour décompresser en douceur.",
+                        "On passe en mode ultra-chill. Laisse-toi porter par le groove."
+                    )
+                    ParsedDjPrompt("Chill & Détente", "Acoustic chill lo-fi relax", phrases.random())
+                }
+                Regex("\\b(focus|travail|code|coder|etude|étude|etudier|étudier|revision|révision|reviser|réviser|boulot|concentration|concentrer|taffer|taf)\\b").containsMatchIn(lower) -> {
+                    val phrases = listOf(
+                        "Mode concentration activé. Des sonorités fluides et immersives pour rester dans ta bulle.",
+                        "Casque sur les oreilles, focus total. On enchaîne avec des rythmes hypnotiques.",
+                        "Sélection fluide et sans accroc pour avancer efficacement. C'est parti."
+                    )
+                    ParsedDjPrompt("Deep Focus", "Deep focus instrumental beats study", phrases.random())
+                }
+                Regex("\\b(energie|énergie|sport|workout|salle|fitness|muscu|musculation|motive|motivé|motivation|boost|intense|pep|pêche)\\b").containsMatchIn(lower) -> {
+                    val phrases = listOf(
+                        "On monte le volume d'un cran ! Des basses percutantes et un rythme survolté pour tout donner.",
+                        "Plein gaz ! On part sur un set à haute intensité, pas le temps de faiblir.",
+                        "Gros kicks et tempo survolté pour garder le rythme. Let's go !"
+                    )
+                    ParsedDjPrompt("Énergie Pure", "Workout motivation high energy gym hits", phrases.random())
+                }
+                Regex("\\b(soiree|soirée|fete|fête|party|danse|danser|club|banger|ambiance|festif)\\b").containsMatchIn(lower) -> {
+                    val phrases = listOf(
+                        "Ambiance festive activée ! On balance les hits qui font bouger, monte le son !",
+                        "C'est l'heure de faire monter la température avec des gros bangers.",
+                        "Grosse sélection taillée pour la fête, installe-toi bien !"
+                    )
+                    ParsedDjPrompt("Club & Fête", "Party dance floor club bangers hits", phrases.random())
+                }
+                Regex("\\b(rap|hip hop|hip-hop|trap|drill|kick|flow|urbain)\\b").containsMatchIn(lower) -> {
+                    val phrases = listOf(
+                        "Place aux grosses basses et aux punchlines aiguisées. Monte le son dans le casque.",
+                        "On enchaîne avec du flow tranchant et des prods bien sombres.",
+                        "Du gros son bien kické droit dans les écouteurs. C'est carré."
+                    )
+                    ParsedDjPrompt("Rap & Flow", "Rap français bangers flow", phrases.random())
+                }
+                Regex("\\b(rock|metal|métal|guitare|punk|grunge|indie rock|hard rock)\\b").containsMatchIn(lower) -> {
+                    val phrases = listOf(
+                        "Des riffs bien incisifs et de l'énergie brute au programme. Fais vibrer les enceintes !",
+                        "Distorsion généreuse et batterie qui tape fort. En avant le rock !",
+                        "Guitares électriques affûtées et refrains puissants, monte le son !"
+                    )
+                    ParsedDjPrompt("Rock & Riffs", "Modern rock classics alternative guitars", phrases.random())
+                }
+                Regex("\\b(electro|électro|techno|house|synth|synthwave|edm|clubbing)\\b").containsMatchIn(lower) -> {
+                    val phrases = listOf(
+                        "BPM calé et transitions millimétrées. On part sur un set électronique bien soigné.",
+                        "Lignes de basse hypnotiques et nappes spatiales au rendez-vous. Bonne écoute.",
+                        "On passe en club avec un mix électronique bien rond et enveloppant."
+                    )
+                    ParsedDjPrompt("Electro & Synth", "Electronic house synthwave club mix", phrases.random())
+                }
+                Regex("\\b(nostalgie|retro|rétro|80s|90s|2000s|vintage|old school|classique|souvenir)\\b").containsMatchIn(lower) -> {
+                    val phrases = listOf(
+                        "Petit saut dans le temps avec des classiques intemporels. Savoure le voyage.",
+                        "Que des pépites d'époque qui n'ont pas pris une ride. Souvenirs garantis.",
+                        "Retour aux fondamentaux avec des morceaux légendaires. Monte les watts !"
+                    )
+                    ParsedDjPrompt("Flashback Rétro", "Retro 80s 90s nostalgia classics hits", phrases.random())
+                }
+                else -> {
+                    var subject = trimmed
+                    subject = subject.replace(Regex("(?i)\\b(s'il te plaît|s'il vous plaît|svp|merci|stp)\\b"), "").trim()
+                    val frTriggers = listOf(
+                        Regex("^(est-ce que tu peux( me)?|peux-tu( me)?|peux tu( me)?|tu peux( me)?)\\s+(mettre|lancer|balancer|jouer|passer)\\s+", RegexOption.IGNORE_CASE),
+                        Regex("^(je voudrais( bien)?|j'aimerais( bien)?|je veux( bien)?|j'ai envie d'écouter|j'ai envie de|je souhaite)\\s+", RegexOption.IGNORE_CASE),
+                        Regex("^(mets-moi|mets moi|mets-nous|mets nous|mets|balance-moi|balance moi|balance|lance-moi|lance moi|lance|joue-moi|joue moi|joue|fais péter|fais peter|fais tourner|passe-moi|passe moi|passe|écoute|écouter)\\s+", RegexOption.IGNORE_CASE),
+                    )
+                    for (trigger in frTriggers) {
+                        subject = trigger.replace(subject, "").trim()
+                    }
+                    val frArticles = Regex("^(du |de la |de l'|des |d'|un peu de |le |la |les |l')", RegexOption.IGNORE_CASE)
+                    subject = frArticles.replace(subject, "").trim()
+                    subject = subject.trimEnd('.', '!', '?', ',', ';').trim()
 
-            // Remove leading trigger phrases
-            val frTriggers = listOf(
-                Regex("^(est-ce que tu peux( me)?|peux-tu( me)?|peux tu( me)?|tu peux( me)?)\\s+(mettre|lancer|balancer|jouer|passer)\\s+", RegexOption.IGNORE_CASE),
-                Regex("^(je voudrais( bien)?|j'aimerais( bien)?|je veux( bien)?|j'ai envie d'écouter|j'ai envie de|je souhaite)\\s+", RegexOption.IGNORE_CASE),
-                Regex("^(mets-moi|mets moi|mets-nous|mets nous|mets|balance-moi|balance moi|balance|lance-moi|lance moi|lance|joue-moi|joue moi|joue|fais péter|fais peter|fais tourner|passe-moi|passe moi|passe|écoute|écouter)\\s+", RegexOption.IGNORE_CASE),
-            )
-            for (trigger in frTriggers) {
-                subject = trigger.replace(subject, "").trim()
+                    if (subject.isBlank()) {
+                        return ParsedDjPrompt(
+                            cleanSubject = "Mix BitG",
+                            searchQuery = "Top hits mix",
+                            spokenText = "C'est parti pour une sélection calibrée avec soin, bonne écoute !",
+                        )
+                    }
+
+                    val displaySubject = subject.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+                    val phrases = listOf(
+                        "Excellente pioche ! On se cale sur l'univers de $displaySubject avec une sélection au top.",
+                        "Très bon choix. Des sonorités taillées autour de $displaySubject, monte le volume.",
+                        "C'est noté ! On part sur l'ambiance de $displaySubject et les pépites qui gravitent autour."
+                    )
+                    ParsedDjPrompt(
+                        cleanSubject = displaySubject,
+                        searchQuery = displaySubject,
+                        spokenText = phrases.random(),
+                    )
+                }
             }
-
-            // Remove leading partitives / articles
-            val frArticles = Regex("^(du |de la |de l'|des |d'|un peu de |le |la |les |l')", RegexOption.IGNORE_CASE)
-            val withoutArticle = frArticles.replace(subject, "").trim()
-            if (withoutArticle.isNotBlank()) {
-                subject = withoutArticle
-            }
-
-            subject = subject.trimEnd('.', '!', '?', ',', ';').trim()
-            val displaySubject = subject.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-
-            val frPhrases = listOf(
-                "Ça roule ! Je te balance du $displaySubject, monte le son !",
-                "C'est parti pour une session $displaySubject, installe-toi bien !",
-                "Reçu 5 sur 5 ! Place à $displaySubject tout de suite.",
-                "Excellente idée ! Je te cale du $displaySubject, fais péter les watts !",
-                "Et voici du $displaySubject rien que pour toi, bonne écoute !",
-                "Tout de suite dans les oreilles : du bon $displaySubject, monte le volume !"
-            )
-            val spoken = frPhrases.random()
-
-            return ParsedDjPrompt(
-                cleanSubject = displaySubject,
-                searchQuery = displaySubject,
-                spokenText = spoken,
-            )
         } else {
-            subject = subject.replace(Regex("(?i)\\b(please|thanks|thank you)\\b"), "").trim()
+            return when {
+                Regex("\\b(chill|calm|relax|relaxing|sleep|peaceful|soft|acoustic|lofi|lo-fi)\\b").containsMatchIn(lower) -> {
+                    val phrases = listOf(
+                        "Dimming the lights and slowing down the tempo. Pure laid-back vibes ahead, enjoy.",
+                        "Smooth and mellow cuts coming right up. Time to unwind.",
+                        "Slipping into ultra-chill mode. Just let the music carry you."
+                    )
+                    ParsedDjPrompt("Chill & Mellow", "Acoustic chill lo-fi relax", phrases.random())
+                }
+                Regex("\\b(focus|work|study|code|coding|homework|concentration|brain)\\b").containsMatchIn(lower) -> {
+                    val phrases = listOf(
+                        "Focus mode engaged. Immersive sonic textures to keep you locked in.",
+                        "Headphones on, zero distractions. Hypnotic rhythms rolling your way.",
+                        "Smooth, distraction-free soundscapes lined up for deep productivity."
+                    )
+                    ParsedDjPrompt("Deep Focus", "Deep focus instrumental beats study", phrases.random())
+                }
+                Regex("\\b(energy|energetic|workout|gym|fitness|pump|hype|intense|motivation)\\b").containsMatchIn(lower) -> {
+                    val phrases = listOf(
+                        "Cranking the volume up! Heavy punchy kicks to keep your adrenaline high.",
+                        "Full throttle! High-intensity sound straight through the speakers.",
+                        "Peak power mode activated. Let's keep the momentum rolling!"
+                    )
+                    ParsedDjPrompt("Pure Energy", "Workout motivation high energy gym hits", phrases.random())
+                }
+                Regex("\\b(party|dance|dancing|club|banger|bangers|vibes|fun)\\b").containsMatchIn(lower) -> {
+                    val phrases = listOf(
+                        "Party mode on! Dropping infectious grooves that move the room.",
+                        "Time to turn up the heat with undeniable dance floor anthems.",
+                        "Curated specifically for good times and big energy. Enjoy!"
+                    )
+                    ParsedDjPrompt("Club & Party", "Party dance floor club bangers hits", phrases.random())
+                }
+                Regex("\\b(rap|hip hop|hip-hop|trap|drill|bars|flow)\\b").containsMatchIn(lower) -> {
+                    val phrases = listOf(
+                        "Heavy low end and sharp lyricism on deck. Turn this all the way up.",
+                        "Rolling with crisp cadence and cinematic production. Nothing but heat.",
+                        "Bumping classic beats and relentless flow right into your ears."
+                    )
+                    ParsedDjPrompt("Rap & Flow", "Hip hop rap bangers flow", phrases.random())
+                }
+                Regex("\\b(rock|metal|guitar|punk|grunge|indie|hard rock)\\b").containsMatchIn(lower) -> {
+                    val phrases = listOf(
+                        "Distorted riffs and raw electric drive lined up. Crank those speakers!",
+                        "Heavy drums and commanding guitar work ahead. Let's rock.",
+                        "Sharp guitars and anthemic hooks coming through right now."
+                    )
+                    ParsedDjPrompt("Rock & Riffs", "Modern rock classics alternative guitars", phrases.random())
+                }
+                Regex("\\b(electro|electronic|techno|house|synth|synthwave|edm)\\b").containsMatchIn(lower) -> {
+                    val phrases = listOf(
+                        "Locked-in BPM and atmospheric synths. Taking flight with a fresh electronic set.",
+                        "Hypnotic basslines and driving percussion right on schedule.",
+                        "Club vibrations and crisp synth melodies headed your way."
+                    )
+                    ParsedDjPrompt("Electro & Synth", "Electronic house synthwave club mix", phrases.random())
+                }
+                Regex("\\b(nostalgia|retro|80s|90s|2000s|vintage|oldies|throwback)\\b").containsMatchIn(lower) -> {
+                    val phrases = listOf(
+                        "Taking a trip back in time with timeless essentials. Savor the ride.",
+                        "Classic records that never lost an ounce of their magic. Enjoy the memories.",
+                        "Pure nostalgia queued up. Turn up the classics!"
+                    )
+                    ParsedDjPrompt("Retro Flashback", "Retro 80s 90s nostalgia classics hits", phrases.random())
+                }
+                else -> {
+                    var subject = trimmed
+                    subject = subject.replace(Regex("(?i)\\b(please|thanks|thank you)\\b"), "").trim()
+                    val enTriggers = listOf(
+                        Regex("^(could you( please)?|can you( please)?|would you( please)?)\\s+(play|put on|spin|blast)\\s+", RegexOption.IGNORE_CASE),
+                        Regex("^(i'd like( to hear| some)?|i want( to listen to| to hear| some)?|i feel like listening to)\\s+", RegexOption.IGNORE_CASE),
+                        Regex("^(play( me)?|put on|blast|spin|give me)\\s+", RegexOption.IGNORE_CASE),
+                    )
+                    for (trigger in enTriggers) {
+                        subject = trigger.replace(subject, "").trim()
+                    }
+                    val enArticles = Regex("^(some |the |a |an )", RegexOption.IGNORE_CASE)
+                    subject = enArticles.replace(subject, "").trim()
+                    subject = subject.trimEnd('.', '!', '?', ',', ';').trim()
 
-            val enTriggers = listOf(
-                Regex("^(could you( please)?|can you( please)?|would you( please)?)\\s+(play|put on|spin|blast)\\s+", RegexOption.IGNORE_CASE),
-                Regex("^(i'd like( to hear| some)?|i want( to listen to| to hear| some)?|i feel like listening to)\\s+", RegexOption.IGNORE_CASE),
-                Regex("^(play( me)?|put on|blast|spin|give me)\\s+", RegexOption.IGNORE_CASE),
-            )
-            for (trigger in enTriggers) {
-                subject = trigger.replace(subject, "").trim()
+                    if (subject.isBlank()) {
+                        return ParsedDjPrompt(
+                            cleanSubject = "BitG Mix",
+                            searchQuery = "Top hits mix",
+                            spokenText = "Rolling with a fresh curated set. Turn it up and enjoy!",
+                        )
+                    }
+
+                    val displaySubject = subject.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+                    val phrases = listOf(
+                        "Great pick! Diving into the sonic world of $displaySubject with top-tier cuts.",
+                        "Excellent selection. Centering our run around $displaySubject, turn it up.",
+                        "Locked in! Exploring $displaySubject and stellar tracks in the exact same lane."
+                    )
+                    ParsedDjPrompt(
+                        cleanSubject = displaySubject,
+                        searchQuery = displaySubject,
+                        spokenText = phrases.random(),
+                    )
+                }
             }
-
-            val enArticles = Regex("^(some |the |a |an )", RegexOption.IGNORE_CASE)
-            val withoutArticle = enArticles.replace(subject, "").trim()
-            if (withoutArticle.isNotBlank()) {
-                subject = withoutArticle
-            }
-
-            subject = subject.trimEnd('.', '!', '?', ',', ';').trim()
-            val displaySubject = subject.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-
-            val enPhrases = listOf(
-                "You got it! Spinning some $displaySubject for you right now, turn it up!",
-                "Great choice! Here comes a fresh $displaySubject session, enjoy!",
-                "Say no more! Queueing up $displaySubject, let's ride!",
-                "Right on! Dropping some $displaySubject into the mix for you!"
-            )
-            val spoken = enPhrases.random()
-
-            return ParsedDjPrompt(
-                cleanSubject = displaySubject,
-                searchQuery = displaySubject,
-                spokenText = spoken,
-            )
         }
     }
 
@@ -663,7 +798,8 @@ object AiDjManager {
         }.getOrNull().orEmpty()
 
         if (tracks.isNotEmpty()) {
-            return@withContext tracks.take(15)
+            val filtered = if (AppSettings.blockAiContent.value) tracks.filterNot { it.isAiGenerated() } else tracks
+            if (filtered.isNotEmpty()) return@withContext filtered.take(15)
         }
 
         val videos = runCatching {

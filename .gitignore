@@ -36,6 +36,8 @@ keystore.properties
 *.keystore
 !ci/bitchard-release.jks
 
+bin/
+*/bin/
 # Project scratch / debug artifacts
 .shots/
 .tmp_verify/
