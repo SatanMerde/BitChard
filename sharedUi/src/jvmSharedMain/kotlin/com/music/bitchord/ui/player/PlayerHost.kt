@@ -66,6 +66,8 @@ interface PlayerHost {
     /** Holds the picture at [height] from now on, or lets it choose with null. Remembered. */
     fun setMusicVideoQuality(height: Int?) = Unit
 
+    fun isVideoExplicit(videoId: String): Boolean = false
+
     /**
      * Artwork for [song], resolving covers that live inside a remote file
      * (WebDAV, SMB) where the platform can. Returns [Song.thumbnailUrl] otherwise.
@@ -183,7 +185,8 @@ internal fun videoQualityLabel(height: Int): String = when {
 
 /** Whether [song]'s picture can be shown here — a music video, on a platform that plays one. */
 internal fun showsMusicVideo(song: Song): Boolean =
-    song.isVideo && PlayerPlatform.host.musicVideoSupported
+    song.isVideo && PlayerPlatform.host.musicVideoSupported &&
+        (!PlayerSettings.preferMusicOnly.value || PlayerPlatform.host.isVideoExplicit(song.videoId))
 
 /** @see PlayerHost.MusicVideo */
 @Composable
@@ -248,6 +251,7 @@ interface PlayerSettingsSource {
     val meteredConnection: StateFlow<Boolean?>
     /** A temporary cap over both ceilings, null when none applies — the watch's, on the phone. */
     val streamCeilingOverride: StateFlow<AudioQuality?>
+    val preferMusicOnly: StateFlow<Boolean>
     val preferUsbDac: StateFlow<Boolean>
     val prioritizeSpotifyCanvas: StateFlow<Boolean>
     val reduceAnimation: StateFlow<Boolean>

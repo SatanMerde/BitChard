@@ -1416,4 +1416,6 @@
     <string name="block_ai_content_subtitle">Ocultar y saltar automáticamente canciones, covers y generadores de IA (Suno, Udio, voces IA)</string>
     <string name="smart_shuffle_on">Smart Shuffle activado</string>
     <string name="smart_recommendation_badge">Recomendación inteligente</string>
+    <string name="prefer_music_only">Prefer music-only version</string>
+    <string name="prefer_music_only_subtitle">For music videos, show the video details while finding and loading the catalogue audio version</string>
 </resources>

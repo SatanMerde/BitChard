@@ -1468,4 +1468,6 @@
     <string name="bit_perfect_status_unavailable">Indisponible pour ce morceau (%1$s)</string>
     <string name="smart_shuffle_on">Lecture intelligente activée</string>
     <string name="smart_recommendation_badge">Recommandé pour cette playlist</string>
+    <string name="prefer_music_only">Préférer la version audio</string>
+    <string name="prefer_music_only_subtitle">Lire la piste audio officielle et la pochette plutôt que le clip vidéo</string>
 </resources>

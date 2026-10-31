@@ -202,6 +202,7 @@ internal object DesktopPlayerSettings : PlayerSettingsSource {
 
     // A desktop is never on a metered link as far as this app can tell.
     override val meteredConnection = MutableStateFlow<Boolean?>(false)
+    override val preferMusicOnly = MutableStateFlow(true)
     override val preferUsbDac = MutableStateFlow(false)
     override val prioritizeSpotifyCanvas = MutableStateFlow(false)
     override val reduceAnimation = MutableStateFlow(false)

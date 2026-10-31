@@ -1401,4 +1401,6 @@
     <string name="block_ai_content_subtitle">YZ şarkılarını, cover\'larını ve oluşturucularını otomatik olarak gizle ve atla (Suno, Udio, YZ vokalleri)</string>
     <string name="smart_shuffle_on">Akıllı Karışık Çalma açık</string>
     <string name="smart_recommendation_badge">Akıllı öneri</string>
+    <string name="prefer_music_only">Yalnızca müzik sürümünü tercih et</string>
+    <string name="prefer_music_only_subtitle">Müzik videolarında, katalogdaki ses sürümü bulunup yüklenirken video ayrıntılarını gösterir</string>
 </resources>

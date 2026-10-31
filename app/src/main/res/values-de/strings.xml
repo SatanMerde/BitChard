@@ -1444,4 +1444,6 @@
     <string name="block_ai_content_subtitle">KI-Songs, Cover und Generatoren automatisch ausblenden und überspringen (Suno, Udio, KI-Stimmen)</string>
     <string name="smart_shuffle_on">Smart Shuffle ein</string>
     <string name="smart_recommendation_badge">Smarte Empfehlung</string>
+    <string name="prefer_music_only">Prefer music-only version</string>
+    <string name="prefer_music_only_subtitle">For music videos, show the video details while finding and loading the catalogue audio version</string>
 </resources>

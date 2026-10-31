@@ -1349,4 +1349,6 @@
     <string name="spotify_import_language_hint">e.g. Punjabi, Marathi, Korean…</string>
     <string name="spotify_import_language_preference">Language preference</string>
     <string name="update_check_failed">업데이트 확인 실패</string>
+    <string name="prefer_music_only">음악 전용 버전 선호</string>
+    <string name="prefer_music_only_subtitle">뮤직 비디오의 경우 카탈로그 오디오 버전을 검색하여 로드합니다</string>
 </resources>

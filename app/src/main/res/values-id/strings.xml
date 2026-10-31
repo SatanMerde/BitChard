@@ -1421,4 +1421,6 @@
     <string name="block_ai_content_subtitle">Sembunyikan dan lewati otomatis lagu, cover, dan generator AI (Suno, Udio, vokal AI)</string>
     <string name="smart_shuffle_on">Smart Shuffle aktif</string>
     <string name="smart_recommendation_badge">Rekomendasi cerdas</string>
+    <string name="prefer_music_only">Prefer music-only version</string>
+    <string name="prefer_music_only_subtitle">For music videos, show the video details while finding and loading the catalogue audio version</string>
 </resources>

@@ -1494,4 +1494,6 @@
     <string name="spotify_batch_import_summary">%1$d playlists and %2$d artists imported</string>
     <string name="spotify_import_language_hint">e.g. Punjabi, Marathi, Korean…</string>
     <string name="spotify_import_language_preference">Language preference</string>
+    <string name="prefer_music_only">Prefer music-only version</string>
+    <string name="prefer_music_only_subtitle">For music videos, show the video details while finding and loading the catalogue audio version</string>
 </resources>

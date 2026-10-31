@@ -1423,4 +1423,6 @@
     <string name="block_ai_content_subtitle">AI楽曲、カバー、生成音源を非表示にして自動スキップ (Suno、Udio、AIボーカル)</string>
     <string name="smart_shuffle_on">スマートシャッフル オン</string>
     <string name="smart_recommendation_badge">スマートおすすめ</string>
+    <string name="prefer_music_only">Prefer music-only version</string>
+    <string name="prefer_music_only_subtitle">For music videos, show the video details while finding and loading the catalogue audio version</string>
 </resources>

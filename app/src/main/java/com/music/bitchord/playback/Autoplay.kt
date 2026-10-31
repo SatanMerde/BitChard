@@ -1,5 +1,7 @@
 package com.music.bitchord.playback
 
+import com.music.bitchord.data.settings.AppSettings
+
 import com.music.bitchord.data.YtMusicRepository
 import com.music.bitchord.data.listentogether.ListenTogether
 import com.music.bitchord.data.model.SearchFilter
@@ -103,7 +105,7 @@ suspend fun loadAutoplayTracks(
 ): Result<List<Song>> {
     val seed = youtubeSeedFor(seedSong) ?: return Result.success(emptyList())
     // A music video plays on with music videos, as YouTube Music does.
-    val videos = seedSong.isVideo && seed == seedSong.videoId
+    val videos = seedSong.isVideo && seed == seedSong.videoId && !AppSettings.preferMusicOnly.value
     val related = YtMusicRepository.radio(seed, preferVideo = videos).getOrElse { return Result.failure(it) }
     val extra = QueueBuilder.extend(existing, related, limit, preferVideos = videos)
     if (extra.isEmpty()) return Result.success(emptyList())

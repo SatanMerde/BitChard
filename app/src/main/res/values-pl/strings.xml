@@ -1484,4 +1484,6 @@
     <string name="block_ai_content_subtitle">Ukrywaj i automatycznie pomijaj utwory, covery i generatory AI (Suno, Udio, wokale AI)</string>
     <string name="smart_shuffle_on">Inteligentne losowanie włączone</string>
     <string name="smart_recommendation_badge">Inteligentna rekomendacja</string>
+    <string name="prefer_music_only">Preferuj wersję muzyczną</string>
+    <string name="prefer_music_only_subtitle">Dla teledysków pokazuje szczegóły wideo podczas wyszukiwania i ładowania wersji audio z katalogu</string>
 </resources>

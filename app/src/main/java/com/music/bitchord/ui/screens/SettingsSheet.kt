@@ -41,6 +41,7 @@ import androidx.compose.material.icons.automirrored.rounded.VolumeOff
 import androidx.compose.material.icons.automirrored.rounded.VolumeUp
 import com.music.bitchord.playback.dj.AiDjManager
 import androidx.compose.material.icons.rounded.Animation
+import androidx.compose.material.icons.rounded.SmartDisplay
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.BarChart
 import androidx.compose.material.icons.rounded.AutoAwesome
@@ -243,6 +244,7 @@ fun SettingsScreen(
     val metered by AppSettings.meteredConnection.collectAsStateWithLifecycle()
     val crossfade by AppSettings.crossfadeSeconds.collectAsStateWithLifecycle()
     val smartFade by AppSettings.smartFadeEnabled.collectAsStateWithLifecycle()
+    val preferMusicOnly by AppSettings.preferMusicOnly.collectAsStateWithLifecycle()
     val automixPerformance by AppSettings.automixPerformanceMode.collectAsStateWithLifecycle()
     val skipSilence by AppSettings.skipSilence.collectAsStateWithLifecycle()
     val dolbyAtmos by AppSettings.dolbyAtmos.collectAsStateWithLifecycle()
@@ -660,6 +662,21 @@ fun SettingsScreen(
             header = stringResource(R.string.playback),
             footer = stringResource(R.string.bit_perfect_bypassed_footer).takeIf { bitPerfectReady },
         ) {
+            val preferMusicOnlyTitle = stringResource(R.string.prefer_music_only)
+            row(preferMusicOnlyTitle, "video", "audio", "music video", "clip") {
+                SettingsRow(
+                    icon = Icons.Rounded.SmartDisplay,
+                    title = preferMusicOnlyTitle,
+                    subtitle = stringResource(R.string.prefer_music_only_subtitle),
+                    trailing = {
+                        IosSwitch(
+                            checked = preferMusicOnly,
+                            onCheckedChange = AppSettings::setPreferMusicOnly,
+                        )
+                    },
+                    onClick = { AppSettings.setPreferMusicOnly(!preferMusicOnly) },
+                )
+            }
             val outputPrecisionTitle = stringResource(R.string.output_precision)
             row(outputPrecisionTitle, "pcm", "bit depth", "sample rate", "dac") {
                 SettingsRow(

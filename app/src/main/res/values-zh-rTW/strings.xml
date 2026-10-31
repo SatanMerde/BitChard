@@ -1423,4 +1423,6 @@
     <string name="block_ai_content_subtitle">隱藏並自動略過 AI 歌曲、翻唱及生成內容 (Suno、Udio、AI 人聲)</string>
     <string name="smart_shuffle_on">智慧隨機播放開啟</string>
     <string name="smart_recommendation_badge">智慧推薦</string>
+    <string name="prefer_music_only">Prefer music-only version</string>
+    <string name="prefer_music_only_subtitle">For music videos, show the video details while finding and loading the catalogue audio version</string>
 </resources>

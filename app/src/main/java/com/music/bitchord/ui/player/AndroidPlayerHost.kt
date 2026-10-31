@@ -75,6 +75,7 @@ class AndroidPlayerHost(context: Context) : PlayerHost {
         override val lyricsSourceOrder get() = AppSettings.lyricsSourceOrder
         override val meteredConnection get() = AppSettings.meteredConnection
         override val streamCeilingOverride get() = AppSettings.streamCeilingOverride
+        override val preferMusicOnly get() = AppSettings.preferMusicOnly
         override val preferUsbDac get() = AppSettings.preferUsbDac
         override val prioritizeSpotifyCanvas get() = AppSettings.prioritizeSpotifyCanvas
         override val reduceAnimation get() = AppSettings.reduceAnimation
@@ -116,6 +117,13 @@ class AndroidPlayerHost(context: Context) : PlayerHost {
     override val musicVideoQuality: StateFlow<MusicVideoQualityUi> get() = MusicVideoEngine.quality
 
     override fun setMusicVideoQuality(height: Int?) = MusicVideoEngine.setQuality(height)
+
+    companion object {
+        @Volatile
+        var explicitVideoId: String? = null
+    }
+
+    override fun isVideoExplicit(videoId: String): Boolean = videoId == explicitVideoId
 
     @Composable
     override fun rememberRemoteArtworkUrl(song: Song?): String? =

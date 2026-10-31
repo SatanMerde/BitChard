@@ -1476,4 +1476,6 @@
     <string name="block_ai_content_subtitle">Скрывать и пропускать треки, каверы и генераторы ИИ (Suno, Udio, ИИ-вокал)</string>
     <string name="smart_shuffle_on">Умное перемешивание включено</string>
     <string name="smart_recommendation_badge">Умная рекомендация</string>
+    <string name="prefer_music_only">Prefer music-only version</string>
+    <string name="prefer_music_only_subtitle">For music videos, show the video details while finding and loading the catalogue audio version</string>
 </resources>

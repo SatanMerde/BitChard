@@ -309,6 +309,7 @@ import com.music.bitchord.data.model.TopPickMood
 import com.music.bitchord.ui.screens.MoodGridPage
 import com.music.bitchord.ui.player.NowPlayingScreen
 import com.music.bitchord.ui.player.MusicVideoEngine
+import com.music.bitchord.ui.player.AndroidPlayerHost
 import com.music.bitchord.ui.player.PlayerSheetMotion
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.draw.drawBehind
@@ -1136,6 +1137,7 @@ private fun BitChordApp(
     }
     val shuffleEnabled by QueueShuffle.enabled.collectAsStateWithLifecycle()
     val isSmartShuffle by QueueShuffle.isSmartShuffle.collectAsStateWithLifecycle()
+    val preferMusicOnly by AppSettings.preferMusicOnly.collectAsStateWithLifecycle()
     // For the version switch's "there is no other version" notice.
     val versionContext = LocalContext.current
     // Tracks whose other cut a switch looked for and didn't find: their menu
@@ -1587,6 +1589,20 @@ private fun BitChordApp(
             convertedFromAudio = null
             convertedVideoId = null
             switchingAudioVersion = false
+        }
+    }
+
+    LaunchedEffect(player.song?.videoId, keepVideoId, convertedVideoId) {
+        AndroidPlayerHost.explicitVideoId = keepVideoId ?: convertedVideoId
+    }
+
+    // Start with the video MediaItem so the main player is populated at once,
+    // then resolve its catalogue counterpart behind the loading indicators.
+    // A failed/identical match simply resumes this untouched video.
+    LaunchedEffect(player.song?.videoId, preferMusicOnly) {
+        val song = player.song ?: return@LaunchedEffect
+        if (preferMusicOnly && song.isVideo && song.videoId != keepVideoId && song.videoId != convertedVideoId) {
+            switchToMusicOnly(song, pauseWhileResolving = true)
         }
     }
 

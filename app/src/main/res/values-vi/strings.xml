@@ -1351,4 +1351,6 @@
     <string name="block_ai_content_subtitle">Ẩn và tự động bỏ qua các bài hát, bản cover và nguồn tạo từ AI (Suno, Udio, giọng AI)</string>
     <string name="smart_shuffle_on">Đã bật Trộn bài Thông minh</string>
     <string name="smart_recommendation_badge">Gợi ý thông minh</string>
+    <string name="prefer_music_only">Prefer music-only version</string>
+    <string name="prefer_music_only_subtitle">For music videos, show the video details while finding and loading the catalogue audio version</string>
 </resources>
