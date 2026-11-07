@@ -1400,8 +1400,6 @@
     <string name="block_ai_content_subtitle">ซ่อนและข้ามเพลง คัฟเวอร์ และเครื่องกำเนิด AI โดยอัตโนมัติ (Suno, Udio, เสียง AI)</string>
     <string name="smart_shuffle_on">เปิดการสุ่มอัจฉริยะ</string>
     <string name="smart_recommendation_badge">คำแนะนำอัจฉริยะ</string>
-    <string name="prefer_music_only">Prefer music-only version</string>
-    <string name="prefer_music_only_subtitle">For music videos, show the video details while finding and loading the catalogue audio version</string>
 
 <string name="automix_overview">Automix overview</string>
     <string name="diwali_title">BitChard wishes you a Happy Diwali</string>

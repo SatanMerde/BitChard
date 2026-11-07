@@ -1381,8 +1381,6 @@
     <string name="local_favorites_subtitle" translatable="false">%1$d tracks saved locally</string>
     <string name="smart_shuffle_on">Smart Shuffle on</string>
     <string name="smart_recommendation_badge">Smart recommendation</string>
-    <string name="prefer_music_only">Prefer audio version</string>
-    <string name="prefer_music_only_subtitle">Play official audio and artwork instead of music videos</string>
     <string name="diwali_title">BitChard wishes you a Happy Diwali</string>
     <string name="diwali_subtitle">May this festival of lights fill your home with joy and your days with music.</string>
     <string name="diwali_cta">Let\'s Celebrate</string>

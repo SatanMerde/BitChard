@@ -4163,33 +4163,6 @@ fun NowPlayingScreen(
                         transport()
                         Spacer(Modifier.height(run / 2 + lift))
                     }
-                        Spacer(Modifier.height(12.dp + controlSpread / 2))
-                        VolumeRow(
-                            value = { volume.level.value },
-                            onValueChange = onVolumeChange,
-                            onValueChangeFinished = onVolumeChangeFinished,
-                        )
-<<<<<<< HEAD
-                        Spacer(Modifier.height(6.dp))
-=======
-                        // The volume slider already has 13dp below its drawn track.
-                        // Balance that invisible inset with the caption gap below the icons.
-                        Spacer(Modifier.height(6.dp))
-                    } else {
-                        // No volume bar: the transport centres itself in the whole run
-                        // between the scrubber and the bottom row instead. The run is
-                        // exactly as tall as with the bar, so the half-player's height
-                        // never depends on the setting — only where the transport sits.
-                        // The scrubber draws its times 9dp above their slot, which
-                        // leaves that much more visible room above; half of it moves
-                        // from the top gap to the bottom one.
-                        val run = 8.dp + 12.dp + 6.dp + controlSpread + VOLUME_ROW_HEIGHT
-                        val lift = SCRUBBER_LABEL_LIFT / 2
-                        Spacer(Modifier.height(run / 2 - lift))
-                        transport()
-                        Spacer(Modifier.height(run / 2 + lift))
->>>>>>> upstream/main
-                    }
 
                     playerActions()
                     Spacer(Modifier.height(18.dp))
