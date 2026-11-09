@@ -177,7 +177,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-14
+          - os: macos-latest
             arch: arm64
     runs-on: ${{ matrix.os }}
     steps:

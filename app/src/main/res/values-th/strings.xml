@@ -1097,8 +1097,6 @@
 
     <string name="blur_unfocused_lyrics_subtitle">Keeps the spotlight on the current line</string>
 
-    <string name="advanced_options">Advanced options</string>
-
     <string name="lyrics_debug_logs">Lyrics debug logs</string>
 
     <string name="lyrics_debug_logs_subtitle">Show live API queries and scraper activity in the lyrics panel</string>
